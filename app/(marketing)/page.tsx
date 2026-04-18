@@ -8,7 +8,7 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto px-4 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Shield className="h-6 w-6 text-primary" />
-            <span className="font-bold text-lg">HackLearn</span>
+            <span className="font-bold text-lg">Viare</span>
           </div>
           <div className="flex items-center gap-4">
             <Link href="/courses" className="text-sm text-muted-foreground hover:text-foreground">

@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "HackLearn — Aprenda Kali Linux & Cybersecurity",
+  title: "Viare — Aprenda Kali Linux & Cybersecurity",
   description: "Plataforma interativa para aprender Kali Linux e Cybersecurity com labs CTF, projetos guiados e gamificação.",
 };
 

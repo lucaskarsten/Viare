@@ -1,5 +1,8 @@
 import Link from "next/link";
-import { BookOpen, Home, LayoutDashboard, Shield, User } from "lucide-react";
+import { BookOpen, Flame, LayoutDashboard, User } from "lucide-react";
+import { auth } from "@/auth";
+import { db } from "@/lib/db";
+import { Shield } from "lucide-react";
 
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -7,13 +10,22 @@ const navItems = [
   { href: "/profile", label: "Perfil", icon: User },
 ];
 
-export default function Sidebar() {
+export default async function Sidebar() {
+  const session = await auth();
+  const userId = session?.user?.id;
+
+  const streak = userId
+    ? await db.userStreak.findUnique({ where: { userId } })
+    : null;
+
+  const currentStreak = streak?.currentStreak ?? 0;
+
   return (
     <aside className="w-64 border-r bg-card flex flex-col">
       <div className="p-6 border-b">
         <Link href="/dashboard" className="flex items-center gap-2">
           <Shield className="h-6 w-6 text-primary" />
-          <span className="font-bold text-lg">HackLearn</span>
+          <span className="font-bold text-lg">Viare</span>
         </Link>
       </div>
 
@@ -32,8 +44,15 @@ export default function Sidebar() {
 
       <div className="p-4 border-t">
         <div className="rounded-md bg-muted p-3 text-xs text-muted-foreground">
-          <p className="font-medium text-foreground">🔥 Streak</p>
-          <p className="mt-1">0 dias seguidos</p>
+          <p className="font-medium text-foreground flex items-center gap-1.5">
+            <Flame className="h-3.5 w-3.5 text-orange-500" />
+            Streak
+          </p>
+          <p className="mt-1">
+            {currentStreak > 0
+              ? `${currentStreak} dia${currentStreak !== 1 ? "s" : ""} seguidos 🔥`
+              : "Comece hoje!"}
+          </p>
         </div>
       </div>
     </aside>

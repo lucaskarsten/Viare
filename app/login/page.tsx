@@ -13,7 +13,7 @@ export default function LoginPage({
           <div className="flex justify-center">
             <Shield className="h-10 w-10 text-primary" />
           </div>
-          <h1 className="text-2xl font-bold">HackLearn</h1>
+          <h1 className="text-2xl font-bold">Viare</h1>
           <p className="text-sm text-muted-foreground">
             Aprenda Kali Linux e Cybersecurity na prática
           </p>
