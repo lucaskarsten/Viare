@@ -1,0 +1,69 @@
+{
+  "project": "Plataforma de Aprendizado — Kali Linux & Cybersecurity",
+  "phase": "Fase 1 — Fundação",
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "Setup Next.js 15 com TypeScript, Tailwind e shadcn/ui",
+      "passes": false,
+      "acceptanceCriteria": [
+        "Projeto Next.js 15 criado em /home/lucas/Projects/Kali com App Router e TypeScript",
+        "tailwind.config.ts configurado com tema customizado (cores de cybersecurity: dark, green accent)",
+        "shadcn/ui inicializado com componentes: Button, Card, Badge, Avatar, Separator, Input, Label",
+        "next.config.ts sem erros de TypeScript",
+        "`npm run build` conclui sem erros"
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "Schema Prisma completo com todas as entidades do MVP",
+      "passes": false,
+      "acceptanceCriteria": [
+        "prisma/schema.prisma contém modelos: User, Course, Track, Module, Lesson, UserProgress, Lab, QuizQuestion, ProjectStep, Achievement, UserAchievement, UserStreak, Subscription",
+        "Todos os relacionamentos (1:N, N:M) estão corretos e com foreign keys",
+        "`npx prisma validate` passa sem erros",
+        "`npx prisma generate` gera o Prisma Client sem erros",
+        "Arquivo lib/db.ts exporta o singleton do Prisma Client"
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "Auth.js v5 configurado com Google, GitHub e Credentials",
+      "passes": false,
+      "acceptanceCriteria": [
+        "auth.ts na raiz configura NextAuth v5 com providers: Google, GitHub, Credentials",
+        "Prisma Adapter conectado ao Auth.js para persistir sessões e usuários no banco",
+        "Rota /api/auth/[...nextauth]/route.ts presente e exporta handlers GET e POST",
+        "middleware.ts protege rotas /dashboard e /learn com redirecionamento para /login",
+        "Tipos de sessão estendidos com role (student | admin) via module augmentation",
+        "Variáveis de ambiente documentadas em .env.example: AUTH_SECRET, AUTH_GOOGLE_ID, AUTH_GOOGLE_SECRET, AUTH_GITHUB_ID, AUTH_GITHUB_SECRET, DATABASE_URL"
+      ]
+    },
+    {
+      "id": "US-004",
+      "title": "Layout base: sidebar, header e dashboard shell",
+      "passes": false,
+      "acceptanceCriteria": [
+        "app/(platform)/layout.tsx contém Sidebar + Header com slot para conteúdo",
+        "Sidebar exibe: logo, links de navegação (Dashboard, Cursos, Perfil), streak widget placeholder",
+        "Header exibe: breadcrumb dinâmico, avatar do usuário com dropdown (Perfil, Configurações, Sair)",
+        "app/(platform)/dashboard/page.tsx renderiza welcome message com nome do usuário da sessão",
+        "app/(marketing)/page.tsx é uma landing page mínima com CTA 'Começar grátis' linkando para /login",
+        "app/login/page.tsx exibe botões de login (Google, GitHub) e formulário email/senha",
+        "Todos os layouts compilam sem erros de TypeScript"
+      ]
+    },
+    {
+      "id": "US-005",
+      "title": "Configuração Vercel e variáveis de ambiente",
+      "passes": false,
+      "acceptanceCriteria": [
+        ".env.example documenta todas as variáveis necessárias com comentários explicativos",
+        ".env.local criado com valores placeholder (não commitado no .gitignore)",
+        ".gitignore inclui .env, .env.local, .env*.local",
+        "vercel.json ou next.config.ts contém configuração mínima de deploy",
+        "README.md contém instruções de setup local (clone, install, env, prisma generate, dev)"
+      ]
+    }
+  ]
+}

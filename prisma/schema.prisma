@@ -1,0 +1,302 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─── Auth.js required models ───────────────────────────────────────────────
+
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  role          Role      @default(STUDENT)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  accounts      Account[]
+  sessions      Session[]
+  progress      UserProgress[]
+  achievements  UserAchievement[]
+  streak        UserStreak?
+  subscription  Subscription?
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// ─── Course hierarchy ──────────────────────────────────────────────────────
+
+model Course {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  title       String
+  description String   @db.Text
+  image       String?
+  isPremium   Boolean  @default(false)
+  published   Boolean  @default(false)
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tracks Track[]
+}
+
+model Track {
+  id          String   @id @default(cuid())
+  courseId    String
+  slug        String
+  title       String
+  description String?  @db.Text
+  order       Int      @default(0)
+  isPremium   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  course  Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  modules Module[]
+
+  @@unique([courseId, slug])
+}
+
+model Module {
+  id          String   @id @default(cuid())
+  trackId     String
+  slug        String
+  title       String
+  description String?  @db.Text
+  order       Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  track   Track    @relation(fields: [trackId], references: [id], onDelete: Cascade)
+  lessons Lesson[]
+
+  @@unique([trackId, slug])
+}
+
+model Lesson {
+  id          String      @id @default(cuid())
+  moduleId    String
+  slug        String
+  title       String
+  type        LessonType
+  isPremium   Boolean     @default(false)
+  order       Int         @default(0)
+  mdxPath     String?     // path to MDX file for theory lessons
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  module        Module         @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  progress      UserProgress[]
+  quizQuestions QuizQuestion[]
+  lab           Lab?
+  projectSteps  ProjectStep[]
+
+  @@unique([moduleId, slug])
+}
+
+// ─── Lesson content types ──────────────────────────────────────────────────
+
+model QuizQuestion {
+  id           String   @id @default(cuid())
+  lessonId     String
+  question     String   @db.Text
+  options      Json     // string[]
+  correctIndex Int
+  explanation  String   @db.Text
+  order        Int      @default(0)
+  createdAt    DateTime @default(now())
+
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+}
+
+model Lab {
+  id          String   @id @default(cuid())
+  lessonId    String   @unique
+  title       String
+  description String   @db.Text
+  scenario    String   @db.Text
+  objectives  Json     // string[]
+  hints       Json     // { text: string, cost: number }[]
+  flagHash    String   // bcrypt hash of the flag
+  difficulty  Difficulty @default(MEDIUM)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+}
+
+model ProjectStep {
+  id             String         @id @default(cuid())
+  lessonId       String
+  title          String
+  description    String         @db.Text
+  order          Int            @default(0)
+  completionType CompletionType @default(MANUAL)
+  createdAt      DateTime       @default(now())
+
+  lesson   Lesson               @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  progress ProjectStepProgress[]
+}
+
+// ─── Progress & gamification ───────────────────────────────────────────────
+
+model UserProgress {
+  id          String         @id @default(cuid())
+  userId      String
+  lessonId    String
+  status      ProgressStatus @default(NOT_STARTED)
+  completedAt DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
+}
+
+model ProjectStepProgress {
+  id          String   @id @default(cuid())
+  userId      String
+  stepId      String
+  completedAt DateTime @default(now())
+
+  step ProjectStep @relation(fields: [stepId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, stepId])
+}
+
+model Achievement {
+  id           String   @id @default(cuid())
+  slug         String   @unique
+  title        String
+  description  String
+  icon         String
+  triggerEvent String
+  createdAt    DateTime @default(now())
+
+  userAchievements UserAchievement[]
+}
+
+model UserAchievement {
+  id            String   @id @default(cuid())
+  userId        String
+  achievementId String
+  unlockedAt    DateTime @default(now())
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  achievement Achievement @relation(fields: [achievementId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, achievementId])
+}
+
+model UserStreak {
+  id             String   @id @default(cuid())
+  userId         String   @unique
+  currentStreak  Int      @default(0)
+  longestStreak  Int      @default(0)
+  lastActiveDate DateTime?
+  updatedAt      DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ─── Subscription / billing ────────────────────────────────────────────────
+
+model Subscription {
+  id                 String             @id @default(cuid())
+  userId             String             @unique
+  stripeCustomerId   String             @unique
+  stripeSubId        String?            @unique
+  plan               SubscriptionPlan   @default(FREE)
+  status             SubscriptionStatus @default(INACTIVE)
+  validUntil         DateTime?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ─── Enums ─────────────────────────────────────────────────────────────────
+
+enum Role {
+  STUDENT
+  ADMIN
+}
+
+enum LessonType {
+  THEORY
+  QUIZ
+  LAB
+  PROJECT
+}
+
+enum ProgressStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum Difficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum CompletionType {
+  MANUAL
+  AUTO
+}
+
+enum SubscriptionPlan {
+  FREE
+  MONTHLY
+  ANNUAL
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  INACTIVE
+  CANCELLED
+  PAST_DUE
+}

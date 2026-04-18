@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"npx create-next-app@latest . --typescript --tailwind --eslint --app --src-dir=false --import-alias=\\\"@/*\\\" --use-npm 2>&1\",\"timeout\":120000,\"description\":\"Initialize Next.js 15 project wit...",
+  "error": "Exit code 1\nnpm warn exec The following package was not found and will be installed: create-next-app@16.2.4\nCould not create a project called \"Kali\" because of npm naming restrictions:\n    * name can no longer contain capital letters",
+  "timestamp": "2026-04-18T19:48:57.422Z",
+  "retry_count": 1
+}
