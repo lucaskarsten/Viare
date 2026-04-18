@@ -3,6 +3,7 @@ import Link from "next/link";
 import { auth } from "@/auth";
 import { db } from "@/lib/db";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import ReactMarkdown from "react-markdown";
 import QuizLesson from "./QuizLesson";
 import MarkCompleteButton from "./MarkCompleteButton";
 
@@ -86,7 +87,7 @@ export default async function LessonPage({ params }: { params: Params }) {
           ) : (
             <article className="prose prose-sm max-w-none dark:prose-invert">
               {lesson.content ? (
-                <MarkdownContent content={lesson.content} />
+                <ReactMarkdown>{lesson.content}</ReactMarkdown>
               ) : (
                 <p className="text-muted-foreground">Conteúdo ainda não disponível.</p>
               )}
@@ -133,25 +134,5 @@ export default async function LessonPage({ params }: { params: Params }) {
         </div>
       </div>
     </div>
-  );
-}
-
-function MarkdownContent({ content }: { content: string }) {
-  // Render markdown as HTML using basic transformations
-  // For production, replace with a proper MDX/markdown renderer
-  const lines = content.split("\n");
-  return (
-    <>
-      {lines.map((line, i) => {
-        if (line.startsWith("### ")) return <h3 key={i}>{line.slice(4)}</h3>;
-        if (line.startsWith("## ")) return <h2 key={i}>{line.slice(3)}</h2>;
-        if (line.startsWith("# ")) return <h1 key={i}>{line.slice(2)}</h1>;
-        if (line.startsWith("- ") || line.startsWith("* "))
-          return <li key={i}>{line.slice(2)}</li>;
-        if (line.startsWith("```")) return <hr key={i} className="my-2 border-dashed" />;
-        if (line.trim() === "") return <br key={i} />;
-        return <p key={i}>{line}</p>;
-      })}
-    </>
   );
 }
