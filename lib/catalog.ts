@@ -52,6 +52,8 @@ export function topicToCategory(topic: string): string {
   return TOPIC_CATEGORY_MAP[normalized] ?? "tech";
 }
 
+export const PLATFORM_LANGUAGES = 8;
+
 const ACCENT_COLORS = [
   "#4f7cac", "#5a9e6f", "#c46b3a", "#8b5cf6",
   "#e56b6f", "#3a86a8", "#b8a06e", "#6a5a8a",
@@ -60,6 +62,23 @@ const ACCENT_COLORS = [
 export function courseAccentColor(id: string): string {
   const sum = id.split("").reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
   return ACCENT_COLORS[sum % ACCENT_COLORS.length];
+}
+
+const ACCENT_GRADIENTS: [string, string][] = [
+  ["#3d6490", "#4f7cac"],
+  ["#447a56", "#5a9e6f"],
+  ["#9e5128", "#c46b3a"],
+  ["#6d44c4", "#8b5cf6"],
+  ["#b84f53", "#e56b6f"],
+  ["#2d6884", "#3a86a8"],
+  ["#8e7a50", "#b8a06e"],
+  ["#52446a", "#6a5a8a"],
+];
+
+export function courseAccentGradient(id: string): string {
+  const sum = id.split("").reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
+  const [dark, light] = ACCENT_GRADIENTS[sum % ACCENT_GRADIENTS.length];
+  return `linear-gradient(135deg, ${dark} 0%, ${light} 100%)`;
 }
 
 export function formatLearners(n: number): string {

@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { PLATFORM_LANGUAGES } from "@/lib/catalog";
 import CatalogClient from "./CatalogClient";
 
 export default async function CoursesPage() {
@@ -30,7 +31,7 @@ export default async function CoursesPage() {
 
   return (
     <div className="flex flex-col gap-14 pb-20">
-      <CatalogClient courses={courses} />
+      <CatalogClient courses={courses} languageCount={PLATFORM_LANGUAGES} />
     </div>
   );
 }

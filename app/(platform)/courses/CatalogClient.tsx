@@ -3,7 +3,7 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import {
-  courseAccentColor,
+  courseAccentGradient,
   formatLearners,
   formatDuration,
   displayLetter,
@@ -31,7 +31,7 @@ type AdaptedCourse = DbCourse & {
 
 const CATEGORIES = [
   { id: "all", label: "Todos", title: "", desc: "" },
-  { id: "tech", label: "Tech", title: "Tecnologia & engenharia", desc: "Da primeira linha de código a machine learning. Cursos práticos, projetos reais, sem enrolação." },
+  { id: "tech", label: "Tecnologia", title: "Tecnologia & engenharia", desc: "Da primeira linha de código a machine learning. Cursos práticos, projetos reais, sem enrolação." },
   { id: "lang", label: "Línguas", title: "Línguas", desc: "Fale desde o primeiro dia. Cada curso vem com várias versões de língua-fonte." },
   { id: "music", label: "Música", title: "Música", desc: "Do primeiro acorde à teoria que você sente. Exemplos em áudio em todas as aulas." },
   { id: "craft", label: "Cozinha & ofícios", title: "Cozinha & ofícios", desc: "Física e técnica antes da receita. Coisas que você faz com as mãos." },
@@ -47,14 +47,14 @@ function adaptCourse(c: DbCourse): AdaptedCourse {
   return {
     ...c,
     cat: c.category.toLowerCase(),
-    color: courseAccentColor(c.id),
+    color: courseAccentGradient(c.id),
     letter: displayLetter(c.title),
     learnersStr: formatLearners(c.totalEnrollments),
     durationStr: formatDuration(c.estimatedHours),
   };
 }
 
-export default function CatalogClient({ courses }: { courses: DbCourse[] }) {
+export default function CatalogClient({ courses, languageCount }: { courses: DbCourse[]; languageCount: number }) {
   const [activeCat, setActiveCat] = useState("all");
   const [query, setQuery] = useState("");
 
@@ -94,7 +94,7 @@ export default function CatalogClient({ courses }: { courses: DbCourse[] }) {
             <em className="not-italic text-muted-foreground font-normal">Aprenda qualquer coisa.</em> Comece por esses.
           </h1>
           <p className="text-[15px] leading-[1.6] text-muted-foreground mt-3.5 max-w-[60ch] text-pretty m-0">
-            Cursos em múltiplos domínios — grátis para sempre. Adicione qualquer um à sua biblioteca, ou faça um remix pessoal com IA.
+            Cursos feitos à mão em seis domínios — grátis para sempre, em múltiplos idiomas. Adicione qualquer um à sua biblioteca, ou faça um remix pessoal.
           </p>
         </div>
         <div className="flex gap-8 font-mono text-[10px] tracking-[0.08em] uppercase text-muted-foreground">
@@ -105,6 +105,10 @@ export default function CatalogClient({ courses }: { courses: DbCourse[] }) {
           <div>
             <strong className="block font-sans text-[28px] font-normal text-foreground tracking-[-0.02em] normal-case leading-none mb-1">{formatLearners(totalLearners)}</strong>
             alunos
+          </div>
+          <div>
+            <strong className="block font-sans text-[28px] font-normal text-foreground tracking-[-0.02em] normal-case leading-none mb-1">{languageCount}</strong>
+            idiomas
           </div>
         </div>
       </header>
