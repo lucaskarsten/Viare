@@ -2,33 +2,41 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 const STEPS = 4;
 
-const INTEREST_OPTIONS = [
-  { id: "tech",       label: "Tecnologia",   ex: "Kali, Rust, ML" },
-  { id: "craft",      label: "Ofícios",       ex: "Pão, marcenaria" },
-  { id: "music",      label: "Música",        ex: "Piano, teoria" },
-  { id: "business",   label: "Negócios",      ex: "Negociação, finanças" },
-  { id: "language",   label: "Idiomas",       ex: "日本語, Français" },
-  { id: "science",    label: "Ciência",       ex: "Estat., biologia" },
-  { id: "history",    label: "História",      ex: "Medieval, moderna" },
-  { id: "art",        label: "Arte & Design", ex: "Tipo, cor" },
-  { id: "health",     label: "Saúde",         ex: "Corrida, sono" },
-  { id: "philosophy", label: "Filosofia",     ex: "Stoics, ethics" },
-];
+const INTEREST_IDS = [
+  "tech",
+  "craft",
+  "music",
+  "business",
+  "language",
+  "science",
+  "history",
+  "art",
+  "health",
+  "philosophy",
+] as const;
+
+const PACE_IDS = ["casual", "moderate", "intense"] as const;
+const STYLE_IDS = ["reading", "mixed", "practical"] as const;
 
 const SUGGESTIONS = ["Kali Linux", "Piano", "Pão artesanal"];
 
+type PaceId = (typeof PACE_IDS)[number];
+type StyleId = (typeof STYLE_IDS)[number];
+
 export default function OnboardingPage() {
+  const t = useTranslations("onboarding");
   const router = useRouter();
   const [step, setStep] = useState(0);
   const [lang, setLang] = useState<"pt" | "en">("pt");
   const [name, setName] = useState("");
   const [interests, setInterests] = useState<string[]>([]);
-  const [pace, setPace] = useState("Moderado");
+  const [pace, setPace] = useState<PaceId>("moderate");
   const [days, setDays] = useState<number[]>([1, 3, 5]);
-  const [style, setStyle] = useState("Misto");
+  const [style, setStyle] = useState<StyleId>("mixed");
   const [topic, setTopic] = useState("");
 
   const toggleInterest = (id: string) =>
@@ -49,6 +57,8 @@ export default function OnboardingPage() {
 
   const isPrimaryDisabled =
     (step === 0 && !name.trim()) || (step === 3 && !topic.trim());
+
+  const dayLabels = t.raw("days") as string[];
 
   return (
     <div className="onboarding">
@@ -81,15 +91,15 @@ export default function OnboardingPage() {
 
           {step === 0 && (
             <>
-              <div className="onb-eye">PASSO 1 DE 4</div>
+              <div className="onb-eye">{t("step", { current: 1, total: STEPS })}</div>
               <h1 className="onb-h1">
-                Olá! <span className="onb-soft">Como você se chama?</span>
+                {t("step0.title")} <span className="onb-soft">{t("step0.titleSoft")}</span>
               </h1>
-              <p className="onb-lede">Seu nome personaliza a experiência de aprendizado.</p>
+              <p className="onb-lede">{t("step0.lede")}</p>
               <input
                 autoFocus
                 className="onb-input big"
-                placeholder="Seu nome..."
+                placeholder={t("step0.placeholder")}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && !isPrimaryDisabled && setStep((s) => s + 1)}
@@ -99,20 +109,20 @@ export default function OnboardingPage() {
 
           {step === 1 && (
             <>
-              <div className="onb-eye">PASSO 2 DE 4</div>
+              <div className="onb-eye">{t("step", { current: 2, total: STEPS })}</div>
               <h1 className="onb-h1">
-                O que te <span className="onb-soft">interessa?</span>
+                {t("step1.title")} <span className="onb-soft">{t("step1.titleSoft")}</span>
               </h1>
-              <p className="onb-lede">Escolha quantas áreas quiser.</p>
+              <p className="onb-lede">{t("step1.lede")}</p>
               <div className="onb-chips">
-                {INTEREST_OPTIONS.map((o) => (
+                {INTEREST_IDS.map((id) => (
                   <button
-                    key={o.id}
-                    className={`onb-chip${interests.includes(o.id) ? " on" : ""}`}
-                    onClick={() => toggleInterest(o.id)}
+                    key={id}
+                    className={`onb-chip${interests.includes(id) ? " on" : ""}`}
+                    onClick={() => toggleInterest(id)}
                   >
-                    <div className="oc-label">{o.label}</div>
-                    <div className="oc-ex">{o.ex}</div>
+                    <div className="oc-label">{t(`interests.${id}`)}</div>
+                    <div className="oc-ex">{t(`interests.${id}Ex`)}</div>
                   </button>
                 ))}
               </div>
@@ -121,28 +131,28 @@ export default function OnboardingPage() {
 
           {step === 2 && (
             <>
-              <div className="onb-eye">PASSO 3 DE 4</div>
+              <div className="onb-eye">{t("step", { current: 3, total: STEPS })}</div>
               <h1 className="onb-h1">
-                Como você <span className="onb-soft">aprende?</span>
+                {t("step2.title")} <span className="onb-soft">{t("step2.titleSoft")}</span>
               </h1>
               <div className="onb-group">
-                <div className="onb-group-label">RITMO</div>
+                <div className="onb-group-label">{t("step2.pace")}</div>
                 <div className="onb-seg">
-                  {["Casual", "Moderado", "Intenso"].map((p) => (
+                  {PACE_IDS.map((p) => (
                     <button
                       key={p}
                       className={`onb-segbtn${pace === p ? " on" : ""}`}
                       onClick={() => setPace(p)}
                     >
-                      {p}
+                      {t(`pace.${p}`)}
                     </button>
                   ))}
                 </div>
               </div>
               <div className="onb-group">
-                <div className="onb-group-label">DIAS POR SEMANA</div>
+                <div className="onb-group-label">{t("step2.daysPerWeek")}</div>
                 <div className="onb-days">
-                  {["S", "T", "Q", "Q", "S", "S", "D"].map((d, i) => (
+                  {dayLabels.map((d, i) => (
                     <button
                       key={i}
                       className={`onb-day${days.includes(i) ? " on" : ""}`}
@@ -152,18 +162,18 @@ export default function OnboardingPage() {
                     </button>
                   ))}
                 </div>
-                <p className="onb-day-hint">{days.length} dias selecionados</p>
+                <p className="onb-day-hint">{t("step2.daysSelected", { count: days.length })}</p>
               </div>
               <div className="onb-group">
-                <div className="onb-group-label">ESTILO</div>
+                <div className="onb-group-label">{t("step2.style")}</div>
                 <div className="onb-seg">
-                  {["Leitura", "Misto", "Prático"].map((s) => (
+                  {STYLE_IDS.map((s) => (
                     <button
                       key={s}
                       className={`onb-segbtn${style === s ? " on" : ""}`}
                       onClick={() => setStyle(s)}
                     >
-                      {s}
+                      {t(`style.${s}`)}
                     </button>
                   ))}
                 </div>
@@ -173,17 +183,15 @@ export default function OnboardingPage() {
 
           {step === 3 && (
             <>
-              <div className="onb-eye">PASSO 4 DE 4</div>
+              <div className="onb-eye">{t("step", { current: 4, total: STEPS })}</div>
               <h1 className="onb-h1">
-                Qual será seu <span className="onb-soft">primeiro curso?</span>
+                {t("step3.title")} <span className="onb-soft">{t("step3.titleSoft")}</span>
               </h1>
-              <p className="onb-lede">
-                Digite um tema e a IA vai criar um currículo personalizado.
-              </p>
+              <p className="onb-lede">{t("step3.lede")}</p>
               <textarea
                 autoFocus
                 className="onb-textarea"
-                placeholder="Ex: Segurança de redes, cozinha italiana..."
+                placeholder={t("step3.placeholder")}
                 value={topic}
                 onChange={(e) => setTopic(e.target.value)}
               />
@@ -196,13 +204,13 @@ export default function OnboardingPage() {
               </div>
               {topic && (
                 <div className="onb-preview">
-                  <div className="op-label">PRÉVIA</div>
+                  <div className="op-label">{t("step3.preview")}</div>
                   <div className="op-card">
                     <div className="op-visual" />
                     <div>
                       <div className="op-title">{topic}</div>
                       <div className="op-meta">
-                        {pace} · {days.length}× semana · {style}
+                        {t("step3.previewMeta", { pace: t(`pace.${pace}`), days: days.length, style: t(`style.${style}`) })}
                       </div>
                     </div>
                   </div>
@@ -221,12 +229,12 @@ export default function OnboardingPage() {
           onClick={() => setStep((s) => Math.max(0, s - 1))}
           disabled={step === 0}
         >
-          ← Voltar
+          {t("footer.back")}
         </button>
         <div className="onb-foot-spacer" />
         {step < STEPS - 1 && (
           <button className="ghost" onClick={() => setStep((s) => s + 1)}>
-            Pular
+            {t("footer.skip")}
           </button>
         )}
         <button
@@ -234,7 +242,7 @@ export default function OnboardingPage() {
           onClick={step < STEPS - 1 ? () => setStep((s) => s + 1) : handleFinish}
           disabled={isPrimaryDisabled}
         >
-          {step < STEPS - 1 ? "Continuar →" : "Começar agora →"}
+          {step < STEPS - 1 ? t("footer.next") : t("footer.finish")}
         </button>
       </div>
     </div>

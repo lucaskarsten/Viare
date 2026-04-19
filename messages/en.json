@@ -209,6 +209,75 @@
       "notes": "Notes"
     }
   },
+  "onboarding": {
+    "step": "STEP {current} OF {total}",
+    "step0": {
+      "title": "Hi!",
+      "titleSoft": "What's your name?",
+      "lede": "Your name personalizes the learning experience.",
+      "placeholder": "Your name…"
+    },
+    "step1": {
+      "title": "What interests",
+      "titleSoft": "you?",
+      "lede": "Pick as many areas as you like."
+    },
+    "step2": {
+      "title": "How do you",
+      "titleSoft": "learn?",
+      "pace": "PACE",
+      "daysPerWeek": "DAYS PER WEEK",
+      "style": "STYLE",
+      "daysSelected": "{count} days selected"
+    },
+    "step3": {
+      "title": "What's your",
+      "titleSoft": "first course?",
+      "lede": "Type a topic and the AI will build a custom curriculum.",
+      "placeholder": "E.g.: Network security, Italian cooking…",
+      "preview": "PREVIEW",
+      "previewMeta": "{pace} · {days}× week · {style}"
+    },
+    "interests": {
+      "tech": "Technology",
+      "techEx": "Kali, Rust, ML",
+      "craft": "Crafts",
+      "craftEx": "Bread, woodworking",
+      "music": "Music",
+      "musicEx": "Piano, theory",
+      "business": "Business",
+      "businessEx": "Negotiation, finance",
+      "language": "Languages",
+      "languageEx": "日本語, Français",
+      "science": "Science",
+      "scienceEx": "Stats, biology",
+      "history": "History",
+      "historyEx": "Medieval, modern",
+      "art": "Art & Design",
+      "artEx": "Type, color",
+      "health": "Health",
+      "healthEx": "Running, sleep",
+      "philosophy": "Philosophy",
+      "philosophyEx": "Stoics, ethics"
+    },
+    "pace": {
+      "casual": "Casual",
+      "moderate": "Moderate",
+      "intense": "Intense"
+    },
+    "style": {
+      "reading": "Reading",
+      "mixed": "Mixed",
+      "practical": "Hands-on"
+    },
+    "days": ["M", "T", "W", "T", "F", "S", "S"],
+    "footer": {
+      "back": "← Back",
+      "skip": "Skip",
+      "next": "Continue →",
+      "finish": "Start now →"
+    }
+  },
   "enroll": {
     "continueLesson": "Continue lesson {number} →",
     "continue": "Continue →",
