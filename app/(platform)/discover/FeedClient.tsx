@@ -97,20 +97,20 @@ const POSTS: Post[] = [
 ];
 
 const SUGGESTED = [
-  { title: "OSINT Fundamentals", color: "#c97a4a", rating: 4.7, learners: "2.1k" },
-  { title: "Massa Caseira", color: "#8a9a5b", rating: 4.9, learners: "5.4k" },
-  { title: "Harmonia Jazz", color: "#6b7a8f", rating: 4.6, learners: "890" },
+  { title: "OSINT fundamentals", color: "#c97a4a", rating: 4.7, learners: "2.1k" },
+  { title: "Massa caseira", color: "#8a9a5b", rating: 4.9, learners: "5.4k" },
+  { title: "Harmonia jazz", color: "#6b7a8f", rating: 4.6, learners: "890" },
 ];
 
 const TOPICS = [
-  { label: "segurança", size: 3 },
+  { label: "security", size: 3 },
   { label: "linux", size: 2 },
   { label: "ofício", size: 2 },
-  { label: "música", size: 1 },
-  { label: "estatística", size: 1 },
+  { label: "music", size: 1 },
+  { label: "statistics", size: 1 },
   { label: "negociação", size: 1 },
-  { label: "história", size: 1 },
-  { label: "tipografia", size: 1 },
+  { label: "history", size: 1 },
+  { label: "typography", size: 1 },
 ];
 
 const PEOPLE = [

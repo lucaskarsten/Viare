@@ -4,11 +4,20 @@ import { db } from "@/lib/db";
 
 const COURSE_COLORS = ["#c97a4a", "#8a9a5b", "#6b7a8f", "#b8a06e", "#7a5a8f", "#5a8a8a"];
 
-const DIFFICULTY_LABELS: Record<string, string> = {
-  EASY: "Iniciante",
-  MEDIUM: "Intermediário",
-  HARD: "Avançado",
+const CATEGORY_LABELS: Record<string, string> = {
+  TECH: "TECNOLOGIA", LANG: "LÍNGUA", MUSIC: "MÚSICA",
+  CRAFT: "OFÍCIO", SCIENCE: "CIÊNCIA", LIFE: "VIDA",
 };
+
+function relativeDate(date: Date | null, now: Date): string {
+  if (!date) return "—";
+  const diffDays = Math.floor((now.getTime() - date.getTime()) / 86_400_000);
+  if (diffDays === 0) return "Hoje";
+  if (diffDays === 1) return "Ontem";
+  if (diffDays < 7) return `Há ${diffDays} dias`;
+  if (diffDays < 14) return "Semana passada";
+  return date.toLocaleDateString("pt-BR", { day: "numeric", month: "short" });
+}
 
 export default async function DashboardPage() {
   const session = await auth();
@@ -29,6 +38,7 @@ export default async function DashboardPage() {
             description: true,
             difficulty: true,
             estimatedHours: true,
+            category: true,
             tags: true,
             _count: { select: { modules: true } },
             modules: {
@@ -183,10 +193,8 @@ export default async function DashboardPage() {
         <div className="grid grid-cols-3 gap-6">
           {enrollments.map((enrollment, i) => {
             const color = COURSE_COLORS[i % COURSE_COLORS.length];
-            const tag = enrollment.course.tags[0] ?? DIFFICULTY_LABELS[enrollment.course.difficulty] ?? "Curso";
-            const lastAccess = enrollment.lastAccessedAt
-              ? enrollment.lastAccessedAt.toLocaleDateString("pt-BR", { day: "numeric", month: "short" })
-              : "—";
+            const tag = CATEGORY_LABELS[enrollment.course.category] ?? enrollment.course.tags[0] ?? "Curso";
+            const lastAccess = relativeDate(enrollment.lastAccessedAt, now);
             const done = Math.round((enrollment.progressPercent ?? 0) / 100 * enrollment.course._count.modules);
             const total = enrollment.course._count.modules;
 
@@ -217,18 +225,6 @@ export default async function DashboardPage() {
               </Link>
             );
           })}
-          <Link
-            href="/courses/generate"
-            className="bg-transparent border border-dashed border-border rounded-[10px] overflow-hidden cursor-pointer flex flex-col no-underline text-inherit items-center justify-center min-h-[280px] transition-colors hover:bg-card"
-          >
-            <div className="text-center p-6">
-              <div className="text-[32px] text-muted-foreground font-light">+</div>
-              <div className="text-[15px] font-medium tracking-[-0.015em] mt-2 text-foreground">Gerar um novo curso</div>
-              <div className="text-[12px] text-muted-foreground mt-1 max-w-[24ch] mx-auto">
-                Digite qualquer tema. Lumen escreve o currículo.
-              </div>
-            </div>
-          </Link>
         </div>
       </section>
 

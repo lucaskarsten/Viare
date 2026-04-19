@@ -125,7 +125,8 @@ export default function ReviewClient({ courses, totalDue, totalOverdue, streak, 
               {totalDue > 0 ? (
                 <>{totalDue} <span className="text-muted-foreground font-normal">cartões pendentes</span></>
               ) : (
-                <>Tudo em dia <span className="text-muted-foreground font-normal">·</span></>
+                <>Tudo em dia.</>
+
               )}
             </h1>
             <p className="text-[15px] leading-[1.6] text-muted-foreground mt-3 max-w-[62ch] m-0">{message}</p>
@@ -137,12 +138,14 @@ export default function ReviewClient({ courses, totalDue, totalOverdue, streak, 
               >
                 Revisar tudo · ~{Math.ceil(totalDue * 0.5)} min
               </button>
-              <button
-                className="bg-transparent text-foreground/80 px-5 py-3.5 rounded-[var(--radius)] text-[14px] border-0 cursor-pointer font-[inherit] transition-colors hover:bg-card hover:text-foreground"
-                onClick={() => startSession("overdue")}
-              >
-                Só os {totalOverdue} atrasados
-              </button>
+              {totalOverdue > 0 && (
+                <button
+                  className="bg-transparent text-foreground/80 px-5 py-3.5 rounded-[var(--radius)] text-[14px] border-0 cursor-pointer font-[inherit] transition-colors hover:bg-card hover:text-foreground"
+                  onClick={() => startSession("overdue")}
+                >
+                  Só os {totalOverdue} atrasados
+                </button>
+              )}
               <button className="bg-transparent text-foreground/80 px-5 py-3.5 rounded-[var(--radius)] text-[14px] border-0 cursor-pointer font-[inherit] transition-colors hover:bg-card hover:text-foreground">
                 Sessão customizada…
               </button>

@@ -93,7 +93,8 @@ export function formatDuration(hours: number | null): string {
 }
 
 export function displayLetter(title: string): string {
-  const words = title.split(/[\s,]+/).filter(Boolean);
-  if (words.length === 1) return words[0].slice(0, 2);
-  return (words[0][0] + words[1][0]).toUpperCase();
+  const first = title.split(/[\s,]+/).filter(Boolean)[0] ?? title;
+  const s = first.slice(0, 2);
+  if (s.length < 2) return s.toUpperCase();
+  return s[0].toUpperCase() + s[1].toLowerCase();
 }

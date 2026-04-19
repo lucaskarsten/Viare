@@ -2,11 +2,6 @@ import { auth } from "@/lib/dev-auth";
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
 
-const GOAL_BREAKDOWN = [
-  { course: "Kali Linux", count: 3, unit: "aulas" },
-  { course: "Pão & fermentação", count: 1, unit: "aula" },
-];
-
 const INV_BARS = [
   { l: "Kali Linux", v: 62, c: "#c97a4a" },
   { l: "Pão", v: 21, c: "#8a9a5b" },
@@ -28,30 +23,73 @@ export default async function GoalsPage() {
   const endOfWeek = new Date(startOfWeek);
   endOfWeek.setDate(startOfWeek.getDate() + 6);
 
-  const [streakData, weeklyProgress] = await Promise.all([
+  const ninetyDaysAgo = new Date(now);
+  ninetyDaysAgo.setDate(now.getDate() - 90);
+  ninetyDaysAgo.setHours(0, 0, 0, 0);
+
+  const [streakData, recentCompletions] = await Promise.all([
     db.userStreak.findUnique({ where: { userId } }),
-    db.userProgress.count({
-      where: {
-        userId,
-        status: "COMPLETED",
-        updatedAt: { gte: startOfWeek },
+    db.userProgress.findMany({
+      where: { userId, status: "COMPLETED", updatedAt: { gte: ninetyDaysAgo } },
+      select: {
+        updatedAt: true,
+        lesson: { select: { module: { select: { course: { select: { title: true } } } } } },
       },
+      orderBy: { updatedAt: "asc" },
     }),
   ]);
+
+  function toDateKey(d: Date) {
+    return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+  }
+
+  const weekCompletions = recentCompletions.filter((p) => p.updatedAt >= startOfWeek);
+  const weeklyProgress = weekCompletions.length;
+  const weekDaysDone = new Set(weekCompletions.map((p) => toDateKey(p.updatedAt)));
+  const heatmapDone = new Set(recentCompletions.map((p) => toDateKey(p.updatedAt)));
+
+  const breakdownMap = new Map<string, number>();
+  weekCompletions.forEach((p) => {
+    const title = p.lesson.module.course.title;
+    breakdownMap.set(title, (breakdownMap.get(title) ?? 0) + 1);
+  });
+  const goalBreakdown = Array.from(breakdownMap.entries())
+    .map(([course, count]) => ({ course, count, unit: count === 1 ? "aula" : "aulas" }))
+    .sort((a, b) => b.count - a.count);
 
   const currentStreak = streakData?.currentStreak ?? 0;
   const bestStreak = streakData?.longestStreak ?? currentStreak;
   const weeklyGoal = 6;
 
-  const weekRange = `${startOfWeek.toLocaleDateString("pt-BR", { day: "numeric", month: "short" })} – ${endOfWeek.toLocaleDateString("pt-BR", { day: "numeric", month: "short" })}`;
+  const MONTH_ABBR = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
+  const weekRange = `${startOfWeek.getDate()} — ${endOfWeek.getDate()} ${MONTH_ABBR[endOfWeek.getMonth()]}`;
 
-  const DAY_LABELS = ["S", "T", "Q", "Q", "S", "S", "D"];
+  const weeklyGoalMet = weeklyProgress >= weeklyGoal;
+  const progressRatio = weeklyGoal > 0 ? weeklyProgress / weeklyGoal : 0;
+  const goalTitle = weeklyGoalMet
+    ? "Meta batida."
+    : progressRatio >= 0.7
+    ? "Você está no ritmo."
+    : progressRatio >= 0.5
+    ? "Falta pouco."
+    : "Hora de retomar.";
+
+  const NUMS_PT = ["zero","uma","duas","três","quatro","cinco","seis","sete","oito","nove","dez"];
+  const doneWord = (NUMS_PT[weeklyProgress] ?? weeklyProgress.toString());
+  const doneWordCap = doneWord.charAt(0).toUpperCase() + doneWord.slice(1);
+  const remaining = Math.max(0, weeklyGoal - weeklyProgress);
+  const remainingWord = NUMS_PT[remaining] ?? remaining.toString();
+  const goalSubtitle = weeklyGoalMet
+    ? "Meta da semana cumprida. Até a próxima — ou continue para mais."
+    : `${doneWordCap} ${weeklyProgress === 1 ? "aula feita" : "aulas feitas"}, faltam ${remainingWord}. Sessões pequenas e constantes sempre vencem maratonas.`;
+
+  const DAY_LABELS = ["M", "T", "W", "T", "F", "S", "S"];
   const days = Array.from({ length: 7 }, (_, i) => {
     const d = new Date(startOfWeek);
     d.setDate(startOfWeek.getDate() + i);
     const isToday = d.toDateString() === now.toDateString();
     const isPast = d < now && !isToday;
-    return { label: DAY_LABELS[i], date: d.getDate().toString(), today: isToday, done: isPast };
+    return { label: DAY_LABELS[i], date: d.getDate().toString(), today: isToday, done: weekDaysDone.has(toDateKey(d)) };
   });
 
   const history = Array.from({ length: 6 }, (_, i) => {
@@ -59,7 +97,9 @@ export default async function GoalsPage() {
     weekStart.setDate(weekStart.getDate() - (5 - i) * 7);
     const weekEnd = new Date(weekStart);
     weekEnd.setDate(weekStart.getDate() + 6);
-    const done = i === 5 ? weeklyProgress : i % 3 === 2 ? weeklyGoal - 2 : weeklyGoal;
+    const done = i === 5
+      ? weeklyProgress
+      : recentCompletions.filter((p) => p.updatedAt >= weekStart && p.updatedAt <= weekEnd).length;
     return {
       label: `${weekStart.getDate()}–${weekEnd.getDate()} ${weekEnd.toLocaleDateString("pt-BR", { month: "short" })}`,
       done,
@@ -75,7 +115,8 @@ export default async function GoalsPage() {
           <div className="font-mono text-[11px] tracking-[0.1em] uppercase text-muted-foreground mb-2">
             Esta semana · {weekRange}
           </div>
-          <h1 className="font-medium text-[28px] leading-[1.15] tracking-[-0.02em] m-0 text-foreground">Metas</h1>
+          <h1 className="font-medium text-[28px] leading-[1.15] tracking-[-0.02em] m-0 text-foreground">{goalTitle}</h1>
+          <p className="text-[14px] text-muted-foreground leading-[1.5] mt-2 m-0 max-w-[56ch]">{goalSubtitle}</p>
         </div>
       </header>
 
@@ -93,8 +134,8 @@ export default async function GoalsPage() {
               {weeklyProgress}
             </div>
             <div className="text-[36px] text-muted-foreground font-normal">/{weeklyGoal}</div>
+            <div className="text-[14px] text-muted-foreground">aulas esta semana</div>
           </div>
-          <div className="text-[14px] text-muted-foreground mb-auto">aulas esta semana</div>
 
           {/* Week strip */}
           <div className="grid grid-cols-7 gap-1.5 py-4 border-t border-b border-border mt-6">
@@ -118,35 +159,41 @@ export default async function GoalsPage() {
           </div>
 
           {/* Goal breakdown */}
-          <div className="flex flex-col gap-1.5 mt-4 pt-4 border-t border-border">
-            {GOAL_BREAKDOWN.map((item) => (
-              <div key={item.course} className="flex justify-between items-center text-[13px]">
-                <span className="text-muted-foreground">{item.course}</span>
-                <strong className="font-medium text-foreground">
-                  {item.count} {item.unit}
-                </strong>
-              </div>
-            ))}
-          </div>
+          {goalBreakdown.length > 0 && (
+            <div className="flex flex-col gap-1.5 mt-4 pt-4 border-t border-border">
+              {goalBreakdown.map((item) => (
+                <div key={item.course} className="flex justify-between items-center text-[13px]">
+                  <span className="text-muted-foreground">{item.course}</span>
+                  <strong className="font-medium text-foreground">
+                    {item.count} {item.unit}
+                  </strong>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Sequência */}
         <div className="bg-card rounded-[var(--radius-lg)] p-7 flex flex-col">
-          <h2 className="font-medium text-[15px] m-0 tracking-[-0.015em] text-foreground mb-5">Sequência</h2>
+          <h2 className="font-medium text-[15px] m-0 tracking-[-0.015em] text-foreground mb-5">Sequência atual</h2>
           <div className="text-[72px] leading-none tracking-[-0.05em] text-foreground font-medium tabular-nums">
             {currentStreak}
           </div>
-          <div className="text-[14px] text-muted-foreground mt-1">dias consecutivos</div>
+          <div className="font-mono text-[11px] tracking-[0.1em] uppercase text-muted-foreground mt-1">DIAS CONSECUTIVOS</div>
           <div className="font-mono text-[11px] text-muted-foreground mt-3 tracking-[0.02em]">
             Recorde: {bestStreak} dias
           </div>
           <div className="mt-5 grid grid-cols-[repeat(15,1fr)] gap-[3px]">
-            {Array.from({ length: 90 }).map((_, i) => (
-              <div
-                key={i}
-                className={`aspect-square rounded-[2px]${i < currentStreak ? " bg-accent" : " bg-border/50"}`}
-              />
-            ))}
+            {Array.from({ length: 90 }, (_, i) => {
+              const d = new Date(now);
+              d.setDate(now.getDate() - 89 + i);
+              return (
+                <div
+                  key={i}
+                  className={`aspect-square rounded-[2px]${heatmapDone.has(toDateKey(d)) ? " bg-accent" : " bg-border/50"}`}
+                />
+              );
+            })}
           </div>
           <div className="font-mono text-[10px] text-muted-foreground mt-2 tracking-[0.05em]">Últimos 90 dias</div>
         </div>
@@ -154,7 +201,10 @@ export default async function GoalsPage() {
         {/* Tempo investido */}
         <div className="bg-card rounded-[var(--radius-lg)] p-7 flex flex-col">
           <h2 className="font-medium text-[15px] m-0 tracking-[-0.015em] text-foreground mb-5">Tempo investido</h2>
-          <div className="text-[48px] font-medium tracking-tight leading-none text-foreground">47h 22m</div>
+          <div className="flex items-baseline leading-none text-foreground font-medium tracking-tight">
+            <span className="text-[48px]">47</span><span className="text-[28px] ml-0.5">h</span>
+            <span className="text-[48px] ml-2">22</span><span className="text-[28px] ml-0.5">m</span>
+          </div>
           <div className="text-[12px] text-muted-foreground font-mono mt-1">desde o início · Jan 2026</div>
           <div className="flex flex-col mt-3">
             {INV_BARS.map((b) => (

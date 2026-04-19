@@ -17,6 +17,8 @@ type DbCourse = {
   difficulty: "EASY" | "MEDIUM" | "HARD";
   estimatedHours: number | null;
   totalEnrollments: number;
+  avgRating: number | null;
+  totalRatings: number;
   category: string;
   lessonCount: number;
 };
@@ -88,13 +90,13 @@ export default function CatalogClient({ courses, languageCount }: { courses: DbC
       <header className="flex items-end justify-between gap-8 pb-6 border-b border-border mb-10 flex-wrap">
         <div>
           <div className="font-mono text-[11px] tracking-[0.08em] uppercase text-muted-foreground mb-3">
-            Catálogo · {courses.length} cursos
+            Catálogo · {courses.length} cursos iniciais
           </div>
           <h1 className="font-medium text-[36px] leading-[1.15] tracking-[-0.02em] m-0 text-balance text-foreground">
             <em className="not-italic text-muted-foreground font-normal">Aprenda qualquer coisa.</em> Comece por esses.
           </h1>
           <p className="text-[15px] leading-[1.6] text-muted-foreground mt-3.5 max-w-[60ch] text-pretty m-0">
-            Cursos feitos à mão em seis domínios — grátis para sempre, em múltiplos idiomas. Adicione qualquer um à sua biblioteca, ou faça um remix pessoal.
+            Trinta cursos feitos à mão em seis domínios — grátis para sempre, em múltiplos idiomas. Adicione qualquer um à sua biblioteca, ou faça um remix pessoal.
           </p>
         </div>
         <div className="flex gap-8 font-mono text-[10px] tracking-[0.08em] uppercase text-muted-foreground">
@@ -116,7 +118,7 @@ export default function CatalogClient({ courses, languageCount }: { courses: DbC
       <div className="mb-8 py-4 px-5 bg-accent/8 border-l-[3px] border-accent rounded flex items-center gap-4">
         <span className="font-mono text-[10px] tracking-[0.1em] uppercase text-accent font-semibold shrink-0">Grátis sempre</span>
         <p className="text-[13px] text-muted-foreground leading-[1.5] flex-1 m-0">
-          Esses cursos são grátis — sempre. Adicione à biblioteca do jeito que estão, ou faça um remix que você edita, traduz e expande.{" "}
+          Esses cursos-base são grátis — sempre. Pode adicionar à biblioteca do jeito que estão, ou fazer um remix pessoal que você edita, traduz e expande.{" "}
           <strong className="text-foreground font-semibold">Gerar algo que não está aqui? Também é sempre opção.</strong>
         </p>
         <Link
@@ -240,6 +242,9 @@ function CatalogCard({ course }: { course: AdaptedCourse }) {
         <h3 className="text-[17px] tracking-[-0.015em] font-medium leading-[1.2] m-0 text-foreground">{course.title}</h3>
         <p className="text-[13px] text-muted-foreground leading-[1.5] flex-1 m-0">{course.description}</p>
         <div className="flex items-center gap-3 font-mono text-[10px] tracking-[0.04em] text-muted-foreground pt-2.5 border-t border-dashed border-border">
+          {course.avgRating != null && (
+            <span className="text-[#b8922a]">★ {course.avgRating.toFixed(1)}</span>
+          )}
           <span className="before:content-['●'] before:text-[#6a8d5c] before:mr-1 before:text-[8px] before:align-middle">
             {course.learnersStr}
           </span>

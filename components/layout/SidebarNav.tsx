@@ -100,8 +100,8 @@ export default function SidebarNav({
 
       <div className="mt-auto flex flex-col gap-3">
         <div className="flex gap-0.5 bg-muted p-0.5 rounded w-fit">
-          <button className="text-[11px] px-2.5 py-1 rounded-[3px] font-medium tracking-[0.04em] bg-background text-foreground border-0 cursor-pointer">PT</button>
           <button className="text-[11px] px-2.5 py-1 rounded-[3px] text-muted-foreground font-medium tracking-[0.04em] border-0 cursor-pointer">EN</button>
+          <button className="text-[11px] px-2.5 py-1 rounded-[3px] font-medium tracking-[0.04em] bg-background text-foreground border-0 cursor-pointer">PT</button>
         </div>
 
         <div className="flex items-center gap-2.5 px-1.5 pt-3.5 border-t border-border">

@@ -31,7 +31,7 @@ type Tab = "overview" | "lessons" | "flashcards" | "reviews" | "notes";
 
 const TABS: { id: Tab; label: string }[] = [
   { id: "overview", label: "Visão geral" },
-  { id: "lessons", label: "Aulas" },
+  { id: "lessons", label: "Estrutura" },
   { id: "flashcards", label: "Flashcards" },
   { id: "reviews", label: "Avaliações" },
   { id: "notes", label: "Notas" },

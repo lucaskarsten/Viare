@@ -15,6 +15,8 @@ export default async function CoursesPage() {
       difficulty: true,
       estimatedHours: true,
       totalEnrollments: true,
+      avgRating: true,
+      totalRatings: true,
       category: true,
       modules: {
         select: {
