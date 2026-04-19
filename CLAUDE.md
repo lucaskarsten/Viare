@@ -112,6 +112,8 @@ Ao identificar qualquer situação abaixo, invocar o workflow/agente corresponde
 |-------------------|----------------|
 | Usuário descreve feature nova, diz "quero X", "implementar Y", "adicionar Z" | Iniciar `/new-feature <descrição>` |
 | Diff final contém mudanças em `.tsx` ou `.css` | Rodar `/css` antes de finalizar |
+| Diff final contém strings PT/EN hard-coded em UI (texto JSX, placeholder, aria-label, title) | Rodar `/i18n` antes de finalizar — i18n é **obrigatório** no projeto |
+| Criar arquivo `.tsx` novo com conteúdo visível | Aplicar `/i18n --new` no mesmo passo — nascer já com `useTranslations`/`getTranslations` |
 | Mudança em `prisma/schema.prisma` | Rodar `/db validate` + alertar sobre migration |
 | Antes de reportar feature como concluída | Rodar `/ready` |
 | Request body, query param ou output de LLM sem Zod | Alertar RULE-AI-01, consultar agente `types` |
@@ -125,6 +127,7 @@ Ao identificar qualquer situação abaixo, invocar o workflow/agente corresponde
 |---------|-------------|
 | `/new-feature` | Iniciar qualquer feature nova |
 | `/css` | Revisão de CSS após mudanças de estilo |
+| `/i18n` | Auditar e migrar strings PT/EN para next-intl (PT/EN em `messages/*.json`) — **obrigatório** antes de finalizar qualquer tarefa com `.tsx` novo ou modificado com strings visíveis |
 | `/db` | Operações Prisma (validate, migrate) |
 | `/ready` | Checklist antes de PR |
 | `/pr` | Criar Pull Request |
