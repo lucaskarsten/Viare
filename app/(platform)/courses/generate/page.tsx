@@ -111,6 +111,8 @@ export default function GeneratePage() {
             currentOutline = event.outline;
             setPhase({ status: "outlining", outline: event.outline });
             setTimeout(() => { if (currentOutline) setPhase({ status: "generating", outline: currentOutline, completedLessons: new Set() }); }, 800);
+          } else if (event.type === "course_created") {
+            router.push(`/courses/${event.courseSlug}/generating`);
           } else if (event.type === "lesson_done") {
             completed.add(`${event.moduleIndex}-${event.lessonIndex}`);
             if (currentOutline) setPhase({ status: "generating", outline: currentOutline, completedLessons: new Set(completed) });

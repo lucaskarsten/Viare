@@ -21,12 +21,21 @@ export async function POST(request: Request) {
 
   const stream = new ReadableStream({
     async start(controller) {
+      let cancelled = false;
       function emit(event: GenerationEvent) {
-        controller.enqueue(encoder.encode(JSON.stringify(event) + "\n"));
+        if (cancelled) return;
+        try {
+          controller.enqueue(encoder.encode(JSON.stringify(event) + "\n"));
+        } catch {
+          cancelled = true;
+        }
       }
 
       await generateCourse(topic, session.user!.id!, customContext, emit);
-      controller.close();
+      if (!cancelled) controller.close();
+    },
+    cancel() {
+      // client navigated away — generation continues in background via the awaited promise above
     },
   });
 

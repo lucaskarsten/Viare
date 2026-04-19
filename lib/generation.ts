@@ -64,6 +64,7 @@ function parseJson(raw: string): unknown {
 export type GenerationEvent =
   | { type: "searching" }
   | { type: "outline"; outline: CourseOutline }
+  | { type: "course_created"; courseSlug: string; courseId: string }
   | { type: "lesson_start"; moduleIndex: number; lessonIndex: number; title: string }
   | { type: "lesson_done"; moduleIndex: number; lessonIndex: number }
   | { type: "done"; courseSlug: string; courseId: string }
@@ -217,6 +218,8 @@ Rules:
     await db.enrollment.create({
       data: { userId, courseId: course.id },
     });
+
+    emit({ type: "course_created", courseSlug: courseSlug, courseId: course.id });
 
     // 4. Generate content for each lesson
     const generatedTextParts: string[] = [];
