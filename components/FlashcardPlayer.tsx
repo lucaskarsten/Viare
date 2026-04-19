@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 
 export type FlashCard = {
   front: string;
@@ -12,6 +13,7 @@ type Props = {
 };
 
 export default function FlashcardPlayer({ cards }: Props) {
+  const t = useTranslations("flashcard");
   const [idx, setIdx] = useState(0);
   const [flipped, setFlipped] = useState(false);
 
@@ -34,25 +36,25 @@ export default function FlashcardPlayer({ cards }: Props) {
       >
         <div className="fc-face front">
           <div className="fc-eye">
-            Pergunta {idx + 1}/{cards.length}
+            {t("questionOf", { current: idx + 1, total: cards.length })}
           </div>
           <div className="fc-text">{cards[idx].front}</div>
-          <div className="fc-hint">toque para revelar</div>
+          <div className="fc-hint">{t("tapToReveal")}</div>
         </div>
         <div className="fc-face back">
-          <div className="fc-eye">Resposta</div>
+          <div className="fc-eye">{t("answer")}</div>
           <div className="fc-text">{cards[idx].back}</div>
         </div>
       </div>
       <div className="flash-controls">
         <button className="ghost" onClick={prev} disabled={idx === 0}>
-          ← Anterior
+          {t("previous")}
         </button>
-        <button className="chip">Difícil</button>
-        <button className="chip">Ok</button>
-        <button className="chip">Fácil</button>
+        <button className="chip">{t("hard")}</button>
+        <button className="chip">{t("ok")}</button>
+        <button className="chip">{t("easy")}</button>
         <button className="ghost" onClick={next} disabled={idx === cards.length - 1}>
-          Próximo →
+          {t("next")}
         </button>
       </div>
     </div>

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 type Question = {
   id: string;
@@ -18,6 +19,7 @@ type Props = {
 };
 
 export default function QuizLesson({ lessonId, questions, isCompleted }: Props) {
+  const t = useTranslations("quiz");
   const router = useRouter();
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState<(number | null)[]>(Array(questions.length).fill(null));
@@ -25,7 +27,7 @@ export default function QuizLesson({ lessonId, questions, isCompleted }: Props) 
   const [score, setScore] = useState<number | null>(null);
 
   if (questions.length === 0) {
-    return <p style={{ color: "var(--ink-3)" }}>Nenhuma questão encontrada.</p>;
+    return <p style={{ color: "var(--ink-3)" }}>{t("noQuestions")}</p>;
   }
 
   const question = questions[current];
@@ -60,7 +62,7 @@ export default function QuizLesson({ lessonId, questions, isCompleted }: Props) 
             {score}<span style={{ fontSize: "1.5rem", color: "var(--ink-3)" }}>%</span>
           </div>
           <p style={{ color: "var(--ink-3)", marginTop: "0.25rem" }}>
-            {correctCount} de {questions.length} corretas
+            {t("correctOf", { correct: correctCount, total: questions.length })}
           </p>
         </div>
         <div style={{ display: "grid", gap: "0.5rem", marginTop: "1rem" }}>
@@ -82,7 +84,7 @@ export default function QuizLesson({ lessonId, questions, isCompleted }: Props) 
     return (
       <div className="quiz" style={{ textAlign: "center", padding: "2rem 0" }}>
         <div style={{ fontSize: "3rem", color: "var(--ok)" }}>✓</div>
-        <p>Quiz já concluído!</p>
+        <p>{t("alreadyCompleted")}</p>
       </div>
     );
   }
@@ -90,7 +92,7 @@ export default function QuizLesson({ lessonId, questions, isCompleted }: Props) 
   return (
     <div className="quiz">
       <div className="quiz-label">
-        Questão {current + 1} de {questions.length}
+        {t("questionOf", { current: current + 1, total: questions.length })}
       </div>
       <div className="quiz-q">{question.question}</div>
       <div className="quiz-options">
@@ -122,10 +124,10 @@ export default function QuizLesson({ lessonId, questions, isCompleted }: Props) 
         )}
         {answered && (
           isLast ? (
-            <button className="primary" onClick={finish}>Ver resultado</button>
+            <button className="primary" onClick={finish}>{t("seeResult")}</button>
           ) : (
             <button className="ghost" onClick={() => setCurrent(current + 1)}>
-              Próxima →
+              {t("next")}
             </button>
           )
         )}

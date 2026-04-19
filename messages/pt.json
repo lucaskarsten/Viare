@@ -173,5 +173,56 @@
     "tutorGreeting": "Travou? Pergunte qualquer coisa sobre a aula. Respondo com base no material e sinalizo o que fugir dele.",
     "tutorPlaceholder": "Pergunte algo…",
     "lessonOf": "Aula {current} de {total}"
+  },
+  "quiz": {
+    "noQuestions": "Nenhuma questão encontrada.",
+    "alreadyCompleted": "Quiz já concluído!",
+    "questionOf": "Questão {current} de {total}",
+    "correctOf": "{correct} de {total} corretas",
+    "seeResult": "Ver resultado",
+    "next": "Próxima →"
+  },
+  "flashcard": {
+    "questionOf": "Pergunta {current}/{total}",
+    "tapToReveal": "toque para revelar",
+    "answer": "Resposta",
+    "previous": "← Anterior",
+    "next": "Próximo →",
+    "hard": "Difícil",
+    "ok": "Ok",
+    "easy": "Fácil"
+  },
+  "courseDetail": {
+    "selectLessonsTab": "Selecione a aba <strong>Estrutura</strong> para ver o conteúdo do curso.",
+    "noReviewsYet": "Sem avaliações ainda",
+    "noReviewsBody": "Nenhuma avaliação ainda.",
+    "noNotes": "Nenhuma nota ainda. Adicione notas durante as aulas.",
+    "noFlashcards": "Nenhum flashcard ainda.",
+    "completedBadge": "Concluído",
+    "youAreHere": "Você está aqui",
+    "locked": "bloqueado",
+    "tabs": {
+      "overview": "Visão geral",
+      "lessons": "Estrutura",
+      "flashcards": "Flashcards",
+      "reviews": "Avaliações",
+      "notes": "Notas"
+    }
+  },
+  "goals": {
+    "weeklyGoal": "Meta semanal",
+    "currentStreak": "Sequência atual",
+    "consecutiveDays": "DIAS CONSECUTIVOS",
+    "record": "Recorde: {days} dias",
+    "last90Days": "Últimos 90 dias",
+    "timeInvested": "Tempo investido",
+    "history": "Histórico",
+    "editGoal": "Editar meta",
+    "lessonsThisWeek": "aulas esta semana",
+    "lessonUnit": "aula",
+    "lessonsUnit": "aulas",
+    "sinceStart": "desde o início · Jan 2026",
+    "fulfilled": "cumprida",
+    "failed": "falhou"
   }
 }

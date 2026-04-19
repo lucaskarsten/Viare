@@ -1,6 +1,7 @@
 import { auth } from "@/lib/dev-auth";
 import { db } from "@/lib/db";
 import { redirect } from "next/navigation";
+import { getTranslations } from "next-intl/server";
 
 const INV_BARS = [
   { l: "Kali Linux", v: 62, c: "#c97a4a" },
@@ -13,6 +14,7 @@ export default async function GoalsPage() {
   const session = await auth();
   if (!session?.user?.id) redirect("/login");
   const userId = session.user.id;
+  const t = await getTranslations("goals");
 
   const now = new Date();
   const dayOfWeek = now.getDay();
@@ -54,7 +56,7 @@ export default async function GoalsPage() {
     breakdownMap.set(title, (breakdownMap.get(title) ?? 0) + 1);
   });
   const goalBreakdown = Array.from(breakdownMap.entries())
-    .map(([course, count]) => ({ course, count, unit: count === 1 ? "aula" : "aulas" }))
+    .map(([course, count]) => ({ course, count, unit: count === 1 ? t("lessonUnit") : t("lessonsUnit") }))
     .sort((a, b) => b.count - a.count);
 
   const currentStreak = streakData?.currentStreak ?? 0;
@@ -124,9 +126,9 @@ export default async function GoalsPage() {
         {/* Meta semanal — col-span-2 */}
         <div className="col-span-2 bg-card rounded-[var(--radius-lg)] p-7 flex flex-col">
           <div className="flex justify-between items-baseline mb-5">
-            <h2 className="font-medium text-[15px] m-0 tracking-[-0.015em] text-foreground">Meta semanal</h2>
+            <h2 className="font-medium text-[15px] m-0 tracking-[-0.015em] text-foreground">{t("weeklyGoal")}</h2>
             <button className="text-[12px] text-muted-foreground bg-transparent border-0 cursor-pointer hover:text-foreground px-2 py-1 rounded transition-colors">
-              Editar meta
+              {t("editGoal")}
             </button>
           </div>
           <div className="flex items-baseline gap-3 mb-6">
@@ -134,7 +136,7 @@ export default async function GoalsPage() {
               {weeklyProgress}
             </div>
             <div className="text-[36px] font-normal" style={{ color: 'var(--ink-4)' }}>/{weeklyGoal}</div>
-            <div className="text-[14px] text-muted-foreground">aulas esta semana</div>
+            <div className="text-[14px] text-muted-foreground">{t("lessonsThisWeek")}</div>
           </div>
 
           {/* Week strip */}
@@ -175,13 +177,13 @@ export default async function GoalsPage() {
 
         {/* Sequência */}
         <div className="bg-card rounded-[var(--radius-lg)] p-7 flex flex-col">
-          <h2 className="font-medium text-[15px] m-0 tracking-[-0.015em] text-foreground mb-5">Sequência atual</h2>
+          <h2 className="font-medium text-[15px] m-0 tracking-[-0.015em] text-foreground mb-5">{t("currentStreak")}</h2>
           <div className="text-[56px] leading-none tracking-[-0.03em] text-accent font-medium tabular-nums">
             {currentStreak}
           </div>
-          <div className="font-mono text-[11px] tracking-[0.1em] uppercase text-muted-foreground mt-1">DIAS CONSECUTIVOS</div>
+          <div className="font-mono text-[11px] tracking-[0.1em] uppercase text-muted-foreground mt-1">{t("consecutiveDays")}</div>
           <div className="font-mono text-[11px] text-muted-foreground mt-3 tracking-[0.02em]">
-            Recorde: {bestStreak} dias
+            {t("record", { days: bestStreak })}
           </div>
           <div className="mt-5 grid grid-cols-[repeat(15,1fr)] gap-[3px]">
             {Array.from({ length: 90 }, (_, i) => {
@@ -196,17 +198,17 @@ export default async function GoalsPage() {
               );
             })}
           </div>
-          <div className="font-mono text-[10px] text-muted-foreground mt-2 tracking-[0.05em]">Últimos 90 dias</div>
+          <div className="font-mono text-[10px] text-muted-foreground mt-2 tracking-[0.05em]">{t("last90Days")}</div>
         </div>
 
         {/* Tempo investido */}
         <div className="bg-card rounded-[var(--radius-lg)] p-7 flex flex-col">
-          <h2 className="font-medium text-[15px] m-0 tracking-[-0.015em] text-foreground mb-5">Tempo investido</h2>
+          <h2 className="font-medium text-[15px] m-0 tracking-[-0.015em] text-foreground mb-5">{t("timeInvested")}</h2>
           <div className="flex items-baseline leading-none text-foreground font-medium tracking-[-0.04em]">
             <span className="text-[40px]">47</span><span className="text-[20px] ml-0.5 text-muted-foreground font-normal">h</span>
             <span className="text-[40px] ml-2">22</span><span className="text-[20px] ml-0.5 text-muted-foreground font-normal">m</span>
           </div>
-          <div className="text-[12px] text-muted-foreground font-mono mt-1">desde o início · Jan 2026</div>
+          <div className="text-[12px] text-muted-foreground font-mono mt-1">{t("sinceStart")}</div>
           <div className="flex flex-col mt-3">
             {INV_BARS.map((b) => (
               <div key={b.l} className="flex flex-col gap-1 mt-3">
@@ -224,7 +226,7 @@ export default async function GoalsPage() {
 
         {/* Histórico — col-span-3 */}
         <div className="col-span-3 bg-card rounded-[var(--radius-lg)] p-7">
-          <h2 className="font-medium text-[15px] m-0 tracking-[-0.015em] text-foreground mb-5">Histórico</h2>
+          <h2 className="font-medium text-[15px] m-0 tracking-[-0.015em] text-foreground mb-5">{t("history")}</h2>
           <ul className="list-none p-0 m-0">
             {history.map((w, i) => (
               <li
@@ -249,7 +251,7 @@ export default async function GoalsPage() {
                   className="text-[11px] font-mono tracking-[0.04em] uppercase justify-self-end"
                   style={{ color: w.hit ? 'var(--ok)' : 'var(--ink-4)' }}
                 >
-                  {w.hit ? "cumprida" : "falhou"}
+                  {w.hit ? t("fulfilled") : t("failed")}
                 </span>
               </li>
             ))}

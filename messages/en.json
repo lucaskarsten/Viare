@@ -173,5 +173,56 @@
     "tutorGreeting": "Stuck? Ask anything about this lesson. I answer based on the material and flag anything outside of it.",
     "tutorPlaceholder": "Ask something…",
     "lessonOf": "Lesson {current} of {total}"
+  },
+  "quiz": {
+    "noQuestions": "No questions found.",
+    "alreadyCompleted": "Quiz already completed!",
+    "questionOf": "Question {current} of {total}",
+    "correctOf": "{correct} of {total} correct",
+    "seeResult": "See result",
+    "next": "Next →"
+  },
+  "flashcard": {
+    "questionOf": "Question {current}/{total}",
+    "tapToReveal": "tap to reveal",
+    "answer": "Answer",
+    "previous": "← Previous",
+    "next": "Next →",
+    "hard": "Hard",
+    "ok": "Ok",
+    "easy": "Easy"
+  },
+  "courseDetail": {
+    "selectLessonsTab": "Select the <strong>Structure</strong> tab to see the course content.",
+    "noReviewsYet": "No reviews yet",
+    "noReviewsBody": "No reviews yet.",
+    "noNotes": "No notes yet. Add notes during lessons.",
+    "noFlashcards": "No flashcards yet.",
+    "completedBadge": "Completed",
+    "youAreHere": "You are here",
+    "locked": "locked",
+    "tabs": {
+      "overview": "Overview",
+      "lessons": "Structure",
+      "flashcards": "Flashcards",
+      "reviews": "Reviews",
+      "notes": "Notes"
+    }
+  },
+  "goals": {
+    "weeklyGoal": "Weekly goal",
+    "currentStreak": "Current streak",
+    "consecutiveDays": "CONSECUTIVE DAYS",
+    "record": "Record: {days} days",
+    "last90Days": "Last 90 days",
+    "timeInvested": "Time invested",
+    "history": "History",
+    "editGoal": "Edit goal",
+    "lessonsThisWeek": "lessons this week",
+    "lessonUnit": "lesson",
+    "lessonsUnit": "lessons",
+    "sinceStart": "since start · Jan 2026",
+    "fulfilled": "fulfilled",
+    "failed": "missed"
   }
 }

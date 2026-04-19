@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 export type CourseDetailLesson = {
   id: string;
@@ -29,13 +30,7 @@ type Props = {
 
 type Tab = "overview" | "lessons" | "flashcards" | "reviews" | "notes";
 
-const TABS: { id: Tab; label: string }[] = [
-  { id: "overview", label: "Visão geral" },
-  { id: "lessons", label: "Estrutura" },
-  { id: "flashcards", label: "Flashcards" },
-  { id: "reviews", label: "Avaliações" },
-  { id: "notes", label: "Notas" },
-];
+const TAB_IDS: Tab[] = ["overview", "lessons", "flashcards", "reviews", "notes"];
 
 function kindStyle(kind: string): { className: string; style?: React.CSSProperties } {
   const base = "font-mono text-[10px] uppercase tracking-[0.08em] text-center px-2 py-[2px] rounded-[2px]";
@@ -53,32 +48,34 @@ function kindStyle(kind: string): { className: string; style?: React.CSSProperti
 }
 
 export default function CourseDetailTabs({ courseSlug, modules }: Props) {
+  const t = useTranslations("courseDetail");
   const [tab, setTab] = useState<Tab>("lessons");
   const router = useRouter();
 
   return (
     <div className="flex flex-col">
       <div className="flex gap-1 border-b border-border">
-        {TABS.map((t) => (
+        {TAB_IDS.map((id) => (
           <button
-            key={t.id}
+            key={id}
             className={`text-[13px] px-3.5 py-2.5 -mb-px cursor-pointer font-[inherit] bg-transparent transition-colors${
-              tab === t.id
+              tab === id
                 ? " text-foreground font-medium [border-bottom:2px_solid_var(--accent)]"
                 : " text-muted-foreground [border-bottom:2px_solid_transparent] hover:text-foreground"
             }`}
-            onClick={() => setTab(t.id)}
+            onClick={() => setTab(id)}
           >
-            {t.label}
+            {t(`tabs.${id}`)}
           </button>
         ))}
       </div>
 
       <div className="pt-8">
         {tab === "overview" && (
-          <p className="text-muted-foreground py-6">
-            Selecione a aba <strong className="text-foreground">Aulas</strong> para ver o conteúdo do curso.
-          </p>
+          <p
+            className="text-muted-foreground py-6 [&_strong]:text-foreground [&_strong]:font-semibold"
+            dangerouslySetInnerHTML={{ __html: t.raw("selectLessonsTab") }}
+          />
         )}
 
         {tab === "lessons" && (
@@ -99,17 +96,17 @@ export default function CourseDetailTabs({ courseSlug, modules }: Props) {
                     </h3>
                     {allDone && (
                       <span className="font-mono text-[10px] px-2 py-[3px] bg-accent/15 text-accent rounded-full tracking-[0.05em] uppercase">
-                        Concluído
+                        {t("completedBadge")}
                       </span>
                     )}
                     {m.isCurrent && !allDone && (
                       <span className="font-mono text-[10px] px-2 py-[3px] bg-accent/15 text-accent rounded-full tracking-[0.05em] uppercase">
-                        Você está aqui
+                        {t("youAreHere")}
                       </span>
                     )}
                     {m.isLocked && (
                       <span className="font-mono text-[10px] text-muted-foreground tracking-[0.05em]">
-                        bloqueado
+                        {t("locked")}
                       </span>
                     )}
                   </div>
@@ -151,15 +148,11 @@ export default function CourseDetailTabs({ courseSlug, modules }: Props) {
         )}
 
         {tab === "notes" && (
-          <p className="text-muted-foreground py-6">
-            Nenhuma nota ainda. Adicione notas durante as aulas.
-          </p>
+          <p className="text-muted-foreground py-6">{t("noNotes")}</p>
         )}
 
         {tab === "flashcards" && (
-          <p className="text-muted-foreground py-6">
-            Nenhum flashcard ainda.
-          </p>
+          <p className="text-muted-foreground py-6">{t("noFlashcards")}</p>
         )}
 
         {tab === "reviews" && (
@@ -168,7 +161,7 @@ export default function CourseDetailTabs({ courseSlug, modules }: Props) {
               <div className="text-center">
                 <div className="text-[48px] leading-none tracking-[-0.04em] font-medium tabular-nums text-foreground">—</div>
                 <div className="text-accent tracking-[0.08em] text-[16px]">★★★★★</div>
-                <div className="text-[12px] text-muted-foreground mt-1.5">Sem avaliações ainda</div>
+                <div className="text-[12px] text-muted-foreground mt-1.5">{t("noReviewsYet")}</div>
               </div>
               <div className="flex flex-col gap-1.5">
                 {[5, 4, 3, 2, 1].map((n) => (
@@ -182,9 +175,7 @@ export default function CourseDetailTabs({ courseSlug, modules }: Props) {
                 ))}
               </div>
             </div>
-            <p className="text-muted-foreground py-6">
-              Nenhuma avaliação ainda.
-            </p>
+            <p className="text-muted-foreground py-6">{t("noReviewsBody")}</p>
           </div>
         )}
       </div>
