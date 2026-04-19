@@ -50,9 +50,9 @@ export default async function CoursesPage({
   };
 
   const difficultyColor = {
-    EASY: "text-green-600 bg-green-50",
-    MEDIUM: "text-yellow-600 bg-yellow-50",
-    HARD: "text-red-600 bg-red-50",
+    EASY: "text-green-700 bg-green-500/10",
+    MEDIUM: "text-yellow-700 bg-yellow-500/10",
+    HARD: "text-red-700 bg-red-500/10",
   };
 
   return (
@@ -103,7 +103,7 @@ export default async function CoursesPage({
                   {course.title}
                 </h2>
                 <span
-                  className={`shrink-0 text-xs font-medium px-2 py-0.5 rounded-full ${difficultyColor[course.difficulty]}`}
+                  className={`shrink-0 text-[11px] font-medium px-2 py-0.5 rounded-full ${difficultyColor[course.difficulty]}`}
                 >
                   {difficultyLabel[course.difficulty]}
                 </span>

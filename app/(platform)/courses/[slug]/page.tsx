@@ -13,6 +13,8 @@ import {
   Sparkles,
 } from "lucide-react";
 import EnrollButton from "./EnrollButton";
+import CourseDetailTabs from "@/components/CourseDetailTabs";
+import type { CourseMapModule } from "@/components/CourseMap";
 
 type Params = Promise<{ slug: string }>;
 
@@ -62,9 +64,9 @@ export default async function CoursePage({ params }: { params: Params }) {
 
   const difficultyLabel = { EASY: "Iniciante", MEDIUM: "Intermediário", HARD: "Avançado" };
   const difficultyColor = {
-    EASY: "text-green-600 bg-green-50",
-    MEDIUM: "text-yellow-600 bg-yellow-50",
-    HARD: "text-red-600 bg-red-50",
+    EASY: "text-green-700 bg-green-500/10",
+    MEDIUM: "text-yellow-700 bg-yellow-500/10",
+    HARD: "text-red-700 bg-red-500/10",
   };
 
   return (
@@ -74,7 +76,7 @@ export default async function CoursePage({ params }: { params: Params }) {
         <div className="flex items-start justify-between gap-4">
           <div className="space-y-2 flex-1">
             <div className="flex items-center gap-2 flex-wrap">
-              <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${difficultyColor[course.difficulty]}`}>
+              <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${difficultyColor[course.difficulty]}`}>
                 {difficultyLabel[course.difficulty]}
               </span>
               {course.sourceType === "AI_GENERATED" && (
@@ -128,7 +130,7 @@ export default async function CoursePage({ params }: { params: Params }) {
             </div>
             <div className="h-2 rounded-full bg-muted overflow-hidden">
               <div
-                className="h-full rounded-full bg-primary transition-all"
+                className="h-full rounded-full bg-accent transition-all"
                 style={{ width: `${enrollment.progressPercent}%` }}
               />
             </div>
@@ -148,64 +150,96 @@ export default async function CoursePage({ params }: { params: Params }) {
       )}
 
       {/* Modules & lessons */}
-      <div className="space-y-3">
-        <h2 className="font-semibold text-lg">Conteúdo do curso</h2>
-        {course.modules.map((mod, mi) => (
-          <div key={mod.id} className="rounded-xl border bg-card overflow-hidden">
-            <div className="px-5 py-3 bg-muted/50 border-b">
-              <div className="flex items-center justify-between">
-                <h3 className="font-medium text-sm">
-                  Módulo {mi + 1}: {mod.title}
-                </h3>
-                <span className="text-xs text-muted-foreground">
-                  {mod.lessons.length} aulas
-                </span>
-              </div>
-              {mod.description && (
-                <p className="text-xs text-muted-foreground mt-0.5">{mod.description}</p>
-              )}
-            </div>
-            <div className="divide-y">
-              {mod.lessons.map((lesson, li) => {
-                const done = completedLessonIds.has(lesson.id);
-                const accessible = !!enrollment;
-                const href = `/courses/${slug}/lessons/${lesson.id}`;
+      {(() => {
+        const mapModules: CourseMapModule[] = course.modules.map((m, mi) => ({
+          id: m.id,
+          title: m.title,
+          order: m.order,
+          locked: mi > 0 && !course.modules[mi - 1].lessons.every((l) => completedLessonIds.has(l.id)),
+          current: mi === course.modules.findIndex((mod) => mod.lessons.some((l) => !completedLessonIds.has(l.id))),
+          lessons: m.lessons.map((l, li) => ({
+            id: l.id,
+            title: l.title,
+            order: l.order ?? li + 1,
+            completed: completedLessonIds.has(l.id),
+            current:
+              !completedLessonIds.has(l.id) &&
+              m.lessons.slice(0, li).every((pl) => completedLessonIds.has(pl.id)),
+            locked:
+              mi > 0 &&
+              !course.modules[mi - 1].lessons.every((pl) => completedLessonIds.has(pl.id)),
+          })),
+        }));
 
-                return (
-                  <div key={lesson.id} className="flex items-center gap-3 px-5 py-3 hover:bg-muted/30 transition-colors">
-                    <div className="w-5 shrink-0">
-                      {done ? (
-                        <CheckCircle2 className="h-4 w-4 text-green-500" />
-                      ) : !accessible ? (
-                        <Lock className="h-4 w-4 text-muted-foreground/40" />
-                      ) : (
-                        <span className="w-4 h-4 flex items-center justify-center text-xs text-muted-foreground font-mono">
-                          {li + 1}
-                        </span>
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      {accessible ? (
-                        <Link href={href} className="text-sm hover:text-primary transition-colors truncate block">
-                          {lesson.title}
-                        </Link>
-                      ) : (
-                        <span className="text-sm text-muted-foreground truncate block">{lesson.title}</span>
-                      )}
-                    </div>
-                    <span className="text-xs text-muted-foreground shrink-0">
-                      {lesson.type === "QUIZ" ? "Quiz" : "Aula"}
+        const lessonListContent = (
+          <div className="space-y-3">
+            <h2 className="font-semibold text-lg">Conteúdo do curso</h2>
+            {course.modules.map((mod, mi) => (
+              <div key={mod.id} className="rounded-xl border bg-card overflow-hidden">
+                <div className="px-5 py-3 bg-muted/50 border-b">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-medium text-sm">
+                      Módulo {mi + 1}: {mod.title}
+                    </h3>
+                    <span className="text-xs text-muted-foreground">
+                      {mod.lessons.length} aulas
                     </span>
-                    {accessible && (
-                      <ChevronRight className="h-4 w-4 text-muted-foreground/40 shrink-0" />
-                    )}
                   </div>
-                );
-              })}
-            </div>
+                  {mod.description && (
+                    <p className="text-xs text-muted-foreground mt-0.5">{mod.description}</p>
+                  )}
+                </div>
+                <div className="divide-y">
+                  {mod.lessons.map((lesson, li) => {
+                    const done = completedLessonIds.has(lesson.id);
+                    const accessible = !!enrollment;
+                    const href = `/courses/${slug}/lessons/${lesson.id}`;
+
+                    return (
+                      <div key={lesson.id} className="flex items-center gap-3 px-5 py-3 hover:bg-muted/30 transition-colors">
+                        <div className="w-5 shrink-0">
+                          {done ? (
+                            <CheckCircle2 className="h-4 w-4 text-green-500" />
+                          ) : !accessible ? (
+                            <Lock className="h-4 w-4 text-muted-foreground/40" />
+                          ) : (
+                            <span className="w-4 h-4 flex items-center justify-center text-xs text-muted-foreground font-mono">
+                              {li + 1}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          {accessible ? (
+                            <Link href={href} className="text-sm hover:text-primary transition-colors truncate block">
+                              {lesson.title}
+                            </Link>
+                          ) : (
+                            <span className="text-sm text-muted-foreground truncate block">{lesson.title}</span>
+                          )}
+                        </div>
+                        <span className="text-xs text-muted-foreground shrink-0">
+                          {lesson.type === "QUIZ" ? "Quiz" : "Aula"}
+                        </span>
+                        {accessible && (
+                          <ChevronRight className="h-4 w-4 text-muted-foreground/40 shrink-0" />
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
+        );
+
+        return (
+          <CourseDetailTabs
+            modules={mapModules}
+            slug={slug}
+            lessonListContent={lessonListContent}
+          />
+        );
+      })()}
     </div>
   );
 }

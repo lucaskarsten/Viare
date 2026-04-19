@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { CheckCircle2, XCircle, ChevronRight } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 
 type Question = {
   id: string;
@@ -21,7 +21,7 @@ type Props = {
 export default function QuizLesson({ lessonId, questions, isCompleted }: Props) {
   const router = useRouter();
   const [current, setCurrent] = useState(0);
-  const [selected, setSelected] = useState<number | null>(null);
+  const [, setSelected] = useState<number | null>(null);
   const [answers, setAnswers] = useState<(number | null)[]>(Array(questions.length).fill(null));
   const [submitted, setSubmitted] = useState(isCompleted);
   const [score, setScore] = useState<number | null>(isCompleted ? null : null);
@@ -59,7 +59,7 @@ export default function QuizLesson({ lessonId, questions, isCompleted }: Props) 
   if (submitted && score !== null) {
     return (
       <div className="space-y-6 text-center py-8">
-        <div className="text-6xl font-bold tabular-nums">
+        <div className="text-5xl font-medium text-accent tabular-nums">
           {score}
           <span className="text-2xl text-muted-foreground">%</span>
         </div>
@@ -72,11 +72,9 @@ export default function QuizLesson({ lessonId, questions, isCompleted }: Props) 
             return (
               <div key={q.id} className={`rounded-lg border p-3 text-sm ${correct ? "border-green-200 bg-green-50" : "border-red-200 bg-red-50"}`}>
                 <div className="flex items-start gap-2">
-                  {correct ? (
-                    <CheckCircle2 className="h-4 w-4 text-green-600 mt-0.5 shrink-0" />
-                  ) : (
-                    <XCircle className="h-4 w-4 text-red-600 mt-0.5 shrink-0" />
-                  )}
+                  <span className={`text-base leading-none mt-0.5 shrink-0 ${correct ? "text-green-600" : "text-red-600"}`}>
+                    {correct ? "✓" : "✗"}
+                  </span>
                   <div>
                     <p className="font-medium">{q.question}</p>
                     <p className="text-muted-foreground text-xs mt-1">{q.explanation}</p>
@@ -93,7 +91,7 @@ export default function QuizLesson({ lessonId, questions, isCompleted }: Props) 
   if (submitted) {
     return (
       <div className="text-center py-8">
-        <CheckCircle2 className="h-12 w-12 text-green-500 mx-auto mb-3" />
+        <div className="text-5xl font-medium text-accent tabular-nums mb-3">✓</div>
         <p className="font-semibold">Quiz já concluído!</p>
       </div>
     );
@@ -105,9 +103,9 @@ export default function QuizLesson({ lessonId, questions, isCompleted }: Props) 
         <span>Questão {current + 1} de {questions.length}</span>
         <div className="flex gap-1">
           {questions.map((_, i) => (
-            <div
+            <span
               key={i}
-              className={`h-1.5 w-6 rounded-full ${i === current ? "bg-primary" : answers[i] !== null ? "bg-green-400" : "bg-muted"}`}
+              className={`w-4 h-[3px] rounded-[1px] ${answers[i] !== null ? "bg-accent" : i === current ? "bg-accent opacity-60" : "bg-border"}`}
             />
           ))}
         </div>
@@ -118,24 +116,39 @@ export default function QuizLesson({ lessonId, questions, isCompleted }: Props) 
       <div className="space-y-2">
         {question.options.map((option, i) => {
           const isSelected = answers[current] === i;
-          const isCorrect = i === question.correctIndex;
-          const showResult = answered;
+          const isCorrect = answered && i === question.correctIndex;
+          const isWrong = answered && isSelected && !isCorrect;
 
-          let style = "border bg-background hover:bg-muted/50 text-foreground";
-          if (showResult && isSelected && isCorrect) style = "border-green-500 bg-green-50 text-green-800";
-          else if (showResult && isSelected && !isCorrect) style = "border-red-500 bg-red-50 text-red-800";
-          else if (showResult && isCorrect) style = "border-green-300 bg-green-50/50 text-green-700";
-          else if (isSelected) style = "border-primary bg-primary/5";
+          const stateClasses = isCorrect
+            ? "border-green-500/50 bg-green-500/8 text-green-800 dark:text-green-300"
+            : isWrong
+            ? "border-red-500/50 bg-red-500/8 text-red-800 dark:text-red-300"
+            : isSelected
+            ? "border-accent bg-accent/5"
+            : "border-border bg-background hover:border-muted-foreground/40";
+
+          const letterClasses = isCorrect
+            ? "border-green-500 bg-green-500 text-white"
+            : isWrong
+            ? "border-red-500 bg-red-500 text-white"
+            : isSelected
+            ? "border-accent text-accent bg-accent/10"
+            : "border-border text-muted-foreground";
 
           return (
             <button
               key={i}
               onClick={() => selectOption(i)}
               disabled={answered}
-              className={`w-full text-left rounded-lg px-4 py-3 text-sm transition-colors ${style} disabled:cursor-default`}
+              className={`w-full grid grid-cols-[28px_1fr_20px] items-center gap-3 border rounded px-3 py-3 text-left text-[14px] transition-colors disabled:cursor-default ${stateClasses}`}
             >
-              <span className="font-mono text-xs text-muted-foreground mr-2">{String.fromCharCode(65 + i)}.</span>
-              {option}
+              <span className={`w-7 h-7 rounded-full border flex items-center justify-center text-[11px] font-medium font-mono ${letterClasses}`}>
+                {String.fromCharCode(65 + i)}
+              </span>
+              <span>{option}</span>
+              <span className="text-center text-base">
+                {isCorrect ? "✓" : isWrong ? "✗" : ""}
+              </span>
             </button>
           );
         })}
