@@ -209,6 +209,55 @@
       "notes": "Notes"
     }
   },
+  "generate": {
+    "eyebrow": "GENERATE COURSE",
+    "title": "What do you want to learn?",
+    "lede": "Type a topic — the more specific, the better the generated curriculum.",
+    "placeholder": "E.g.: Computer networks, history of jazz, bread baking…",
+    "suggestionsLabel": "SUGGESTIONS",
+    "depthLabel": "DEPTH",
+    "paceLabel": "DURATION (min/lesson)",
+    "formatLabel": "FORMAT",
+    "languageLabel": "LANGUAGE",
+    "languageSub": "Pick the primary language for the course",
+    "primaryBadge": "PRIMARY",
+    "alsoBadge": "+ ALSO",
+    "family": "Family:",
+    "familyDescOne": "Generating primary in {native} + {count} linked translation.",
+    "familyDescMany": "Generating primary in {native} + {count} linked translations.",
+    "familyHint": "Tip: right-click (or tap again) to add as a linked translation.",
+    "timeEstimate": "~{minutes} min to generate",
+    "generateButton": "Generate course",
+    "generating": "Generating…",
+    "logTitle": "Generating course…",
+    "logComplete": "done",
+    "curriculum": "{title} · your curriculum",
+    "curriculumSub": "Edit anything before we start.",
+    "regenerate": "Regenerate",
+    "editStructure": "Edit structure",
+    "done": "✓ Course ready! Redirecting…",
+    "errorTitle": "Error generating course",
+    "errorStart": "Failed to start generation",
+    "retry": "Try again",
+    "depth": {
+      "beginner": "Beginner",
+      "intermediate": "Intermediate",
+      "deep": "Deep"
+    },
+    "format": {
+      "reading": "Reading",
+      "mixed": "Mixed",
+      "practical": "Hands-on"
+    },
+    "thinking": [
+      "Scanning primary sources…",
+      "Checking information currency…",
+      "Structuring modules and lessons…",
+      "Drafting quizzes and labs…",
+      "Selecting vocabulary for flashcards…",
+      "Ready."
+    ]
+  },
   "onboarding": {
     "step": "STEP {current} OF {total}",
     "step0": {

@@ -209,6 +209,55 @@
       "notes": "Notas"
     }
   },
+  "generate": {
+    "eyebrow": "GERAR CURSO",
+    "title": "Sobre o que quer aprender?",
+    "lede": "Digite um tema, quanto mais específico, melhor o currículo gerado.",
+    "placeholder": "Ex: Redes de computadores, história do jazz, panificação…",
+    "suggestionsLabel": "SUGESTÕES",
+    "depthLabel": "PROFUNDIDADE",
+    "paceLabel": "DURAÇÃO (min/aula)",
+    "formatLabel": "FORMATO",
+    "languageLabel": "IDIOMA",
+    "languageSub": "Selecione o idioma principal do curso",
+    "primaryBadge": "PRINCIPAL",
+    "alsoBadge": "+ TAMBÉM",
+    "family": "Família:",
+    "familyDescOne": "Gerando principal em {native} + {count} tradução vinculada.",
+    "familyDescMany": "Gerando principal em {native} + {count} traduções vinculadas.",
+    "familyHint": "Dica: botão direito (ou toque de novo) pra adicionar como tradução vinculada.",
+    "timeEstimate": "~{minutes} min para gerar",
+    "generateButton": "Gerar curso",
+    "generating": "Gerando…",
+    "logTitle": "Gerando curso…",
+    "logComplete": "concluído",
+    "curriculum": "{title} · seu currículo",
+    "curriculumSub": "Edite o que quiser antes de começar.",
+    "regenerate": "Regenerar",
+    "editStructure": "Editar estrutura",
+    "done": "✓ Curso pronto! Redirecionando…",
+    "errorTitle": "Erro ao gerar curso",
+    "errorStart": "Falha ao iniciar geração",
+    "retry": "Tentar novamente",
+    "depth": {
+      "beginner": "Iniciante",
+      "intermediate": "Intermediário",
+      "deep": "Profundo"
+    },
+    "format": {
+      "reading": "Leitura",
+      "mixed": "Misto",
+      "practical": "Prático"
+    },
+    "thinking": [
+      "Varrendo fontes primárias…",
+      "Verificando atualidade das informações…",
+      "Estruturando módulos e aulas…",
+      "Rascunhando quizzes e labs…",
+      "Selecionando vocabulário para flashcards…",
+      "Pronto."
+    ]
+  },
   "onboarding": {
     "step": "PASSO {current} DE {total}",
     "step0": {

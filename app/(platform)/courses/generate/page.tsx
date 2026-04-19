@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import type { GenerationEvent } from "@/lib/generation";
 
 type Phase =
@@ -17,14 +18,12 @@ const SUGGESTIONS = [
   "Estatística bayesiana", "Color theory", "Rust ownership", "Aberturas de xadrez",
 ];
 
-const THINKING = [
-  "Varrendo fontes primárias…",
-  "Verificando atualidade das informações…",
-  "Estruturando módulos e aulas…",
-  "Rascunhando quizzes e labs…",
-  "Selecionando vocabulário para flashcards…",
-  "Pronto.",
-];
+const DEPTH_IDS = ["beginner", "intermediate", "deep"] as const;
+const FORMAT_IDS = ["reading", "mixed", "practical"] as const;
+const PACE_VALUES = ["20", "30", "45", "60"] as const;
+
+type DepthId = (typeof DEPTH_IDS)[number];
+type FormatId = (typeof FORMAT_IDS)[number];
 
 const LANGUAGES = [
   { code: "pt", flag: "PT", native: "Português" },
@@ -37,9 +36,9 @@ const LANGUAGES = [
   { code: "ja", flag: "JP", native: "日本語" },
 ];
 
-function estimatedMinutes(depth: string, pace: string): number {
-  const baseByDepth: Record<string, number> = { "Iniciante": 4, "Intermediário": 7, "Profundo": 12 };
-  const base = baseByDepth[depth] ?? 7;
+function estimatedMinutes(depth: DepthId, pace: string): number {
+  const baseByDepth: Record<DepthId, number> = { beginner: 4, intermediate: 7, deep: 12 };
+  const base = baseByDepth[depth];
   const paceNum = parseInt(pace, 10) || 30;
   return Math.round(base * (paceNum / 30));
 }
@@ -48,11 +47,12 @@ const btnGhost = "bg-transparent text-foreground px-4 py-2.5 rounded text-[13px]
 const btnPrimary = "bg-foreground text-background px-4 py-2.5 rounded text-[13px] font-medium cursor-pointer border-0 font-[inherit] transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed";
 
 export default function GeneratePage() {
+  const t = useTranslations("generate");
   const router = useRouter();
   const [topic, setTopic] = useState("");
-  const [depth, setDepth] = useState("Intermediário");
+  const [depth, setDepth] = useState<DepthId>("intermediate");
   const [pace, setPace] = useState("30");
-  const [format, setFormat] = useState("Misto");
+  const [format, setFormat] = useState<FormatId>("mixed");
   const [language, setLanguage] = useState("pt");
   const [alsoGenerate, setAlsoGenerate] = useState<string[]>([]);
   const [phase, setPhase] = useState<Phase>({ status: "idle" });
@@ -79,7 +79,8 @@ export default function GeneratePage() {
     abortRef.current = new AbortController();
     setPhase({ status: "searching" });
     setLogSteps([]);
-    THINKING.forEach((s, i) => { setTimeout(() => setLogSteps((prev) => [...prev, s]), 450 * (i + 1)); });
+    const thinking = t.raw("thinking") as string[];
+    thinking.forEach((s, i) => { setTimeout(() => setLogSteps((prev) => [...prev, s]), 450 * (i + 1)); });
 
     try {
       const res = await fetch("/api/courses/generate", {
@@ -88,7 +89,7 @@ export default function GeneratePage() {
         body: JSON.stringify({ topic: topic.trim() }),
         signal: abortRef.current.signal,
       });
-      if (!res.ok) throw new Error("Falha ao iniciar geração");
+      if (!res.ok) throw new Error(t("errorStart"));
 
       const reader = res.body!.getReader();
       const decoder = new TextDecoder();
@@ -134,12 +135,12 @@ export default function GeneratePage() {
   return (
     <div className="flex flex-col gap-10 pb-20">
       <header className="pb-8 border-b border-border">
-        <div className="font-mono text-[11px] tracking-[0.1em] uppercase text-muted-foreground mb-2">GERAR CURSO</div>
+        <div className="font-mono text-[11px] tracking-[0.1em] uppercase text-muted-foreground mb-2">{t("eyebrow")}</div>
         <h1 className="font-medium text-[28px] leading-[1.15] tracking-[-0.02em] m-0 text-foreground">
-          Sobre o que quer aprender?
+          {t("title")}
         </h1>
         <p className="text-[15px] leading-[1.6] text-muted-foreground mt-2 m-0">
-          Digite um tema, quanto mais específico, melhor o currículo gerado.
+          {t("lede")}
         </p>
       </header>
 
@@ -148,13 +149,13 @@ export default function GeneratePage() {
           className="w-full bg-transparent border-0 border-b border-border font-[inherit] text-[22px] leading-[1.35] text-foreground py-4 resize-none min-h-[100px] outline-none tracking-[-0.02em] font-normal placeholder:text-muted-foreground focus:border-accent"
           value={topic}
           onChange={(e) => setTopic(e.target.value)}
-          placeholder="Ex: Redes de computadores, história do jazz, panificação..."
+          placeholder={t("placeholder")}
           rows={4}
           disabled={isRunning}
         />
 
         <div className="flex flex-wrap gap-1.5 items-center mt-4">
-          <span className="font-mono text-[10px] tracking-[0.08em] uppercase text-muted-foreground mr-1">SUGESTÕES</span>
+          <span className="font-mono text-[10px] tracking-[0.08em] uppercase text-muted-foreground mr-1">{t("suggestionsLabel")}</span>
           {SUGGESTIONS.map((s) => (
             <button key={s} type="button"
               className="text-[12px] px-[11px] py-[5px] border border-border rounded-full text-muted-foreground transition-all bg-transparent cursor-pointer font-[inherit] hover:border-foreground hover:text-foreground"
@@ -166,33 +167,57 @@ export default function GeneratePage() {
         </div>
 
         <div className="mt-10 grid grid-cols-3 gap-8 py-6 border-t border-b border-border">
-          {[
-            { label: "PROFUNDIDADE", opts: ["Iniciante", "Intermediário", "Profundo"], val: depth, set: setDepth },
-            { label: "DURAÇÃO (min/aula)", opts: ["20", "30", "45", "60"], val: pace, set: setPace },
-            { label: "FORMATO", opts: ["Leitura", "Misto", "Prático"], val: format, set: setFormat },
-          ].map((g) => (
-            <div key={g.label}>
-              <div className="font-mono text-[10px] tracking-[0.08em] uppercase text-muted-foreground mb-2.5">{g.label}</div>
-              <div className="flex gap-1.5 flex-wrap">
-                {g.opts.map((v) => (
-                  <button key={v} type="button"
-                    className={`text-[13px] px-3 py-1.5 rounded-[var(--radius)] transition-all border-0 cursor-pointer font-[inherit]${
-                      g.val === v ? " bg-foreground text-background" : " bg-card text-muted-foreground hover:bg-muted"
-                    }`}
-                    onClick={() => g.set(v)}
-                  >
-                    {v}
-                  </button>
-                ))}
-              </div>
+          <div>
+            <div className="font-mono text-[10px] tracking-[0.08em] uppercase text-muted-foreground mb-2.5">{t("depthLabel")}</div>
+            <div className="flex gap-1.5 flex-wrap">
+              {DEPTH_IDS.map((id) => (
+                <button key={id} type="button"
+                  className={`text-[13px] px-3 py-1.5 rounded-[var(--radius)] transition-all border-0 cursor-pointer font-[inherit]${
+                    depth === id ? " bg-foreground text-background" : " bg-card text-muted-foreground hover:bg-muted"
+                  }`}
+                  onClick={() => setDepth(id)}
+                >
+                  {t(`depth.${id}`)}
+                </button>
+              ))}
             </div>
-          ))}
+          </div>
+          <div>
+            <div className="font-mono text-[10px] tracking-[0.08em] uppercase text-muted-foreground mb-2.5">{t("paceLabel")}</div>
+            <div className="flex gap-1.5 flex-wrap">
+              {PACE_VALUES.map((v) => (
+                <button key={v} type="button"
+                  className={`text-[13px] px-3 py-1.5 rounded-[var(--radius)] transition-all border-0 cursor-pointer font-[inherit]${
+                    pace === v ? " bg-foreground text-background" : " bg-card text-muted-foreground hover:bg-muted"
+                  }`}
+                  onClick={() => setPace(v)}
+                >
+                  {v}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div>
+            <div className="font-mono text-[10px] tracking-[0.08em] uppercase text-muted-foreground mb-2.5">{t("formatLabel")}</div>
+            <div className="flex gap-1.5 flex-wrap">
+              {FORMAT_IDS.map((id) => (
+                <button key={id} type="button"
+                  className={`text-[13px] px-3 py-1.5 rounded-[var(--radius)] transition-all border-0 cursor-pointer font-[inherit]${
+                    format === id ? " bg-foreground text-background" : " bg-card text-muted-foreground hover:bg-muted"
+                  }`}
+                  onClick={() => setFormat(id)}
+                >
+                  {t(`format.${id}`)}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
         <div className="mt-8">
           <div className="flex items-baseline gap-3 mb-3">
-            <span className="font-mono text-[10px] tracking-[0.08em] uppercase text-muted-foreground">IDIOMA</span>
-            <span className="text-[12px] text-muted-foreground">Selecione o idioma principal do curso</span>
+            <span className="font-mono text-[10px] tracking-[0.08em] uppercase text-muted-foreground">{t("languageLabel")}</span>
+            <span className="text-[12px] text-muted-foreground">{t("languageSub")}</span>
           </div>
           <div className="grid grid-cols-4 gap-2">
             {LANGUAGES.map((l) => {
@@ -225,12 +250,12 @@ export default function GeneratePage() {
                   <span className="text-[13px] font-medium text-foreground tracking-[-0.01em]">{l.native}</span>
                   {isPrimary && (
                     <span className="font-mono text-[9px] tracking-[0.08em] uppercase text-accent bg-accent/10 px-[6px] py-[2px] rounded-[3px] w-fit mt-[2px]">
-                      PRINCIPAL
+                      {t("primaryBadge")}
                     </span>
                   )}
                   {isAlso && (
                     <span className="font-mono text-[9px] tracking-[0.08em] uppercase text-muted-foreground bg-muted px-[6px] py-[2px] rounded-[3px] w-fit mt-[2px]">
-                      + TAMBÉM
+                      {t("alsoBadge")}
                     </span>
                   )}
                 </button>
@@ -239,22 +264,25 @@ export default function GeneratePage() {
           </div>
           {alsoGenerate.length > 0 && (
             <div className="flex gap-2 items-center mt-2.5 text-[13px] text-muted-foreground">
-              <span className="font-mono text-[10px] tracking-[0.08em] uppercase text-muted-foreground/60">Família:</span>
-              Gerando principal em {LANGUAGES.find((l) => l.code === language)?.native} + {alsoGenerate.length} tradução{alsoGenerate.length > 1 ? "ões" : ""} vinculada{alsoGenerate.length > 1 ? "s" : ""}.
+              <span className="font-mono text-[10px] tracking-[0.08em] uppercase text-muted-foreground/60">{t("family")}</span>
+              {t(alsoGenerate.length > 1 ? "familyDescMany" : "familyDescOne", {
+                native: LANGUAGES.find((l) => l.code === language)?.native ?? "",
+                count: alsoGenerate.length,
+              })}
             </div>
           )}
           <p className="mt-2 text-[11px] text-muted-foreground italic">
-            Dica: botão direito (ou toque de novo) pra adicionar como tradução vinculada.
+            {t("familyHint")}
           </p>
         </div>
 
         <div className="flex justify-between items-center mt-7">
           <div className="text-[12px] text-muted-foreground flex items-center gap-2">
             <div className="w-1.5 h-1.5 bg-accent rounded-full" />
-            ~{estTime} min para gerar
+            {t("timeEstimate", { minutes: estTime })}
           </div>
           <button type="button" className={btnPrimary} disabled={!topic.trim() || isRunning} onClick={handleGenerate}>
-            {isRunning ? "Gerando…" : "Gerar curso"}
+            {isRunning ? t("generating") : t("generateButton")}
           </button>
         </div>
       </div>
@@ -264,7 +292,7 @@ export default function GeneratePage() {
           <div className="bg-card rounded-[var(--radius-lg)] p-6 border border-border">
             <div className="flex items-center gap-2.5 pb-3.5 border-b border-border">
               <div className={`w-2 h-2 rounded-full${isRunning ? " bg-accent animate-pulse" : " bg-muted-foreground"}`} />
-              <span className="font-mono text-[12px] text-foreground/70">Gerando curso...</span>
+              <span className="font-mono text-[12px] text-foreground/70">{t("logTitle")}</span>
               <span className="ml-auto text-[11px] text-muted-foreground font-mono">{elapsed}s</span>
             </div>
             <ul className="list-none p-0 pt-4 m-0 font-mono text-[12px] text-foreground/70 flex flex-col">
@@ -282,13 +310,13 @@ export default function GeneratePage() {
               <div className="flex justify-between items-end gap-8 mb-8 pb-6 border-b border-border">
                 <div>
                   <h2 className="font-medium text-[24px] tracking-[-0.03em] m-0 mb-1.5 text-foreground">
-                    {outline.title} · seu currículo
+                    {t("curriculum", { title: outline.title })}
                   </h2>
-                  <p className="text-[14px] text-muted-foreground m-0">Edite o que quiser antes de começar.</p>
+                  <p className="text-[14px] text-muted-foreground m-0">{t("curriculumSub")}</p>
                 </div>
                 <div className="flex gap-1.5 shrink-0">
-                  <button className={btnGhost}>Regenerar</button>
-                  <button className={btnGhost}>Editar estrutura</button>
+                  <button className={btnGhost}>{t("regenerate")}</button>
+                  <button className={btnGhost}>{t("editStructure")}</button>
                 </div>
               </div>
               <ul className="list-none p-0 m-0">
@@ -331,8 +359,8 @@ export default function GeneratePage() {
           <div className="bg-card rounded-[var(--radius-lg)] p-6 border border-border">
             <div className="flex items-center gap-2.5 pb-3.5 border-b border-border">
               <div className="w-2 h-2 rounded-full bg-muted-foreground" />
-              <span className="font-mono text-[12px] text-foreground/70">Gerando curso...</span>
-              <span className="ml-auto text-[11px] text-muted-foreground font-mono">concluído</span>
+              <span className="font-mono text-[12px] text-foreground/70">{t("logTitle")}</span>
+              <span className="ml-auto text-[11px] text-muted-foreground font-mono">{t("logComplete")}</span>
             </div>
             <ul className="list-none p-0 pt-4 m-0 font-mono text-[12px] text-foreground/70 flex flex-col">
               {logSteps.map((s, i) => (
@@ -343,19 +371,19 @@ export default function GeneratePage() {
               ))}
             </ul>
           </div>
-          <p className="text-primary font-medium mt-4">✓ Curso pronto! Redirecionando…</p>
+          <p className="text-primary font-medium mt-4">{t("done")}</p>
         </div>
       )}
 
       {phase.status === "error" && (
         <div className="mt-16">
-          <p className="text-destructive font-medium">Erro ao gerar curso</p>
+          <p className="text-destructive font-medium">{t("errorTitle")}</p>
           <p className="text-[0.85em] text-destructive mt-1">{phase.message}</p>
           <button
             className={`${btnGhost} mt-2`}
             onClick={() => { setPhase({ status: "idle" }); setLogSteps([]); }}
           >
-            Tentar novamente
+            {t("retry")}
           </button>
         </div>
       )}
