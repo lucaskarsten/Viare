@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -52,45 +53,32 @@ const KIND_ICON: Record<Kind, string> = {
   action: "⌘",
 };
 
-const KIND_LABEL: Record<Kind, string> = {
-  course: "Cursos",
-  lesson: "Aulas",
-  note: "Notas",
-  flash: "Flashcards",
-  action: "Ações",
-};
-
 const KIND_ORDER: Kind[] = ["action", "course", "lesson", "note", "flash"];
-
-const STATIC_ACTIONS: CorpusItem[] = [
-  { kind: "action", id: "a-generate", title: "Gerar novo curso",       sub: "Ação", shortcut: "⌘N", href: "/courses/generate" },
-  { kind: "action", id: "a-review",   title: "Iniciar revisão de hoje", sub: "Ação", shortcut: "⌘R", href: "/review" },
-  { kind: "action", id: "a-library",  title: "Ir para Biblioteca",      sub: "Ação", shortcut: "G L", href: "/library" },
-  { kind: "action", id: "a-goals",    title: "Ir para Metas",           sub: "Ação", shortcut: "G G", href: "/goals" },
-];
 
 type FilterId = "all" | Kind;
 
-const FILTER_TABS: { id: FilterId; label: string }[] = [
-  { id: "all",    label: "Todos" },
-  { id: "course", label: "Cursos" },
-  { id: "lesson", label: "Aulas" },
-  { id: "note",   label: "Notas" },
-  { id: "flash",  label: "Flashcards" },
-  { id: "action", label: "Ações" },
-];
+const FILTER_IDS: FilterId[] = ["all", "course", "lesson", "note", "flash", "action"];
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
-function buildCorpus(courses: SearchCourse[]): CorpusItem[] {
+type TFn = (key: string, values?: Record<string, string | number>) => string;
+
+function buildCorpus(courses: SearchCourse[], t: TFn): CorpusItem[] {
   const items: CorpusItem[] = [];
+
+  const staticActions: CorpusItem[] = [
+    { kind: "action", id: "a-generate", title: t("actions.generateNew"),   sub: t("actionLabel"), shortcut: "⌘N",  href: "/courses/generate" },
+    { kind: "action", id: "a-review",   title: t("actions.startReview"),   sub: t("actionLabel"), shortcut: "⌘R",  href: "/review" },
+    { kind: "action", id: "a-library",  title: t("actions.goToLibrary"),   sub: t("actionLabel"), shortcut: "G L", href: "/library" },
+    { kind: "action", id: "a-goals",    title: t("actions.goToGoals"),     sub: t("actionLabel"), shortcut: "G G", href: "/goals" },
+  ];
 
   for (const [i, course] of courses.entries()) {
     items.push({
       kind: "course",
       id: `course-${course.slug}`,
       title: course.title,
-      sub: `${course.moduleCount} módulos · ${course.lessonCount} aulas`,
+      sub: t("courseMeta", { modules: course.moduleCount, lessons: course.lessonCount }),
       color: COURSE_COLORS[i % COURSE_COLORS.length],
       keywords: course.title,
       href: `/courses/${course.slug}`,
@@ -112,7 +100,7 @@ function buildCorpus(courses: SearchCourse[]): CorpusItem[] {
     }
   }
 
-  return [...STATIC_ACTIONS, ...items];
+  return [...staticActions, ...items];
 }
 
 function fuzzyScore(query: string, item: CorpusItem): number {
@@ -155,6 +143,7 @@ function HighlightMatch({ text, query }: { text: string; query: string }) {
 // ── Main Component ───────────────────────────────────────────────────────────
 
 export default function GlobalSearch({ courses }: { courses: SearchCourse[] }) {
+  const t = useTranslations("search");
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
@@ -198,7 +187,7 @@ export default function GlobalSearch({ courses }: { courses: SearchCourse[] }) {
 
   // ── Corpus ────────────────────────────────────────────────────────────────
 
-  const corpus = useMemo(() => buildCorpus(courses), [courses]);
+  const corpus = useMemo(() => buildCorpus(courses, t), [courses, t]);
 
   // ── Grouped results ───────────────────────────────────────────────────────
 
@@ -207,15 +196,14 @@ export default function GlobalSearch({ courses }: { courses: SearchCourse[] }) {
 
     if (!query.trim()) {
       if (filter === "all") {
-        // No query: show Recentes (lessons) + Ações rápidas
         const recentLessons = corpus.filter((c) => c.kind === "lesson").slice(0, 3);
         const quickActions = corpus.filter((c) => c.kind === "action").slice(0, 4);
         return [
-          { heading: "Recentes", items: recentLessons },
-          { heading: "Ações rápidas", items: quickActions },
+          { heading: t("recent"), items: recentLessons },
+          { heading: t("quickActions"), items: quickActions },
         ].filter((g) => g.items.length > 0);
       }
-      return [{ heading: KIND_LABEL[filter as Kind], items: filtered.slice(0, 10) }];
+      return [{ heading: t(`tabs.${filter}`), items: filtered.slice(0, 10) }];
     }
 
     const scored = filtered
@@ -230,10 +218,10 @@ export default function GlobalSearch({ courses }: { courses: SearchCourse[] }) {
     }
 
     return KIND_ORDER.filter((k) => byKind[k]?.length).map((k) => ({
-      heading: KIND_LABEL[k],
+      heading: t(`tabs.${k}`),
       items: (byKind[k] ?? []).slice(0, 6),
     }));
-  }, [query, filter, corpus]);
+  }, [query, filter, corpus, t]);
 
   // Flat list for keyboard nav
   const flatItems = useMemo(() => groups.flatMap((g) => g.items), [groups]);
@@ -308,7 +296,7 @@ export default function GlobalSearch({ courses }: { courses: SearchCourse[] }) {
             className="flex-1 bg-transparent border-0 outline-none font-[inherit] text-[16px] text-foreground tracking-[-0.01em] py-1 placeholder:text-muted-foreground"
             value={query}
             onChange={(e) => { setQuery(e.target.value); setSelected(0); }}
-            placeholder="Buscar cursos, aulas, notas, flashcards…"
+            placeholder={t("placeholder")}
             autoFocus
           />
           <span
@@ -321,17 +309,17 @@ export default function GlobalSearch({ courses }: { courses: SearchCourse[] }) {
 
         {/* Filter tabs */}
         <div className="flex gap-1 px-3.5 py-2 border-b border-border overflow-x-auto shrink-0">
-          {FILTER_TABS.map((tab) => (
+          {FILTER_IDS.map((id) => (
             <button
-              key={tab.id}
+              key={id}
               className={`text-[11px] px-2.5 py-[5px] border-0 rounded-[4px] cursor-pointer font-mono tracking-[0.04em] uppercase whitespace-nowrap transition-all font-[inherit]${
-                filter === tab.id
+                filter === id
                   ? " text-foreground bg-card font-semibold"
                   : " bg-transparent text-muted-foreground hover:text-foreground/70 hover:bg-card"
               }`}
-              onClick={() => { setFilter(tab.id); setSelected(0); }}
+              onClick={() => { setFilter(id); setSelected(0); }}
             >
-              {tab.label}
+              {t(`tabs.${id}`)}
             </button>
           ))}
         </div>
@@ -342,16 +330,16 @@ export default function GlobalSearch({ courses }: { courses: SearchCourse[] }) {
           {query && !hasResults && (
             <div className="px-5 py-10 text-center">
               <div className="text-[14px] text-foreground/70">
-                Nenhum resultado para &ldquo;<span className="text-foreground font-medium">{query}</span>&rdquo;
+                {t("noResults")} &ldquo;<span className="text-foreground font-medium">{query}</span>&rdquo;
               </div>
               <div className="text-[12px] text-muted-foreground mt-1.5">
-                Tente menos palavras, ou gere um novo curso sobre isso.
+                {t("tryFewer")}
               </div>
               <button
                 className="mt-5 px-[18px] py-2.5 bg-foreground text-background border-0 rounded-[var(--radius)] font-[inherit] text-[13px] font-medium cursor-pointer"
                 onClick={() => { router.push("/courses/generate"); onClose(); }}
               >
-                Gerar curso: &ldquo;<span className="opacity-80">{query}</span>&rdquo; →
+                {t("generateCourse")} &ldquo;<span className="opacity-80">{query}</span>&rdquo; →
               </button>
             </div>
           )}
@@ -394,7 +382,7 @@ export default function GlobalSearch({ courses }: { courses: SearchCourse[] }) {
                           </span>
                           {item.current && (
                             <span className="font-mono text-[9px] tracking-[0.08em] uppercase px-[6px] py-[2px] rounded-[3px] bg-card text-muted-foreground font-semibold text-accent bg-accent/10">
-                              · atual
+                              {t("current")}
                             </span>
                           )}
                           {item.kindBadge && (

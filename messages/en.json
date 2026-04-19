@@ -209,6 +209,42 @@
       "notes": "Notes"
     }
   },
+  "enroll": {
+    "continueLesson": "Continue lesson {number} →",
+    "continue": "Continue →",
+    "start": "Start course →",
+    "enrolling": "Enrolling…"
+  },
+  "login": {
+    "tagline": "Learn Kali Linux and Cybersecurity hands-on",
+    "withGoogle": "Continue with Google",
+    "withGithub": "Continue with GitHub"
+  },
+  "search": {
+    "placeholder": "Search courses, lessons, notes, flashcards…",
+    "noResults": "No results for",
+    "tryFewer": "Try fewer words, or generate a new course about this.",
+    "generateCourse": "Generate course:",
+    "current": "· current",
+    "recent": "Recent",
+    "quickActions": "Quick actions",
+    "actionLabel": "Action",
+    "courseMeta": "{modules} modules · {lessons} lessons",
+    "actions": {
+      "generateNew": "Generate new course",
+      "startReview": "Start today's review",
+      "goToLibrary": "Go to Library",
+      "goToGoals": "Go to Goals"
+    },
+    "tabs": {
+      "all": "All",
+      "course": "Courses",
+      "lesson": "Lessons",
+      "note": "Notes",
+      "flash": "Flashcards",
+      "action": "Actions"
+    }
+  },
   "goals": {
     "weeklyGoal": "Weekly goal",
     "currentStreak": "Current streak",

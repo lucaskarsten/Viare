@@ -209,6 +209,42 @@
       "notes": "Notas"
     }
   },
+  "enroll": {
+    "continueLesson": "Continuar aula {number} →",
+    "continue": "Continuar →",
+    "start": "Começar curso →",
+    "enrolling": "Matriculando…"
+  },
+  "login": {
+    "tagline": "Aprenda Kali Linux e Cybersecurity na prática",
+    "withGoogle": "Continuar com Google",
+    "withGithub": "Continuar com GitHub"
+  },
+  "search": {
+    "placeholder": "Buscar cursos, aulas, notas, flashcards…",
+    "noResults": "Nenhum resultado para",
+    "tryFewer": "Tente menos palavras, ou gere um novo curso sobre isso.",
+    "generateCourse": "Gerar curso:",
+    "current": "· atual",
+    "recent": "Recentes",
+    "quickActions": "Ações rápidas",
+    "actionLabel": "Ação",
+    "courseMeta": "{modules} módulos · {lessons} aulas",
+    "actions": {
+      "generateNew": "Gerar novo curso",
+      "startReview": "Iniciar revisão de hoje",
+      "goToLibrary": "Ir para Biblioteca",
+      "goToGoals": "Ir para Metas"
+    },
+    "tabs": {
+      "all": "Todos",
+      "course": "Cursos",
+      "lesson": "Aulas",
+      "note": "Notas",
+      "flash": "Flashcards",
+      "action": "Ações"
+    }
+  },
   "goals": {
     "weeklyGoal": "Meta semanal",
     "currentStreak": "Sequência atual",

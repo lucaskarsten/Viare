@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 type Props = {
   courseId: string;
@@ -18,6 +19,7 @@ export default function EnrollButton({
   firstLessonHref,
   nextLessonNumber,
 }: Props) {
+  const t = useTranslations("enroll");
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
@@ -39,10 +41,10 @@ export default function EnrollButton({
   if (enrollment) {
     const label =
       enrollment.progressPercent > 0 && nextLessonNumber
-        ? `Continuar aula ${nextLessonNumber} →`
+        ? t("continueLesson", { number: nextLessonNumber })
         : enrollment.progressPercent > 0
-          ? "Continuar →"
-          : "Começar curso →";
+          ? t("continue")
+          : t("start");
     return (
       <a href={firstLessonHref ?? "#"} className={btnClass}>
         {label}
@@ -52,7 +54,7 @@ export default function EnrollButton({
 
   return (
     <button onClick={enroll} disabled={loading} className={btnClass}>
-      {loading ? "Matriculando…" : "Começar curso →"}
+      {loading ? t("enrolling") : t("start")}
     </button>
   );
 }
