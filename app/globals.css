@@ -338,6 +338,91 @@ html.dark[data-palette="warm"] {
 .summary-box li { padding: 4px 0 4px 16px; position: relative; font-size: 14px; color: var(--ink-2); }
 .summary-box li:before { content: "→"; position: absolute; left: 0; color: var(--vr-accent); }
 
+/* === Markdown body (react-markdown output) === */
+.reading .md-body h1,
+.reading .md-body h2 {
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  margin: 48px 0 20px;
+  padding-top: 24px;
+  border-top: 1px solid var(--rule);
+  color: var(--ink);
+}
+.reading .md-body h1 { font-size: 24px; }
+.reading .md-body h2 { font-size: 20px; }
+.reading .md-body h3 { font-weight: 500; font-size: 17px; color: var(--ink); margin: 32px 0 12px; letter-spacing: -0.01em; }
+.reading .md-body h4,
+.reading .md-body h5,
+.reading .md-body h6 { font-weight: 500; font-size: 15px; color: var(--ink-2); margin: 24px 0 8px; }
+.reading .md-body ul,
+.reading .md-body ol { padding-left: 24px; margin: 0 0 1.4em; }
+.reading .md-body li { font-size: 16px; line-height: 1.75; color: var(--ink-2); margin-bottom: 4px; }
+.reading .md-body li > ul,
+.reading .md-body li > ol { margin: 4px 0; }
+.reading .md-body strong { color: var(--ink); font-weight: 600; }
+.reading .md-body em { color: var(--ink-2); font-style: italic; }
+.reading .md-body a { color: var(--vr-accent); text-decoration: underline; text-underline-offset: 3px; }
+.reading .md-body a:hover { opacity: 0.8; }
+.reading .md-body code {
+  font-family: var(--mono);
+  font-size: 0.88em;
+  background: var(--paper-2);
+  padding: 1px 6px;
+  border-radius: 3px;
+  color: var(--ink);
+}
+.reading .md-body pre {
+  font-family: var(--mono);
+  font-size: 13px;
+  background: var(--paper-2);
+  border-left: 2px solid var(--vr-accent);
+  padding: 16px 20px;
+  border-radius: 2px;
+  overflow-x: auto;
+  line-height: 1.65;
+  color: var(--ink);
+  margin: 28px 0;
+}
+.reading .md-body pre code { background: none; padding: 0; font-size: inherit; border-radius: 0; }
+.reading .md-body hr { border: none; border-top: 1px solid var(--rule); margin: 40px 0; }
+.reading .md-body blockquote {
+  border-left: 2px solid var(--vr-accent);
+  margin: 24px 0;
+  padding: 12px 20px;
+  background: var(--vr-accent-soft);
+  border-radius: 2px;
+}
+.reading .md-body blockquote p { color: var(--ink-2); margin: 0; }
+.reading .md-body table { width: 100%; border-collapse: collapse; font-size: 14px; margin: 28px 0; color: var(--ink-2); }
+.reading .md-body th {
+  font-weight: 500;
+  color: var(--ink);
+  background: var(--paper-2);
+  padding: 10px 14px;
+  text-align: left;
+  border-bottom: 1px solid var(--rule);
+  font-size: 13px;
+  letter-spacing: 0.02em;
+}
+.reading .md-body td { padding: 9px 14px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+.reading .md-body tr:last-child td { border-bottom: none; }
+.reading .md-body tr:hover td { background: var(--paper-2); }
+
+/* Focus mode overrides for md-body */
+.page.lesson.focus-mode .reading .md-body h1,
+.page.lesson.focus-mode .reading .md-body h2,
+.page.lesson.focus-mode .reading .md-body h3 { color: var(--focus-ink); border-color: var(--focus-rule); }
+.page.lesson.focus-mode .reading .md-body strong { color: var(--focus-ink); }
+.page.lesson.focus-mode .reading .md-body em,
+.page.lesson.focus-mode .reading .md-body li,
+.page.lesson.focus-mode .reading .md-body td { color: var(--focus-ink); }
+.page.lesson.focus-mode .reading .md-body code { background: color-mix(in oklch, var(--focus-ink), transparent 92%); color: var(--focus-ink); }
+.page.lesson.focus-mode .reading .md-body pre { background: color-mix(in oklch, var(--focus-ink), transparent 94%); border-color: var(--focus-rule); color: var(--focus-ink); }
+.page.lesson.focus-mode .reading .md-body hr { border-color: var(--focus-rule); }
+.page.lesson.focus-mode .reading .md-body th { background: color-mix(in oklch, var(--focus-ink), transparent 94%); color: var(--focus-ink); border-color: var(--focus-rule); }
+.page.lesson.focus-mode .reading .md-body td { border-color: var(--focus-rule); }
+.page.lesson.focus-mode .reading .md-body tr:hover td { background: color-mix(in oklch, var(--focus-ink), transparent 94%); }
+
 /* Quiz */
 .quiz { margin: 24px 0 32px; padding: 24px; background: var(--paper-2); border-radius: var(--vr-radius-lg); }
 .quiz-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-4); margin-bottom: 12px; }

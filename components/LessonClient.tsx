@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import QuizBlock, { type QuizBlockQuestion } from "@/components/QuizBlock";
 import FlashcardPlayer, { type FlashCard } from "@/components/FlashcardPlayer";
 import MarkCompleteButton from "@/app/(platform)/courses/[slug]/lessons/[lessonId]/MarkCompleteButton";
@@ -66,69 +68,6 @@ function safeSet(key: string, value: string): void {
   }
 }
 
-/** Parse lesson.content (markdown-ish) into structured sections for rendering. */
-type ContentSection = { title: string; paragraphs: string[]; code?: string };
-
-function parseContent(raw: string | null): {
-  firstParagraph: string | null;
-  firstChar: string;
-  restParagraph: string;
-  sections: ContentSection[];
-  codeBlocks: string[];
-} {
-  if (!raw) {
-    return { firstParagraph: null, firstChar: "", restParagraph: "", sections: [], codeBlocks: [] };
-  }
-
-  const lines = raw.split("\n");
-  const sections: ContentSection[] = [];
-  const codeBlocks: string[] = [];
-  let currentSection: ContentSection | null = null;
-  let inCode = false;
-  let codeAcc: string[] = [];
-  const plainParas: string[] = [];
-
-  for (const line of lines) {
-    if (line.startsWith("```")) {
-      if (!inCode) {
-        inCode = true;
-        codeAcc = [];
-      } else {
-        inCode = false;
-        const block = codeAcc.join("\n");
-        codeBlocks.push(block);
-        if (currentSection) {
-          currentSection.code = block;
-        }
-      }
-      continue;
-    }
-    if (inCode) {
-      codeAcc.push(line);
-      continue;
-    }
-    if (line.startsWith("## ") || line.startsWith("# ")) {
-      if (currentSection) sections.push(currentSection);
-      currentSection = { title: line.replace(/^#{1,2}\s+/, ""), paragraphs: [] };
-      continue;
-    }
-    if (line.trim() === "") continue;
-    const text = line.replace(/^#{3,}\s+/, "").trim();
-    if (!text) continue;
-    if (currentSection) {
-      currentSection.paragraphs.push(text);
-    } else {
-      plainParas.push(text);
-    }
-  }
-  if (currentSection) sections.push(currentSection);
-
-  const firstParagraph = plainParas[0] ?? null;
-  const firstChar = firstParagraph ? firstParagraph.charAt(0) : "";
-  const restParagraph = firstParagraph ? firstParagraph.slice(1) : "";
-
-  return { firstParagraph, firstChar, restParagraph, sections, codeBlocks };
-}
 
 export default function LessonClient({
   lesson,
@@ -238,8 +177,6 @@ export default function LessonClient({
     }, 700);
   }
 
-  const { firstChar, restParagraph, sections, codeBlocks } = parseContent(lesson.content);
-
   const pageClassName =
     `page lesson${focusMode ? " focus-mode" : ""}` +
     ` fw-${focusWidth} ff-${focusFont} fbg-${focusBg}`;
@@ -335,28 +272,13 @@ export default function LessonClient({
             </div>
           )}
 
-          {firstChar && (
-            <div className="drop">
-              <span className="dropcap">{firstChar}</span>
-              <p>{restParagraph}</p>
+          {lesson.content ? (
+            <div className="md-body">
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {lesson.content}
+              </ReactMarkdown>
             </div>
-          )}
-
-          {sections.map((s, si) => (
-            <div key={si}>
-              <h3 className="h3 dividered">{s.title}</h3>
-              {s.paragraphs.map((p, pi) => (
-                <p key={pi}>{p}</p>
-              ))}
-              {s.code && <pre className="code">{s.code}</pre>}
-            </div>
-          ))}
-
-          {codeBlocks.length > 0 && sections.length === 0 && (
-            <pre className="code">{codeBlocks[0]}</pre>
-          )}
-
-          {!lesson.content && (
+          ) : (
             <p style={{ color: "var(--ink-3)" }}>{t("contentUnavailable")}</p>
           )}
 
