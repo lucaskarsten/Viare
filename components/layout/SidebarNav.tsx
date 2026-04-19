@@ -40,7 +40,12 @@ export default function SidebarNav({
       .toUpperCase()
       .slice(0, 2) ?? "U";
 
-  const firstName = user?.name?.split(" ")[0] ?? "Você";
+  const displayName = (() => {
+    const parts = user?.name?.split(" ").filter(Boolean) ?? [];
+    if (parts.length === 0) return "Você";
+    if (parts.length === 1) return parts[0];
+    return `${parts[0]} ${parts[parts.length - 1][0].toUpperCase()}.`;
+  })();
 
   function openSearch() {
     document.dispatchEvent(new CustomEvent("open-search"));
@@ -102,7 +107,7 @@ export default function SidebarNav({
         <div className="flex items-center gap-2.5 px-1.5 pt-3.5 border-t border-border">
           <div className="w-8 h-8 rounded-full bg-accent text-accent-foreground grid place-items-center text-[12px] font-semibold tracking-[0.02em] shrink-0">{initials}</div>
           <div>
-            <div className="text-[13px] font-medium text-foreground">{firstName}</div>
+            <div className="text-[13px] font-medium text-foreground">{displayName}</div>
             <div className="text-[11px] text-muted-foreground">Pro · {currentStreak} dias seguidos</div>
           </div>
         </div>
