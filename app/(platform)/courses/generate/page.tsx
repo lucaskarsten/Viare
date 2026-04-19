@@ -13,6 +13,11 @@ type Phase =
   | { status: "done"; courseSlug: string }
   | { status: "error"; message: string };
 
+type IngestSource =
+  | { type: "url"; url: string }
+  | { type: "youtube"; url: string }
+  | { type: "text"; content: string }
+
 const SUGGESTIONS = [
   "Kali Linux", "Piano clássico", "Bread & sourdough", "Negociação",
   "Estatística bayesiana", "Color theory", "Rust ownership", "Aberturas de xadrez",
@@ -58,10 +63,16 @@ export default function GeneratePage() {
   const [phase, setPhase] = useState<Phase>({ status: "idle" });
   const [logSteps, setLogSteps] = useState<string[]>([]);
   const [elapsed, setElapsed] = useState(0);
+  const [inputMode, setInputMode] = useState<"topic" | "sources">("topic");
+  const [sources, setSources] = useState<IngestSource[]>([]);
+  const [urlInput, setUrlInput] = useState("");
+  const [ytInput, setYtInput] = useState("");
+  const [textInput, setTextInput] = useState("");
   const abortRef = useRef<AbortController | null>(null);
   const elapsedRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const isRunning = ["searching", "outlining", "generating"].includes(phase.status);
+  const canGenerate = (inputMode === "topic" ? !!topic.trim() : sources.length > 0) && !isRunning;
   const outline = phase.status === "outlining" ? phase.outline : phase.status === "generating" ? phase.outline : null;
 
   useEffect(() => {
@@ -73,20 +84,32 @@ export default function GeneratePage() {
     return () => { if (elapsedRef.current) clearInterval(elapsedRef.current); };
   }, [isRunning]);
 
+  function addSource(source: IngestSource) {
+    setSources((s) => [...s, source]);
+  }
+  function removeSource(i: number) {
+    setSources((s) => s.filter((_, idx) => idx !== i));
+  }
+
   async function handleGenerate() {
-    if (!topic.trim() || isRunning) return;
+    if (!canGenerate) return;
     setElapsed(0);
     abortRef.current = new AbortController();
     setPhase({ status: "searching" });
     setLogSteps([]);
     const thinking = t.raw("thinking") as string[];
-    thinking.forEach((s, i) => { setTimeout(() => setLogSteps((prev) => [...prev, s]), 450 * (i + 1)); });
+    if (inputMode === "sources" && sources.length > 0) {
+      setLogSteps([t("ingesting")]);
+      thinking.forEach((s, i) => { setTimeout(() => setLogSteps((prev) => [...prev, s]), 450 * (i + 1) + 600); });
+    } else {
+      thinking.forEach((s, i) => { setTimeout(() => setLogSteps((prev) => [...prev, s]), 450 * (i + 1)); });
+    }
 
     try {
       const res = await fetch("/api/courses/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ topic: topic.trim() }),
+        body: JSON.stringify({ topic: topic.trim(), language, ...(sources.length > 0 ? { sources } : {}) }),
         signal: abortRef.current.signal,
       });
       if (!res.ok) throw new Error(t("errorStart"));
@@ -96,8 +119,10 @@ export default function GeneratePage() {
       let buffer = "";
       let currentOutline: { title: string; modules: Array<{ title: string; lessons: Array<{ title: string; type: string }>; estimatedMinutes?: number }> } | undefined;
       const completed = new Set<string>();
+      let handedOff = false;
 
       while (true) {
+        if (handedOff) break;
         const { done, value } = await reader.read();
         if (done) break;
         buffer += decoder.decode(value, { stream: true });
@@ -106,7 +131,9 @@ export default function GeneratePage() {
         for (const line of lines) {
           if (!line.trim()) continue;
           const event: GenerationEvent = JSON.parse(line);
-          if (event.type === "searching") {
+          if (event.type === "ingesting") {
+            // already shown via logSteps
+          } else if (event.type === "searching") {
             setPhase({ status: "searching" });
           } else if (event.type === "outline") {
             currentOutline = event.outline;
@@ -114,12 +141,11 @@ export default function GeneratePage() {
             setTimeout(() => { if (currentOutline) setPhase({ status: "generating", outline: currentOutline, completedLessons: new Set() }); }, 800);
           } else if (event.type === "course_created") {
             router.push(`/courses/${event.courseSlug}/generating`);
+            handedOff = true; // generating page polls from here — stop reading stream
+            break;
           } else if (event.type === "lesson_done") {
             completed.add(`${event.moduleIndex}-${event.lessonIndex}`);
             if (currentOutline) setPhase({ status: "generating", outline: currentOutline, completedLessons: new Set(completed) });
-          } else if (event.type === "done") {
-            setPhase({ status: "done", courseSlug: event.courseSlug });
-            setTimeout(() => router.push(`/courses/${event.courseSlug}`), 1500);
           } else if (event.type === "error") {
             setPhase({ status: "error", message: event.message });
           }
@@ -145,26 +171,130 @@ export default function GeneratePage() {
       </header>
 
       <div className="flex flex-col gap-0">
-        <textarea
-          className="w-full bg-transparent border-0 border-b border-border font-[inherit] text-[22px] leading-[1.35] text-foreground py-4 resize-none min-h-[100px] outline-none tracking-[-0.02em] font-normal placeholder:text-muted-foreground focus:border-accent"
-          value={topic}
-          onChange={(e) => setTopic(e.target.value)}
-          placeholder={t("placeholder")}
-          rows={4}
-          disabled={isRunning}
-        />
-
-        <div className="flex flex-wrap gap-1.5 items-center mt-4">
-          <span className="font-mono text-[10px] tracking-[0.08em] uppercase text-muted-foreground mr-1">{t("suggestionsLabel")}</span>
-          {SUGGESTIONS.map((s) => (
-            <button key={s} type="button"
-              className="text-[12px] px-[11px] py-[5px] border border-border rounded-full text-muted-foreground transition-all bg-transparent cursor-pointer font-[inherit] hover:border-foreground hover:text-foreground"
-              onClick={() => setTopic(s)}
+        <div className="flex gap-1 p-1 bg-muted rounded-lg w-fit mb-6">
+          {(["topic", "sources"] as const).map((mode) => (
+            <button
+              key={mode}
+              type="button"
+              onClick={() => setInputMode(mode)}
+              disabled={isRunning}
+              className={`px-3.5 py-1.5 rounded text-[13px] transition-all border-0 cursor-pointer font-[inherit] ${
+                inputMode === mode
+                  ? "bg-background text-foreground shadow-sm"
+                  : "bg-transparent text-muted-foreground hover:text-foreground"
+              }`}
             >
-              {s}
+              {t(`inputMode.${mode}`)}
             </button>
           ))}
         </div>
+
+        {inputMode === "topic" ? (
+          <>
+            <textarea
+              className="w-full bg-transparent border-0 border-b border-border font-[inherit] text-[22px] leading-[1.35] text-foreground py-4 resize-none min-h-[100px] outline-none tracking-[-0.02em] font-normal placeholder:text-muted-foreground focus:border-accent"
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+              placeholder={t("placeholder")}
+              rows={4}
+              disabled={isRunning}
+            />
+            <div className="flex flex-wrap gap-1.5 items-center mt-4">
+              <span className="font-mono text-[10px] tracking-[0.08em] uppercase text-muted-foreground mr-1">{t("suggestionsLabel")}</span>
+              {SUGGESTIONS.map((s) => (
+                <button key={s} type="button"
+                  className="text-[12px] px-[11px] py-[5px] border border-border rounded-full text-muted-foreground transition-all bg-transparent cursor-pointer font-[inherit] hover:border-foreground hover:text-foreground"
+                  onClick={() => setTopic(s)}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+          </>
+        ) : (
+          <div className="flex flex-col gap-6 pb-2">
+            <div className="flex flex-col gap-2">
+              <span className="font-mono text-[10px] tracking-[0.08em] uppercase text-muted-foreground">URL</span>
+              <div className="flex gap-2 items-end">
+                <input
+                  type="url"
+                  className="flex-1 bg-transparent border-0 border-b border-border text-[15px] text-foreground py-2.5 outline-none placeholder:text-muted-foreground focus:border-accent"
+                  value={urlInput}
+                  onChange={(e) => setUrlInput(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter" && urlInput.trim()) { addSource({ type: "url", url: urlInput.trim() }); setUrlInput(""); } }}
+                  placeholder={t("urlPlaceholder")}
+                  disabled={isRunning}
+                />
+                <button type="button" className={btnGhost} disabled={!urlInput.trim() || isRunning}
+                  onClick={() => { if (urlInput.trim()) { addSource({ type: "url", url: urlInput.trim() }); setUrlInput(""); } }}>
+                  {t("addUrl")}
+                </button>
+              </div>
+            </div>
+            <div className="flex flex-col gap-2">
+              <span className="font-mono text-[10px] tracking-[0.08em] uppercase text-muted-foreground">YOUTUBE</span>
+              <div className="flex gap-2 items-end">
+                <input
+                  type="url"
+                  className="flex-1 bg-transparent border-0 border-b border-border text-[15px] text-foreground py-2.5 outline-none placeholder:text-muted-foreground focus:border-accent"
+                  value={ytInput}
+                  onChange={(e) => setYtInput(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === "Enter" && ytInput.trim()) { addSource({ type: "youtube", url: ytInput.trim() }); setYtInput(""); } }}
+                  placeholder={t("youtubePlaceholder")}
+                  disabled={isRunning}
+                />
+                <button type="button" className={btnGhost} disabled={!ytInput.trim() || isRunning}
+                  onClick={() => { if (ytInput.trim()) { addSource({ type: "youtube", url: ytInput.trim() }); setYtInput(""); } }}>
+                  {t("addVideo")}
+                </button>
+              </div>
+            </div>
+            <div className="flex flex-col gap-2">
+              <span className="font-mono text-[10px] tracking-[0.08em] uppercase text-muted-foreground">TEXTO</span>
+              <textarea
+                className="w-full bg-transparent border-0 border-b border-border text-[15px] text-foreground py-2.5 outline-none resize-none min-h-[80px] placeholder:text-muted-foreground"
+                value={textInput}
+                onChange={(e) => setTextInput(e.target.value)}
+                placeholder={t("textPlaceholder")}
+                rows={3}
+                disabled={isRunning}
+              />
+              <button type="button" className={`${btnGhost} self-end`} disabled={!textInput.trim() || isRunning}
+                onClick={() => { if (textInput.trim()) { addSource({ type: "text", content: textInput.trim() }); setTextInput(""); } }}>
+                {t("addText")}
+              </button>
+            </div>
+            {sources.length > 0 && (
+              <div className="flex flex-col gap-2 pt-4 border-t border-border">
+                <span className="font-mono text-[10px] tracking-[0.08em] uppercase text-muted-foreground">{t("sourcesList")}</span>
+                {sources.map((src, i) => (
+                  <div key={i} className="flex items-center gap-3 py-2 px-3 bg-card rounded border border-border">
+                    <span className="font-mono text-[9px] tracking-[0.1em] uppercase bg-muted px-[6px] py-[3px] rounded text-muted-foreground">
+                      {src.type === "url" ? "URL" : src.type === "youtube" ? "YT" : "TXT"}
+                    </span>
+                    <span className="flex-1 text-[13px] text-foreground truncate">
+                      {src.type === "text" ? src.content.slice(0, 80) + (src.content.length > 80 ? "…" : "") : src.url}
+                    </span>
+                    <button type="button"
+                      className="text-[16px] leading-none text-muted-foreground hover:text-foreground border-0 bg-transparent cursor-pointer font-[inherit] px-1"
+                      onClick={() => removeSource(i)}>×</button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className="flex flex-col gap-2 pt-4 border-t border-border">
+              <span className="font-mono text-[10px] tracking-[0.08em] uppercase text-muted-foreground">{t("titleOptional")}</span>
+              <input
+                type="text"
+                className="bg-transparent border-0 border-b border-border text-[17px] text-foreground py-2.5 outline-none placeholder:text-muted-foreground focus:border-accent"
+                value={topic}
+                onChange={(e) => setTopic(e.target.value)}
+                placeholder={t("titleOptionalPlaceholder")}
+                disabled={isRunning}
+              />
+            </div>
+          </div>
+        )}
 
         <div className="mt-10 grid grid-cols-3 gap-8 py-6 border-t border-b border-border">
           <div>
@@ -281,7 +411,7 @@ export default function GeneratePage() {
             <div className="w-1.5 h-1.5 bg-accent rounded-full" />
             {t("timeEstimate", { minutes: estTime })}
           </div>
-          <button type="button" className={btnPrimary} disabled={!topic.trim() || isRunning} onClick={handleGenerate}>
+          <button type="button" className={btnPrimary} disabled={!canGenerate} onClick={handleGenerate}>
             {isRunning ? t("generating") : t("generateButton")}
           </button>
         </div>

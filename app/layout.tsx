@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
+import Script from "next/script";
 import "./tailwind.css";
 import "./globals.css";
 import { NextIntlClientProvider } from "next-intl";
@@ -39,14 +40,14 @@ export default async function RootLayout({
       className={`${ibmPlexSans.variable} ${ibmPlexMono.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <head>
-        <script
+      <body className="min-h-full flex flex-col">
+        <Script
+          id="theme-init"
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: `try{var p=localStorage.getItem('vr:palette');document.documentElement.dataset.palette=p||'cool';if(localStorage.getItem('vr:dark')==='1')document.documentElement.classList.add('dark')}catch(e){}`,
           }}
         />
-      </head>
-      <body className="min-h-full flex flex-col">
         <NextIntlClientProvider messages={messages}>
           {children}
         </NextIntlClientProvider>

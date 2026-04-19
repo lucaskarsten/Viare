@@ -1,8 +1,8 @@
 # Viare
 
-Plataforma para **criar, gerenciar e compartilhar cursos de qualquer assunto**, com conteúdo gerado e revisado via IA. O produto não vende aula — vende organização e gestão do conhecimento do próprio usuário.
+Ferramenta de **gestão e retenção do conhecimento pessoal**. Você traz o material — artigos, vídeos do YouTube, transcrições, texto colado, ou simplesmente um tema — e a plataforma organiza em uma trilha estruturada: módulos, aulas, quizzes e revisão espaçada para garantir que o conteúdo fixe.
 
-Mentalmente: **GitHub para cursos**. Você descreve um tópico, a IA pesquisa fontes primárias e monta um currículo com módulos, lições, quizzes e flashcards. Seus cursos viram parte da sua biblioteca pessoal; a comunidade pode forkar, customizar e republicar.
+O diferencial não é gerar conteúdo do zero: é **extrair estrutura de material que já existe** e transformar em aprendizado mensurável. Você coletou dez artigos, salvou quinze vídeos, e nada disso virou aprendizado real porque faltava organização e continuidade. O Viare faz essa ponte.
 
 ---
 
@@ -17,7 +17,7 @@ A superfície visível ao usuário se divide em seis áreas (sidebar fixa):
 | **Metas** | `/goals` | Meta semanal (default 6 aulas), heatmap dos últimos 90 dias, histórico de 6 semanas, breakdown de tempo investido por curso |
 | **Descobrir** | `/discover` | Feed social: posts de outros alunos, curso compartilhado + remix, nuvem de tópicos com relevância, sugestões personalizadas |
 | **Catálogo** | `/courses` | Busca pública de cursos com filtros por categoria, dificuldade, avaliações, idiomas disponíveis |
-| **Geração** | `/courses/generate` | Form com streaming: tema → profundidade/duração/formato/idiomas vinculados → pipeline IA com outline → lições |
+| **Ingest / Geração** | `/courses/generate` | Fonte de entrada (tema livre, URL, YouTube, texto colado) → pipeline IA com outline → lições por módulo |
 
 Além disso:
 - **Player de lição** em foco mode com dropcap, seções, code blocks, tutor IA em sidepanel, controles de tipografia, marcar-como-concluída
@@ -219,11 +219,11 @@ Estado atual (abril 2026) e vetores de evolução:
 - ✅ **i18n completo** na superfície principal (PT/EN)
 - ✅ **Conteúdo de lições** seedado para todas as 64 aulas dos 4 cursos ativos
 - ✅ **Geração streaming** de cursos via Claude + Tavily
+- 🟡 **Pipeline de ingest** — aceitar URLs, transcrições do YouTube e texto colado como fonte; a IA extrai estrutura do material existente em vez de gerar do zero
 - 🟡 **Review com repetição espaçada** — UI pronta, algoritmo SM-2 ainda por consolidar, Flashcard model ainda por criar (hoje flashcards vêm inline na lição)
-- 🟡 **Remix de cursos** (fork) — entidades e UI planejadas, fluxo completo em andamento
 - 🟡 **Gamificação** — streak/achievements presentes; badges e progressão ainda crescendo
 - 🟡 **Moderação** — pipeline definido, integração de provider de classificação pendente
 - 🔲 **Labs interativos** — estrutura (`Lab` model, `/lessons/.../labs/`) existe; execução sandboxed é próxima fronteira
 - 🔲 **Fluxo de pagamento completo** — Stripe configurado, UI de assinatura ainda a desenhar
 
-A ambição é que qualquer pessoa possa aprender qualquer assunto — técnico ou não — com um currículo personalizado, revisado por espaçamento, e possa forkar o trabalho de alguém que já estudou antes. GitHub, mas pro que você sabe.
+A visão: qualquer pessoa pode pegar qualquer material de estudo que já existe — livros, artigos, vídeos, cursos — e transformar em uma trilha de aprendizado pessoal, com progresso rastreado e revisão espaçada que garante retenção de longo prazo.

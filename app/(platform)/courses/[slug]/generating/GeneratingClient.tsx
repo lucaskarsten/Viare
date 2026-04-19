@@ -41,6 +41,19 @@ export default function GeneratingClient({
   const [data, setData] = useState(initialData);
   const [elapsed, setElapsed] = useState(0);
   const doneRef = useRef(false);
+  const [enrichStatus, setEnrichStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
+
+  async function handleEnrich() {
+    setEnrichStatus("loading");
+    try {
+      const res = await fetch(`/api/courses/${slug}/enrich`, { method: "POST" });
+      if (!res.ok) throw new Error();
+      setEnrichStatus("done");
+      router.refresh();
+    } catch {
+      setEnrichStatus("error");
+    }
+  }
 
   useEffect(() => {
     const t = setInterval(() => setElapsed((s) => s + 1), 1000);
@@ -160,6 +173,18 @@ export default function GeneratingClient({
                 >
                   Ver curso
                 </a>
+                <button
+                  type="button"
+                  onClick={handleEnrich}
+                  disabled={enrichStatus === "loading" || enrichStatus === "done"}
+                  className="text-[13px] text-muted-foreground hover:text-foreground transition-colors px-3 py-2 border border-border rounded bg-transparent cursor-pointer font-[inherit] disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {enrichStatus === "loading"
+                    ? "Enriquecendo…"
+                    : enrichStatus === "done"
+                    ? "✓ Módulos adicionados"
+                    : "Enriquecer com web"}
+                </button>
               </div>
             </div>
           )}

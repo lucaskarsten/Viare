@@ -256,7 +256,25 @@
       "Drafting quizzes and labs…",
       "Selecting vocabulary for flashcards…",
       "Ready."
-    ]
+    ],
+    "inputMode": {
+      "topic": "From a topic",
+      "sources": "From your material"
+    },
+    "addUrl": "Add URL",
+    "addVideo": "Add video",
+    "addText": "Add text",
+    "urlPlaceholder": "https://…",
+    "youtubePlaceholder": "YouTube URL…",
+    "textPlaceholder": "Paste content here…",
+    "sourcesList": "Sources added",
+    "titleOptional": "Course title (optional)",
+    "titleOptionalPlaceholder": "E.g. React Hooks, Digital marketing…",
+    "ingesting": "Extracting content from sources…",
+    "enrichButton": "Enrich with web research",
+    "enriching": "Searching the web…",
+    "enrichDone": "✓ Modules added",
+    "enrichError": "Error enriching course"
   },
   "onboarding": {
     "step": "STEP {current} OF {total}",

@@ -256,7 +256,25 @@
       "Rascunhando quizzes e labs…",
       "Selecionando vocabulário para flashcards…",
       "Pronto."
-    ]
+    ],
+    "inputMode": {
+      "topic": "De um tema",
+      "sources": "Do seu material"
+    },
+    "addUrl": "Adicionar URL",
+    "addVideo": "Adicionar vídeo",
+    "addText": "Adicionar texto",
+    "urlPlaceholder": "https://…",
+    "youtubePlaceholder": "URL do YouTube…",
+    "textPlaceholder": "Cole o conteúdo aqui…",
+    "sourcesList": "Fontes adicionadas",
+    "titleOptional": "Título do curso (opcional)",
+    "titleOptionalPlaceholder": "Ex: React Hooks, Marketing digital…",
+    "ingesting": "Extraindo conteúdo das fontes…",
+    "enrichButton": "Enriquecer com pesquisa da web",
+    "enriching": "Buscando fontes na web…",
+    "enrichDone": "✓ Módulos adicionados",
+    "enrichError": "Erro ao enriquecer"
   },
   "onboarding": {
     "step": "PASSO {current} DE {total}",
