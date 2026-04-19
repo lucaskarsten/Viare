@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 import "./tailwind.css";
 import "./globals.css";
+import { NextIntlClientProvider } from "next-intl";
+import { getMessages, getLocale } from "next-intl/server";
 
 const ibmPlexSans = IBM_Plex_Sans({
   subsets: ["latin"],
@@ -22,14 +24,17 @@ export const metadata: Metadata = {
   description: "Plataforma interativa para aprender Kali Linux e Cybersecurity com labs CTF, projetos guiados e gamificação.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   return (
     <html
-      lang="pt-BR"
+      lang={locale === "pt" ? "pt-BR" : locale}
       data-palette="cool"
       className={`${ibmPlexSans.variable} ${ibmPlexMono.variable} h-full antialiased`}
       suppressHydrationWarning
@@ -37,12 +42,14 @@ export default function RootLayout({
       <head>
         <script
           dangerouslySetInnerHTML={{
-            __html: `try{var t=localStorage.getItem('theme');if(t)document.documentElement.classList.add(t)}catch(e){}`,
+            __html: `try{var p=localStorage.getItem('vr:palette');document.documentElement.dataset.palette=p||'cool';if(localStorage.getItem('vr:dark')==='1')document.documentElement.classList.add('dark')}catch(e){}`,
           }}
         />
       </head>
       <body className="min-h-full flex flex-col">
-        {children}
+        <NextIntlClientProvider messages={messages}>
+          {children}
+        </NextIntlClientProvider>
       </body>
     </html>
   );

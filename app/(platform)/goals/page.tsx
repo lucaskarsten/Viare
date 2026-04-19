@@ -115,7 +115,7 @@ export default async function GoalsPage() {
           <div className="font-mono text-[11px] tracking-[0.1em] uppercase text-muted-foreground mb-2">
             Esta semana · {weekRange}
           </div>
-          <h1 className="font-medium text-[28px] leading-[1.15] tracking-[-0.02em] m-0 text-foreground">{goalTitle}</h1>
+          <h1 className="font-medium text-[28px] leading-[1.15] tracking-[-0.02em] m-0 text-muted-foreground">{goalTitle}</h1>
           <p className="text-[14px] text-muted-foreground leading-[1.5] mt-2 m-0 max-w-[56ch]">{goalSubtitle}</p>
         </div>
       </header>
@@ -133,7 +133,7 @@ export default async function GoalsPage() {
             <div className="text-[72px] leading-none tracking-[-0.05em] text-foreground font-medium tabular-nums">
               {weeklyProgress}
             </div>
-            <div className="text-[36px] text-muted-foreground font-normal">/{weeklyGoal}</div>
+            <div className="text-[36px] font-normal" style={{ color: 'var(--ink-4)' }}>/{weeklyGoal}</div>
             <div className="text-[14px] text-muted-foreground">aulas esta semana</div>
           </div>
 
@@ -150,7 +150,7 @@ export default async function GoalsPage() {
                   ) : d.today ? (
                     <span className="w-3.5 h-3.5 border border-dashed border-accent rounded-full animate-pulse inline-block" />
                   ) : (
-                    <span className="w-3.5 h-3.5 border border-muted-foreground rounded-full inline-block" />
+                    <span className="w-3.5 h-3.5 border rounded-full inline-block" style={{ borderColor: 'var(--ink-4)' }} />
                   )}
                 </div>
                 <div className="font-mono text-[11px] text-muted-foreground mt-1.5">{d.date}</div>
@@ -164,7 +164,7 @@ export default async function GoalsPage() {
               {goalBreakdown.map((item) => (
                 <div key={item.course} className="flex justify-between items-center text-[13px]">
                   <span className="text-muted-foreground">{item.course}</span>
-                  <strong className="font-medium text-foreground">
+                  <strong className="font-medium text-muted-foreground">
                     {item.count} {item.unit}
                   </strong>
                 </div>
@@ -176,7 +176,7 @@ export default async function GoalsPage() {
         {/* Sequência */}
         <div className="bg-card rounded-[var(--radius-lg)] p-7 flex flex-col">
           <h2 className="font-medium text-[15px] m-0 tracking-[-0.015em] text-foreground mb-5">Sequência atual</h2>
-          <div className="text-[72px] leading-none tracking-[-0.05em] text-foreground font-medium tabular-nums">
+          <div className="text-[56px] leading-none tracking-[-0.03em] text-accent font-medium tabular-nums">
             {currentStreak}
           </div>
           <div className="font-mono text-[11px] tracking-[0.1em] uppercase text-muted-foreground mt-1">DIAS CONSECUTIVOS</div>
@@ -190,7 +190,8 @@ export default async function GoalsPage() {
               return (
                 <div
                   key={i}
-                  className={`aspect-square rounded-[2px]${heatmapDone.has(toDateKey(d)) ? " bg-accent" : " bg-border/50"}`}
+                  className="aspect-square rounded-[2px]"
+                  style={{ background: heatmapDone.has(toDateKey(d)) ? 'var(--accent)' : 'var(--rule-soft)' }}
                 />
               );
             })}
@@ -201,9 +202,9 @@ export default async function GoalsPage() {
         {/* Tempo investido */}
         <div className="bg-card rounded-[var(--radius-lg)] p-7 flex flex-col">
           <h2 className="font-medium text-[15px] m-0 tracking-[-0.015em] text-foreground mb-5">Tempo investido</h2>
-          <div className="flex items-baseline leading-none text-foreground font-medium tracking-tight">
-            <span className="text-[48px]">47</span><span className="text-[28px] ml-0.5">h</span>
-            <span className="text-[48px] ml-2">22</span><span className="text-[28px] ml-0.5">m</span>
+          <div className="flex items-baseline leading-none text-foreground font-medium tracking-[-0.04em]">
+            <span className="text-[40px]">47</span><span className="text-[20px] ml-0.5 text-muted-foreground font-normal">h</span>
+            <span className="text-[40px] ml-2">22</span><span className="text-[20px] ml-0.5 text-muted-foreground font-normal">m</span>
           </div>
           <div className="text-[12px] text-muted-foreground font-mono mt-1">desde o início · Jan 2026</div>
           <div className="flex flex-col mt-3">
@@ -230,19 +231,23 @@ export default async function GoalsPage() {
                 key={i}
                 className="grid grid-cols-[140px_1fr_80px] items-center gap-4 py-3 border-t border-border text-[13px] first:border-t-0"
               >
-                <span className="text-muted-foreground">{w.label}</span>
+                <span style={{ color: 'var(--ink-2)' }}>{w.label}</span>
                 <div className="flex gap-1">
                   {Array.from({ length: w.goal }, (_, j) => (
                     <span
                       key={j}
-                      className={`w-3 h-3 rounded-sm${j < w.done ? " bg-accent" : " bg-muted"}`}
+                      className="w-3 h-3 rounded-sm"
+                      style={{
+                        background: j < w.done
+                          ? (w.hit ? 'var(--accent)' : 'var(--ink-4)')
+                          : 'var(--muted)',
+                      }}
                     />
                   ))}
                 </div>
                 <span
-                  className={`text-[11px] font-mono tracking-[0.04em] uppercase justify-self-end${
-                    w.hit ? " text-accent" : " text-muted-foreground"
-                  }`}
+                  className="text-[11px] font-mono tracking-[0.04em] uppercase justify-self-end"
+                  style={{ color: w.hit ? 'var(--ok)' : 'var(--ink-4)' }}
                 >
                   {w.hit ? "cumprida" : "falhou"}
                 </span>

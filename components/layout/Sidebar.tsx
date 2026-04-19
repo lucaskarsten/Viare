@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { getTranslations } from "next-intl/server";
 import SidebarNav from "./SidebarNav";
 
 type SidebarUser = {
@@ -10,8 +11,16 @@ type SidebarUser = {
 
 export default async function Sidebar({ user }: { user: SidebarUser }) {
   const userId = user?.id ?? undefined;
+  const t = await getTranslations("sidebar");
 
-  const [streakData, enrollments, enrollmentCount, catalogCount] = await Promise.all([
+  const now = new Date();
+  const dayOfWeek = now.getDay();
+  const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+  const startOfWeek = new Date(now);
+  startOfWeek.setDate(now.getDate() + diffToMonday);
+  startOfWeek.setHours(0, 0, 0, 0);
+
+  const [streakData, enrollments, enrollmentCount, catalogCount, reviewCount, weeklyProgressCount] = await Promise.all([
     userId
       ? db.userStreak.findUnique({ where: { userId }, select: { currentStreak: true } })
       : null,
@@ -27,6 +36,12 @@ export default async function Sidebar({ user }: { user: SidebarUser }) {
       ? db.enrollment.count({ where: { userId, status: { not: "ABANDONED" } } })
       : 0,
     db.course.count({ where: { status: "PUBLISHED" } }),
+    userId
+      ? db.userProgress.count({ where: { userId, status: "COMPLETED" } })
+      : 0,
+    userId
+      ? db.userProgress.count({ where: { userId, status: "COMPLETED", updatedAt: { gte: startOfWeek } } })
+      : 0,
   ]);
 
   const currentStreak = streakData?.currentStreak ?? 0;
@@ -42,7 +57,7 @@ export default async function Sidebar({ user }: { user: SidebarUser }) {
         </div>
         <div>
           <div className="text-base font-semibold leading-none tracking-tight text-foreground">Viare</div>
-          <div className="text-[11px] text-muted-foreground tracking-[0.02em] mt-0.5">aprenda o que quiser, como quiser</div>
+          <div className="text-[11px] text-muted-foreground tracking-[0.02em] mt-0.5">{t("tagline")}</div>
         </div>
       </div>
 
@@ -52,6 +67,8 @@ export default async function Sidebar({ user }: { user: SidebarUser }) {
         user={user}
         enrollmentCount={enrollmentCount}
         catalogCount={catalogCount}
+        reviewCount={reviewCount}
+        weeklyProgressCount={weeklyProgressCount}
       />
     </aside>
   );

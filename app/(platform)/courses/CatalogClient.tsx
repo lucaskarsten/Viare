@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import {
   courseAccentGradient,
   formatLearners,
@@ -31,18 +32,11 @@ type AdaptedCourse = DbCourse & {
   durationStr: string;
 };
 
-const CATEGORIES = [
-  { id: "all", label: "Todos", title: "", desc: "" },
-  { id: "tech", label: "Tecnologia", title: "Tecnologia & engenharia", desc: "Da primeira linha de código a machine learning. Cursos práticos, projetos reais, sem enrolação." },
-  { id: "lang", label: "Línguas", title: "Línguas", desc: "Fale desde o primeiro dia. Cada curso vem com várias versões de língua-fonte." },
-  { id: "music", label: "Música", title: "Música", desc: "Do primeiro acorde à teoria que você sente. Exemplos em áudio em todas as aulas." },
-  { id: "craft", label: "Cozinha & ofícios", title: "Cozinha & ofícios", desc: "Física e técnica antes da receita. Coisas que você faz com as mãos." },
-  { id: "science", label: "Ciências", title: "Ciências & matemática", desc: "Explicações pela intuição pra aquelas coisas que você lembra pela metade da escola." },
-  { id: "life", label: "Vida", title: "Vida & artes do pensar", desc: "Negociação, xadrez, desenho, escrita — habilidades que rendem por décadas." },
-];
-
-const CAT_LABELS: Record<string, string> = {
-  tech: "Tech", lang: "Idioma", music: "Música", craft: "Ofício", science: "Ciência", life: "Vida",
+type Category = {
+  id: string;
+  label: string;
+  title: string;
+  desc: string;
 };
 
 function adaptCourse(c: DbCourse): AdaptedCourse {
@@ -57,8 +51,19 @@ function adaptCourse(c: DbCourse): AdaptedCourse {
 }
 
 export default function CatalogClient({ courses, languageCount }: { courses: DbCourse[]; languageCount: number }) {
+  const t = useTranslations("catalog");
   const [activeCat, setActiveCat] = useState("all");
   const [query, setQuery] = useState("");
+
+  const categories: Category[] = [
+    { id: "all", label: t("categories.all"), title: "", desc: "" },
+    { id: "tech", label: t("categories.tech"), title: t("categoryTitles.tech"), desc: t("categoryDescs.tech") },
+    { id: "lang", label: t("categories.lang"), title: t("categoryTitles.lang"), desc: t("categoryDescs.lang") },
+    { id: "music", label: t("categories.music"), title: t("categoryTitles.music"), desc: t("categoryDescs.music") },
+    { id: "craft", label: t("categories.craft"), title: t("categoryTitles.craft"), desc: t("categoryDescs.craft") },
+    { id: "science", label: t("categories.science"), title: t("categoryTitles.science"), desc: t("categoryDescs.science") },
+    { id: "life", label: t("categories.life"), title: t("categoryTitles.life"), desc: t("categoryDescs.life") },
+  ];
 
   const adapted = useMemo(() => courses.map(adaptCourse), [courses]);
 
@@ -90,47 +95,50 @@ export default function CatalogClient({ courses, languageCount }: { courses: DbC
       <header className="flex items-end justify-between gap-8 pb-6 border-b border-border mb-10 flex-wrap">
         <div>
           <div className="font-mono text-[11px] tracking-[0.08em] uppercase text-muted-foreground mb-3">
-            Catálogo · {courses.length} cursos iniciais
+            {t("label", { count: courses.length })}
           </div>
           <h1 className="font-medium text-[36px] leading-[1.15] tracking-[-0.02em] m-0 text-balance text-foreground">
-            <em className="not-italic text-muted-foreground font-normal">Aprenda qualquer coisa.</em> Comece por esses.
+            <em className="not-italic text-muted-foreground font-normal">{t("headline")}</em> {t("headlineSuffix")}
           </h1>
           <p className="text-[15px] leading-[1.6] text-muted-foreground mt-3.5 max-w-[60ch] text-pretty m-0">
-            Trinta cursos feitos à mão em seis domínios — grátis para sempre, em múltiplos idiomas. Adicione qualquer um à sua biblioteca, ou faça um remix pessoal.
+            {t("description")}
           </p>
         </div>
         <div className="flex gap-8 font-mono text-[10px] tracking-[0.08em] uppercase text-muted-foreground">
           <div>
             <strong className="block font-sans text-[28px] font-normal text-foreground tracking-[-0.02em] normal-case leading-none mb-1">{courses.length}</strong>
-            cursos
+            {t("courses")}
           </div>
           <div>
             <strong className="block font-sans text-[28px] font-normal text-foreground tracking-[-0.02em] normal-case leading-none mb-1">{formatLearners(totalLearners)}</strong>
-            alunos
+            {t("learners")}
           </div>
           <div>
             <strong className="block font-sans text-[28px] font-normal text-foreground tracking-[-0.02em] normal-case leading-none mb-1">{languageCount}</strong>
-            idiomas
+            {t("languages")}
           </div>
         </div>
       </header>
 
-      <div className="mb-8 py-4 px-5 bg-accent/8 border-l-[3px] border-accent rounded flex items-center gap-4">
-        <span className="font-mono text-[10px] tracking-[0.1em] uppercase text-accent font-semibold shrink-0">Grátis sempre</span>
+      <div
+        className="mb-8 py-4 px-5 rounded flex items-center gap-4"
+        style={{ background: "color-mix(in oklch, var(--accent), transparent 92%)", borderLeft: "3px solid var(--accent)" }}
+      >
+        <span className="font-mono text-[10px] tracking-[0.1em] uppercase font-semibold shrink-0" style={{ color: "var(--accent)" }}>{t("freeBadge")}</span>
         <p className="text-[13px] text-muted-foreground leading-[1.5] flex-1 m-0">
-          Esses cursos-base são grátis — sempre. Pode adicionar à biblioteca do jeito que estão, ou fazer um remix pessoal que você edita, traduz e expande.{" "}
-          <strong className="text-foreground font-semibold">Gerar algo que não está aqui? Também é sempre opção.</strong>
+          {t("freeDescription")}{" "}
+          <strong className="text-foreground font-semibold">{t("freeGenerate")}</strong>
         </p>
         <Link
           href="/courses/generate"
           className="text-muted-foreground text-[12px] px-2 py-1 rounded no-underline inline-flex items-center transition-colors hover:text-foreground hover:bg-card shrink-0"
         >
-          + Gerar
+          {t("generate")}
         </Link>
       </div>
 
       <div className="flex gap-1.5 flex-wrap mb-8 pb-5 border-b border-dashed border-border items-center">
-        {CATEGORIES.map((cat) => {
+        {categories.map((cat) => {
           const count = cat.id === "all"
             ? adapted.length
             : adapted.filter((c) => c.cat === cat.id).length;
@@ -156,22 +164,22 @@ export default function CatalogClient({ courses, languageCount }: { courses: DbC
           className="ml-auto text-[13px] px-3.5 py-1.5 bg-card border border-transparent rounded-full min-w-[240px] text-foreground outline-none focus:border-muted-foreground focus:bg-background placeholder:text-muted-foreground"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Buscar no catálogo…"
+          placeholder={t("searchPlaceholder")}
         />
       </div>
 
       {adapted.length === 0 ? (
         <div className="py-20 px-10 text-center text-muted-foreground italic">
-          Nenhum curso publicado ainda.{" "}
-          <Link href="/courses/generate">Gere o primeiro aqui.</Link>
+          {t("noCourses")}{" "}
+          <Link href="/courses/generate">{t("generateFirst")}</Link>
         </div>
       ) : activeCat === "all" ? (
-        CATEGORIES.filter((c) => c.id !== "all").map((cat) => {
+        categories.filter((c) => c.id !== "all").map((cat) => {
           const items = grouped[cat.id] ?? [];
           if (items.length === 0) return null;
           return (
             <section key={cat.id} className="mb-14">
-              <CatalogSectionHead title={cat.title} count={items.length} desc={cat.desc} />
+              <CatalogSectionHead title={cat.title} desc={cat.desc} courseCountLabel={t("courseCount", { count: items.length })} />
               <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-3.5">
                 {items.map((c) => <CatalogCard key={c.id} course={c} />)}
               </div>
@@ -180,7 +188,7 @@ export default function CatalogClient({ courses, languageCount }: { courses: DbC
         })
       ) : (
         <CatalogSection
-          cat={CATEGORIES.find((c) => c.id === activeCat)!}
+          cat={categories.find((c) => c.id === activeCat)!}
           items={filtered}
         />
       )}
@@ -188,35 +196,30 @@ export default function CatalogClient({ courses, languageCount }: { courses: DbC
   );
 }
 
-function CatalogSectionHead({ title, count, desc }: { title: string; count: number; desc: string }) {
+function CatalogSectionHead({ title, desc, courseCountLabel }: { title: string; desc: string; courseCountLabel: string }) {
   return (
     <>
       <div className="flex items-baseline gap-4 mb-4 pb-2.5 border-b border-border">
         <h2 className="text-[22px] tracking-[-0.02em] m-0 font-normal text-foreground">{title}</h2>
-        <span className="font-mono text-[10px] tracking-[0.08em] uppercase text-muted-foreground ml-auto">{count} cursos</span>
+        <span className="font-mono text-[10px] tracking-[0.08em] uppercase text-muted-foreground ml-auto">{courseCountLabel}</span>
       </div>
       <p className="text-muted-foreground text-[14px] leading-[1.55] max-w-[64ch] -mt-2 mb-5 m-0">{desc}</p>
     </>
   );
 }
 
-function CatalogSection({
-  cat,
-  items,
-}: {
-  cat: (typeof CATEGORIES)[number];
-  items: AdaptedCourse[];
-}) {
+function CatalogSection({ cat, items }: { cat: Category; items: AdaptedCourse[] }) {
+  const t = useTranslations("catalog");
   return (
     <section className="mb-14">
-      <CatalogSectionHead title={cat.title} count={items.length} desc={cat.desc} />
+      <CatalogSectionHead title={cat.title} desc={cat.desc} courseCountLabel={t("courseCount", { count: items.length })} />
       <div className="grid grid-cols-[repeat(auto-fill,minmax(280px,1fr))] gap-3.5">
         {items.map((c) => <CatalogCard key={c.id} course={c} />)}
       </div>
       {items.length === 0 && (
         <div className="py-10 text-center text-muted-foreground italic">
-          Nenhum curso corresponde à sua busca. Tente outra palavra ou{" "}
-          <Link href="/courses/generate">gere um novo</Link>.
+          {t("noResults")}{" "}
+          <Link href="/courses/generate">{t("generateNew")}</Link>.
         </div>
       )}
     </section>
@@ -224,15 +227,18 @@ function CatalogSection({
 }
 
 function CatalogCard({ course }: { course: AdaptedCourse }) {
+  const t = useTranslations("catalog");
+  const catLabel = (t as unknown as (k: string) => string)(`catLabels.${course.cat}`) ?? course.cat;
+
   return (
     <article className="group flex flex-col bg-background border border-border rounded-[var(--radius-lg)] overflow-hidden cursor-pointer transition-all text-left text-foreground relative hover:-translate-y-[3px] hover:border-foreground hover:shadow-[0_12px_30px_-12px_rgba(0,0,0,0.15)]">
       <div className="h-20 relative overflow-hidden" style={{ background: course.color }}>
         <div className="absolute inset-0 bg-[repeating-linear-gradient(45deg,rgba(255,255,255,0.05)_0_6px,transparent_6px_14px)]" />
         <span className="absolute top-2.5 left-3 font-mono text-[9px] tracking-[0.1em] uppercase text-white/90 bg-black/20 px-2 py-[3px] rounded-[3px] backdrop-blur-sm">
-          {CAT_LABELS[course.cat] ?? course.cat}
+          {catLabel}
         </span>
         <span className="absolute top-2.5 right-3 font-mono text-[9px] tracking-[0.1em] uppercase bg-background text-foreground px-2 py-[3px] rounded-[3px] font-semibold border border-white/40">
-          grátis
+          {t("free")}
         </span>
         <span className="absolute right-3.5 -bottom-3.5 text-[72px] text-white/30 leading-none tracking-[-0.04em] font-normal select-none">
           {course.letter}
@@ -257,10 +263,10 @@ function CatalogCard({ course }: { course: AdaptedCourse }) {
           href={`/courses/${course.slug}`}
           className="flex-1 text-[12px] px-2.5 py-1.5 bg-foreground text-background border border-transparent rounded cursor-pointer text-center no-underline inline-flex items-center justify-center hover:opacity-85"
         >
-          + Adicionar
+          {t("add")}
         </Link>
         <button className="flex-1 text-[12px] px-2.5 py-1.5 bg-card border border-transparent rounded cursor-pointer text-foreground text-center inline-flex items-center justify-center hover:bg-muted">
-          ⑂ Remix
+          {t("remix")}
         </button>
       </div>
     </article>

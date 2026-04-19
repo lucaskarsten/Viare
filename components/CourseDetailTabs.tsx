@@ -37,11 +37,19 @@ const TABS: { id: Tab; label: string }[] = [
   { id: "notes", label: "Notas" },
 ];
 
-function kindClasses(kind: string): string {
+function kindStyle(kind: string): { className: string; style?: React.CSSProperties } {
   const base = "font-mono text-[10px] uppercase tracking-[0.08em] text-center px-2 py-[2px] rounded-[2px]";
-  if (kind === "quiz") return `${base} bg-[rgba(90,122,74,0.12)] text-[var(--ok)]`;
-  if (kind === "lab") return `${base} bg-accent/15 text-accent`;
-  return `${base} bg-muted text-muted-foreground`;
+  if (kind === "quiz")
+    return {
+      className: base,
+      style: { background: "color-mix(in oklch, var(--ok), transparent 88%)", color: "var(--ok)" },
+    };
+  if (kind === "lab")
+    return {
+      className: base,
+      style: { background: "color-mix(in oklch, var(--accent), transparent 85%)", color: "var(--accent)" },
+    };
+  return { className: `${base} bg-muted text-muted-foreground` };
 }
 
 export default function CourseDetailTabs({ courseSlug, modules }: Props) {
@@ -125,7 +133,10 @@ export default function CourseDetailTabs({ courseSlug, modules }: Props) {
                           <span className={l.done ? "text-muted-foreground" : "text-foreground"}>
                             {l.title}
                           </span>
-                          <span className={kindClasses(l.kind)}>{l.kind}</span>
+                          {(() => {
+                            const k = kindStyle(l.kind);
+                            return <span className={k.className} style={k.style}>{l.kind}</span>;
+                          })()}
                           <span className="font-mono text-[11px] text-muted-foreground text-right">
                             {l.estimatedMinutes}min
                           </span>

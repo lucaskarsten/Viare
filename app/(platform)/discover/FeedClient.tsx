@@ -264,8 +264,8 @@ export default function FeedClient() {
           <div className="font-mono text-[11px] tracking-[0.1em] uppercase text-muted-foreground mb-2">
             DESCOBRIR
           </div>
-          <h1 className="font-medium text-[28px] leading-[1.15] tracking-[-0.02em] m-0 mb-2 text-foreground">
-            <em>O que os outros</em> estão aprendendo.
+          <h1 className="font-medium text-[36px] leading-[1.15] tracking-[-0.02em] m-0 mb-2 text-foreground">
+            <em className="not-italic text-muted-foreground font-normal">O que os outros</em> estão aprendendo.
           </h1>
           <p className="text-[14px] text-muted-foreground leading-[1.5] m-0 max-w-[420px]">
             Cursos, notas e descobertas de quem você segue e da comunidade. Remixe qualquer curso
@@ -355,9 +355,10 @@ export default function FeedClient() {
                     t.size >= 3
                       ? " text-[14px] bg-accent text-background"
                       : t.size >= 2
-                        ? " text-[13px] bg-background text-foreground/70"
-                        : " text-[12px] bg-muted text-foreground/70"
+                        ? " text-[13px] bg-background"
+                        : " text-[12px] bg-muted"
                   }`}
+                  style={t.size >= 3 ? undefined : { color: "var(--ink-2)" }}
                 >
                   {t.label}
                 </span>

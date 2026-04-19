@@ -1,27 +1,26 @@
 import Link from "next/link";
 import { auth } from "@/lib/dev-auth";
 import { db } from "@/lib/db";
+import { getTranslations, getLocale } from "next-intl/server";
 
 const COURSE_COLORS = ["#c97a4a", "#8a9a5b", "#6b7a8f", "#b8a06e", "#7a5a8f", "#5a8a8a"];
-
-const CATEGORY_LABELS: Record<string, string> = {
-  TECH: "TECNOLOGIA", LANG: "LÍNGUA", MUSIC: "MÚSICA",
-  CRAFT: "OFÍCIO", SCIENCE: "CIÊNCIA", LIFE: "VIDA",
-};
-
-function relativeDate(date: Date | null, now: Date): string {
-  if (!date) return "—";
-  const diffDays = Math.floor((now.getTime() - date.getTime()) / 86_400_000);
-  if (diffDays === 0) return "Hoje";
-  if (diffDays === 1) return "Ontem";
-  if (diffDays < 7) return `Há ${diffDays} dias`;
-  if (diffDays < 14) return "Semana passada";
-  return date.toLocaleDateString("pt-BR", { day: "numeric", month: "short" });
-}
 
 export default async function DashboardPage() {
   const session = await auth();
   const userId = session!.user!.id!;
+  const t = await getTranslations("dashboard");
+  const locale = await getLocale();
+  const dateLocale = locale === "pt" ? "pt-BR" : "en-US";
+
+  function relativeDate(date: Date | null, now: Date): string {
+    if (!date) return "—";
+    const diffDays = Math.floor((now.getTime() - date.getTime()) / 86_400_000);
+    if (diffDays === 0) return t("relativeDate.today");
+    if (diffDays === 1) return t("relativeDate.yesterday");
+    if (diffDays < 7) return t("relativeDate.daysAgo", { count: diffDays });
+    if (diffDays < 14) return t("relativeDate.lastWeek");
+    return date.toLocaleDateString(dateLocale, { day: "numeric", month: "short" });
+  }
 
   const [streakData, completedCount, enrollments, archivedEnrollments] = await Promise.all([
     db.userStreak.findUnique({ where: { userId } }),
@@ -66,13 +65,13 @@ export default async function DashboardPage() {
   ]);
 
   const now = new Date();
-  const formattedDate = now.toLocaleDateString("pt-BR", {
+  const formattedDate = now.toLocaleDateString(dateLocale, {
     weekday: "long",
     day: "numeric",
     month: "long",
   });
   const hour = now.getHours();
-  const greeting = hour < 12 ? "Bom dia" : hour < 18 ? "Boa tarde" : "Boa noite";
+  const greeting = hour < 12 ? t("greetingMorning") : hour < 18 ? t("greetingAfternoon") : t("greetingEvening");
   const firstName = session?.user?.name?.split(" ")[0] ?? "você";
   const currentStreak = streakData?.currentStreak ?? 0;
   const weeklyGoalDone = Math.min(completedCount % 7, 6);
@@ -86,18 +85,10 @@ export default async function DashboardPage() {
     ? String(resumeEnrollment.course.modules[0].order + 1).padStart(2, "0")
     : "01";
 
-  const lessonKindLabel: Record<string, string> = {
-    THEORY: "Leitura",
-    QUIZ: "Quiz",
-    LAB: "Lab",
-    PROJECT: "Projeto",
-  };
-
   const remaining = 6 - weeklyGoalDone;
-  const motivationalMessage =
-    remaining > 0
-      ? `Faltam ${remaining} aula${remaining > 1 ? "s" : ""} para fechar a meta da semana. Continue de onde parou.`
-      : "Você atingiu sua meta semanal. Continue assim!";
+  const motivationalMessage = remaining > 0
+    ? t("motivationLeft", { count: remaining })
+    : t("motivationDone");
 
   return (
     <div className="flex flex-col gap-14">
@@ -106,7 +97,7 @@ export default async function DashboardPage() {
           <div className="font-mono text-[11px] tracking-[0.08em] uppercase text-muted-foreground mb-3">
             {formattedDate}
           </div>
-          <h1 className="text-4xl font-medium leading-[1.15] tracking-tight m-0 text-balance text-foreground">
+          <h1 className="text-[36px] font-medium leading-[1.15] tracking-[-0.02em] m-0 text-balance text-foreground">
             <em className="not-italic text-muted-foreground font-normal">{greeting},</em> {firstName}.
           </h1>
           <p className="text-[15px] leading-relaxed text-muted-foreground mt-3.5 max-w-[62ch] text-pretty m-0">
@@ -116,15 +107,15 @@ export default async function DashboardPage() {
         <div className="flex gap-8">
           <div className="text-right">
             <div className="text-[28px] leading-none tracking-[-0.03em] font-medium tabular-nums text-foreground">{currentStreak}</div>
-            <div className="text-[11px] text-muted-foreground tracking-[0.05em] uppercase mt-1 font-mono">dias seguidos</div>
+            <div className="text-[11px] text-muted-foreground tracking-[0.05em] uppercase mt-1 font-mono">{t("streak")}</div>
           </div>
           <div className="text-right">
             <div className="text-[28px] leading-none tracking-[-0.03em] font-medium tabular-nums text-foreground">{weeklyGoal}</div>
-            <div className="text-[11px] text-muted-foreground tracking-[0.05em] uppercase mt-1 font-mono">meta semanal</div>
+            <div className="text-[11px] text-muted-foreground tracking-[0.05em] uppercase mt-1 font-mono">{t("weeklyGoal")}</div>
           </div>
           <div className="text-right">
             <div className="text-[28px] leading-none tracking-[-0.03em] font-medium tabular-nums text-foreground">{completedCount}</div>
-            <div className="text-[11px] text-muted-foreground tracking-[0.05em] uppercase mt-1 font-mono">aulas ao todo</div>
+            <div className="text-[11px] text-muted-foreground tracking-[0.05em] uppercase mt-1 font-mono">{t("totalLessons")}</div>
           </div>
         </div>
       </header>
@@ -132,12 +123,12 @@ export default async function DashboardPage() {
       {resumeEnrollment && (
         <section>
           <div className="flex items-baseline justify-between mb-5">
-            <h2 className="font-medium text-[20px] m-0 tracking-tight text-foreground">Continuar</h2>
+            <h2 className="font-medium text-[20px] m-0 tracking-[-0.02em] text-foreground">{t("resume")}</h2>
             <Link
               href={`/courses/${resumeEnrollment.course.slug}`}
               className="text-muted-foreground text-[13px] px-2.5 py-1.5 rounded no-underline inline-flex items-center transition-colors hover:text-foreground hover:bg-card"
             >
-              Abrir curso →
+              {t("openCourse")}
             </Link>
           </div>
           <Link
@@ -160,16 +151,16 @@ export default async function DashboardPage() {
             </div>
             <div>
               <div className="font-mono text-[11px] tracking-[0.08em] uppercase text-muted-foreground mb-3">
-                A seguir · {resumeEnrollment.course.estimatedHours ? `${resumeEnrollment.course.estimatedHours * 60 / Math.max(resumeEnrollment.course._count.modules, 1)} min` : "14 min"}
+                {t("upNext", { time: resumeEnrollment.course.estimatedHours ? `${Math.round(resumeEnrollment.course.estimatedHours * 60 / Math.max(resumeEnrollment.course._count.modules, 1))} min` : "14 min" })}
               </div>
               <h3 className="font-medium text-[22px] tracking-[-0.025em] mt-1.5 mb-2.5 text-foreground">
                 {resumeNextLesson?.title ?? resumeEnrollment.course.title}
               </h3>
               <p className="text-muted-foreground max-w-[58ch] m-0 mb-3.5">{resumeEnrollment.course.description}</p>
               <div className="text-[12px] text-muted-foreground flex gap-2 items-center">
-                <span>Aula 1 de {resumeEnrollment.course._count.modules}</span>
+                <span>{t("lessonOf", { num: 1, total: resumeEnrollment.course._count.modules })}</span>
                 <span className="opacity-50">·</span>
-                <span>{resumeNextLesson ? (lessonKindLabel[resumeNextLesson.type] ?? resumeNextLesson.type) : "Leitura"}</span>
+                <span>{resumeNextLesson ? (t(`lessonKind.${resumeNextLesson.type}` as Parameters<typeof t>[0]) ?? resumeNextLesson.type) : t("lessonKind.THEORY")}</span>
               </div>
               <div className="h-[3px] bg-border rounded-[2px] overflow-hidden mt-3">
                 <div className="h-full bg-accent rounded-[2px] transition-[width_.4s]" style={{ width: `${resumeEnrollment.progressPercent ?? 0}%` }} />
@@ -182,18 +173,19 @@ export default async function DashboardPage() {
 
       <section>
         <div className="flex items-baseline justify-between mb-5">
-          <h2 className="font-medium text-[20px] m-0 tracking-tight text-foreground">Seus cursos</h2>
+          <h2 className="font-medium text-[20px] m-0 tracking-[-0.02em] text-foreground">{t("yourCourses")}</h2>
           <div className="flex gap-1">
-            <button className="text-[12px] px-2.5 py-[5px] rounded-full border-0 cursor-pointer bg-foreground text-background">Todos</button>
-            <button className="text-[12px] px-2.5 py-[5px] rounded-full text-muted-foreground border-0 cursor-pointer hover:text-foreground">Em andamento</button>
-            <button className="text-[12px] px-2.5 py-[5px] rounded-full text-muted-foreground border-0 cursor-pointer hover:text-foreground">Não iniciados</button>
-            <button className="text-[12px] px-2.5 py-[5px] rounded-full text-muted-foreground border-0 cursor-pointer hover:text-foreground">Concluídos</button>
+            <button className="text-[12px] px-2.5 py-[5px] rounded-full border-0 cursor-pointer bg-foreground text-background">{t("filterAll")}</button>
+            <button className="text-[12px] px-2.5 py-[5px] rounded-full text-muted-foreground border-0 cursor-pointer hover:text-foreground">{t("filterInProgress")}</button>
+            <button className="text-[12px] px-2.5 py-[5px] rounded-full text-muted-foreground border-0 cursor-pointer hover:text-foreground">{t("filterNotStarted")}</button>
+            <button className="text-[12px] px-2.5 py-[5px] rounded-full text-muted-foreground border-0 cursor-pointer hover:text-foreground">{t("filterCompleted")}</button>
           </div>
         </div>
         <div className="grid grid-cols-3 gap-6">
           {enrollments.map((enrollment, i) => {
             const color = COURSE_COLORS[i % COURSE_COLORS.length];
-            const tag = CATEGORY_LABELS[enrollment.course.category] ?? enrollment.course.tags[0] ?? "Curso";
+            const categoryKey = `categoryLabels.${enrollment.course.category}` as Parameters<typeof t>[0];
+            const tag = t(categoryKey) ?? enrollment.course.tags[0] ?? "Curso";
             const lastAccess = relativeDate(enrollment.lastAccessedAt, now);
             const done = Math.round((enrollment.progressPercent ?? 0) / 100 * enrollment.course._count.modules);
             const total = enrollment.course._count.modules;
@@ -211,10 +203,10 @@ export default async function DashboardPage() {
                   </span>
                 </div>
                 <div className="p-5">
-                  <h3 className="font-medium text-[17px] tracking-tight m-0 mb-1.5 text-foreground">{enrollment.course.title}</h3>
+                  <h3 className="font-medium text-[17px] tracking-[-0.015em] m-0 mb-1.5 text-foreground">{enrollment.course.title}</h3>
                   <p className="text-muted-foreground text-[13px] leading-[1.45] m-0 min-h-[38px]">{enrollment.course.description}</p>
                   <div className="text-[11px] text-muted-foreground mt-3.5 flex gap-1.5 items-center">
-                    <span>{done}/{total} aulas</span>
+                    <span>{t("lessonsProgress", { done, total })}</span>
                     <span className="opacity-50">·</span>
                     <span>{lastAccess}</span>
                   </div>
@@ -231,7 +223,7 @@ export default async function DashboardPage() {
       {archivedEnrollments.length > 0 && (
         <section>
           <div className="flex items-baseline justify-between mb-5">
-            <h2 className="font-medium text-[20px] m-0 tracking-tight text-foreground">Arquivo</h2>
+            <h2 className="font-medium text-[20px] m-0 tracking-[-0.02em] text-foreground">{t("archive")}</h2>
           </div>
           <ul className="list-none p-0 m-0 border-t border-border">
             {archivedEnrollments.map((e) => (
@@ -241,7 +233,7 @@ export default async function DashboardPage() {
               >
                 <span className="text-[14px] font-medium tracking-[-0.01em] text-foreground">{e.course.title}</span>
                 <span className="text-[12px] text-muted-foreground tabular-nums">
-                  Pausado · {e.updatedAt.toLocaleDateString("pt-BR", { month: "short", year: "numeric" })}
+                  {t("paused")} · {e.updatedAt.toLocaleDateString(dateLocale, { month: "short", year: "numeric" })}
                 </span>
                 <span className="text-muted-foreground">→</span>
               </li>

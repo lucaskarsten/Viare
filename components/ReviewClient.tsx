@@ -1,5 +1,6 @@
 "use client";
 import { useState, useEffect, useCallback } from "react";
+import { useTranslations } from "next-intl";
 
 type Card = {
   q: string;
@@ -47,11 +48,19 @@ const SAMPLE_CARD_POOL: Card[] = [
 ];
 
 export default function ReviewClient({ courses, totalDue, totalOverdue, streak, schedule, message }: Props) {
+  const t = useTranslations("review");
   const [mode, setMode] = useState<"dashboard" | "session" | "done">("dashboard");
   const [sessionCards, setSessionCards] = useState<(Card & { courseMeta: Course })[]>([]);
   const [idx, setIdx] = useState(0);
   const [revealed, setRevealed] = useState(false);
   const [results, setResults] = useState<Results>({ again: 0, hard: 0, good: 0, easy: 0 });
+
+  const ratingButtons = [
+    { key: "again" as const, label: t("again"), next: t("nextTime.again"), kbd: "1", color: "#b84a3e" },
+    { key: "hard" as const, label: t("hard"), next: t("nextTime.hard"), kbd: "2", color: "#c98a2e" },
+    { key: "good" as const, label: t("good"), next: t("nextTime.good"), kbd: "3", color: "#4a8a5a" },
+    { key: "easy" as const, label: t("easy"), next: t("nextTime.easy"), kbd: "4", color: "#4a7aa8" },
+  ];
 
   const buildPool = useCallback(
     (filter: "all" | "overdue" | string): (Card & { courseMeta: Course })[] => {
@@ -119,14 +128,13 @@ export default function ReviewClient({ courses, totalDue, totalOverdue, streak, 
         <header className="grid grid-cols-[1fr_300px] gap-12 items-start pb-8 border-b border-border">
           <div>
             <div className="font-mono text-[11px] tracking-[0.08em] uppercase text-muted-foreground mb-4">
-              REVISÃO ESPAÇADA
+              {t("label")}
             </div>
             <h1 className="font-medium text-[36px] leading-[1.15] tracking-[-0.02em] m-0 text-foreground">
               {totalDue > 0 ? (
-                <>{totalDue} <span className="text-muted-foreground font-normal">cartões pendentes</span></>
+                <>{totalDue} <span className="text-muted-foreground font-normal">{t("cardsPending", { count: totalDue }).replace(`${totalDue} `, "")}</span></>
               ) : (
-                <>Tudo em dia.</>
-
+                <>{t("allCaughtUp")}</>
               )}
             </h1>
             <p className="text-[15px] leading-[1.6] text-muted-foreground mt-3 max-w-[62ch] m-0">{message}</p>
@@ -136,18 +144,18 @@ export default function ReviewClient({ courses, totalDue, totalOverdue, streak, 
                 onClick={() => startSession("all")}
                 disabled={totalDue === 0}
               >
-                Revisar tudo · ~{Math.ceil(totalDue * 0.5)} min
+                {t("reviewAll", { minutes: Math.ceil(totalDue * 0.5) })}
               </button>
               {totalOverdue > 0 && (
                 <button
                   className="bg-transparent text-foreground/80 px-5 py-3.5 rounded-[var(--radius)] text-[14px] border-0 cursor-pointer font-[inherit] transition-colors hover:bg-card hover:text-foreground"
                   onClick={() => startSession("overdue")}
                 >
-                  Só os {totalOverdue} atrasados
+                  {t("overdueOnly", { count: totalOverdue })}
                 </button>
               )}
               <button className="bg-transparent text-foreground/80 px-5 py-3.5 rounded-[var(--radius)] text-[14px] border-0 cursor-pointer font-[inherit] transition-colors hover:bg-card hover:text-foreground">
-                Sessão customizada…
+                {t("customSession")}
               </button>
             </div>
           </div>
@@ -158,7 +166,7 @@ export default function ReviewClient({ courses, totalDue, totalOverdue, streak, 
               {streak}<span className="text-[24px] text-muted-foreground font-normal ml-0.5">d</span>
             </div>
             <div className="font-mono text-[10px] tracking-[0.08em] uppercase text-muted-foreground my-1">
-              dias seguidos
+              {t("streakDays")}
             </div>
             <div className="grid grid-cols-7 gap-[3px] max-w-[180px] mx-auto">
               {Array.from({ length: 28 }).map((_, i) => {
@@ -176,16 +184,16 @@ export default function ReviewClient({ courses, totalDue, totalOverdue, streak, 
                 );
               })}
             </div>
-            <div className="font-mono text-[11px] text-muted-foreground mt-3">Últimas 4 semanas</div>
+            <div className="font-mono text-[11px] text-muted-foreground mt-3">{t("last4Weeks")}</div>
           </aside>
         </header>
 
         {/* Course queue */}
         <section className="flex flex-col gap-4">
-          <h2 className="text-[18px] tracking-[-0.01em] font-medium m-0 text-foreground">Pendentes por curso</h2>
+          <h2 className="text-[18px] tracking-[-0.01em] font-medium m-0 text-foreground">{t("pendingByCourse")}</h2>
           <div className="flex flex-col gap-2">
             {courses.length === 0 ? (
-              <p className="px-4 py-4 text-muted-foreground">Nenhum curso em andamento.</p>
+              <p className="px-4 py-4 text-muted-foreground">{t("noCourses")}</p>
             ) : (
               courses.map((c) => (
                 <div
@@ -198,7 +206,7 @@ export default function ReviewClient({ courses, totalDue, totalOverdue, streak, 
                     <div className="flex items-baseline justify-between gap-4">
                       <div className="text-[15px] font-medium tracking-[-0.01em] text-foreground">{c.name}</div>
                       <div className="font-mono text-[12px] text-muted-foreground tracking-[0.02em]">
-                        {c.due === 0 ? "em dia" : <><strong className="text-foreground font-semibold text-[14px]">{c.due}</strong> pendentes</>}
+                        {c.due === 0 ? t("upToDate") : <><strong className="text-foreground font-semibold text-[14px]">{c.due}</strong> {t("pending")}</>}
                       </div>
                     </div>
                     {/* Breakdown badges */}
@@ -206,17 +214,17 @@ export default function ReviewClient({ courses, totalDue, totalOverdue, streak, 
                       <div className="flex flex-wrap gap-1.5 mt-1">
                         {c.overdue > 0 && (
                           <span className="font-mono text-[10px] tracking-[0.05em] uppercase px-2 py-[3px] rounded-[3px] text-[#b84a3e] bg-[#b84a3e]/10">
-                            {c.overdue} atrasados
+                            {t("overdue", { count: c.overdue })}
                           </span>
                         )}
                         {c.learning > 0 && (
                           <span className="font-mono text-[10px] tracking-[0.05em] uppercase px-2 py-[3px] rounded-[3px] text-muted-foreground bg-background">
-                            {c.learning} aprendendo
+                            {t("learning", { count: c.learning })}
                           </span>
                         )}
                         {c.new > 0 && (
                           <span className="font-mono text-[10px] tracking-[0.05em] uppercase px-2 py-[3px] rounded-[3px] text-accent bg-accent/10">
-                            {c.new} novos
+                            {t("new", { count: c.new })}
                           </span>
                         )}
                       </div>
@@ -230,7 +238,7 @@ export default function ReviewClient({ courses, totalDue, totalOverdue, streak, 
                         />
                       </div>
                       <span className="font-mono text-[10px] text-muted-foreground tracking-[0.02em]">
-                        {c.total - c.due} / {c.total} aprendidos
+                        {t("learned", { done: c.total - c.due, total: c.total })}
                       </span>
                     </div>
                   </div>
@@ -240,7 +248,7 @@ export default function ReviewClient({ courses, totalDue, totalOverdue, streak, 
                       className="bg-foreground text-background px-4 py-2.5 text-[13px] font-medium rounded-[var(--radius)] cursor-pointer border-0 font-[inherit] hover:opacity-90 transition-opacity mr-5"
                       onClick={() => startSession(c.id)}
                     >
-                      Revisar →
+                      {t("reviewCourse")}
                     </button>
                   )}
                 </div>
@@ -251,7 +259,7 @@ export default function ReviewClient({ courses, totalDue, totalOverdue, streak, 
 
         {/* Schedule */}
         <section className="flex flex-col gap-4">
-          <h2 className="text-[18px] tracking-[-0.01em] font-medium m-0 text-foreground">Esta semana</h2>
+          <h2 className="text-[18px] tracking-[-0.01em] font-medium m-0 text-foreground">{t("thisWeek")}</h2>
           <div className="grid grid-cols-7 gap-3 items-end px-5 py-6 bg-card rounded-[var(--radius-lg)] min-h-[180px]">
             {schedule.map((d, i) => {
               const h = Math.max(8, (d.count / maxN) * 120);
@@ -272,8 +280,8 @@ export default function ReviewClient({ courses, totalDue, totalOverdue, streak, 
           </div>
           {/* Tip */}
           <div className="flex gap-2.5 items-baseline mt-4 p-3 text-[13px] text-muted-foreground max-w-[72ch]">
-            <span className="font-mono text-[10px] tracking-[0.08em] uppercase text-muted-foreground/60 shrink-0">Dica</span>
-            Sessões curtas e diárias vencem maratonas no fim de semana. O algoritmo recompensa consistência.
+            <span className="font-mono text-[10px] tracking-[0.08em] uppercase text-muted-foreground/60 shrink-0">{t("tip")}</span>
+            {t("tipText")}
           </div>
         </section>
       </div>
@@ -296,7 +304,7 @@ export default function ReviewClient({ courses, totalDue, totalOverdue, streak, 
             className="bg-transparent border-0 text-muted-foreground font-[inherit] text-[13px] cursor-pointer justify-self-start px-3 py-2 rounded-[var(--radius)] hover:bg-card hover:text-foreground transition-colors"
             onClick={endSession}
           >
-            ← Encerrar
+            {t("exitSession")}
           </button>
           {/* Progress */}
           <div className="flex items-center gap-3 justify-self-center min-w-[300px]">
@@ -339,12 +347,12 @@ export default function ReviewClient({ courses, totalDue, totalOverdue, streak, 
 
           {/* Card */}
           <div className="w-full max-w-[680px] p-12 bg-card rounded-[var(--radius-lg)] border border-border animate-[rsIn_0.25s_ease-out]">
-            <div className="font-mono text-[10px] tracking-[0.1em] uppercase text-muted-foreground mb-3.5">Pergunta</div>
+            <div className="font-mono text-[10px] tracking-[0.1em] uppercase text-muted-foreground mb-3.5">{t("question")}</div>
             <div className="text-[28px] leading-[1.3] tracking-[-0.015em] font-medium text-balance text-foreground">{card.q}</div>
             {revealed && (
               <>
                 <div className="h-px bg-border my-8" />
-                <div className="font-mono text-[10px] tracking-[0.1em] uppercase text-muted-foreground mb-3.5">Resposta</div>
+                <div className="font-mono text-[10px] tracking-[0.1em] uppercase text-muted-foreground mb-3.5">{t("answer")}</div>
                 <div className="text-[18px] leading-[1.55] text-foreground/80 text-balance animate-[rsAnswerIn_0.3s_ease-out]">{card.a}</div>
               </>
             )}
@@ -356,7 +364,7 @@ export default function ReviewClient({ courses, totalDue, totalOverdue, streak, 
               className="px-7 py-3.5 bg-foreground text-background border-0 rounded-[var(--radius)] font-[inherit] text-[14px] font-medium cursor-pointer flex items-center gap-3 transition-opacity hover:opacity-90"
               onClick={() => setRevealed(true)}
             >
-              Mostrar resposta{" "}
+              {t("showAnswer")}{" "}
               <span className="font-mono text-[10px] px-1.5 py-0.5 bg-white/30 rounded-[3px] tracking-[0.04em]">Space</span>
             </button>
           )}
@@ -365,19 +373,14 @@ export default function ReviewClient({ courses, totalDue, totalOverdue, streak, 
           {revealed && (
             <div className="w-full max-w-[680px] animate-[rsAnswerIn_0.3s_ease-out]">
               <div className="font-mono text-[10px] tracking-[0.1em] uppercase text-muted-foreground text-center mb-3.5">
-                Quão bem você lembrou?
+                {t("howWell")}
               </div>
               <div className="grid grid-cols-4 gap-2">
-                {([
-                  { key: "again", label: "De novo", next: "< 1 min", kbd: "1", color: "#b84a3e" },
-                  { key: "hard", label: "Difícil", next: "10 min", kbd: "2", color: "#c98a2e" },
-                  { key: "good", label: "Bom", next: "2 dias", kbd: "3", color: "#4a8a5a" },
-                  { key: "easy", label: "Fácil", next: "6 dias", kbd: "4", color: "#4a7aa8" },
-                ] as const).map((b) => (
+                {ratingButtons.map((b) => (
                   <button
                     key={b.key}
                     className="group flex flex-col items-start gap-1 p-4 pl-[18px] bg-card border border-border rounded-[var(--radius-lg)] cursor-pointer font-[inherit] text-left transition-all relative hover:-translate-y-px hover:shadow-[0_6px_16px_-8px_rgba(0,0,0,0.15)]"
-                    onClick={() => rate(b.key as keyof Results)}
+                    onClick={() => rate(b.key)}
                     onMouseEnter={(e) => {
                       const btn = e.currentTarget;
                       btn.style.borderColor = b.color;
@@ -413,17 +416,17 @@ export default function ReviewClient({ courses, totalDue, totalOverdue, streak, 
   return (
     <div className="grid place-items-center min-h-screen">
       <div className="max-w-[560px] w-full text-center px-8">
-        <div className="font-mono text-[11px] tracking-[0.1em] uppercase text-accent mb-3">Sessão completa</div>
-        <h1 className="font-medium text-[36px] leading-[1.15] tracking-[-0.02em] m-0 text-foreground">Muito bem.</h1>
+        <div className="font-mono text-[11px] tracking-[0.1em] uppercase text-accent mb-3">{t("sessionComplete")}</div>
+        <h1 className="font-medium text-[36px] leading-[1.15] tracking-[-0.02em] m-0 text-foreground">{t("wellDone")}</h1>
         <p className="text-[15px] leading-[1.6] text-muted-foreground mt-3 max-w-[62ch] m-0">
-          Você revisou {totalRated} cartões com {retention}% de retenção.
+          {t("sessionSummary", { count: totalRated, retention })}
         </p>
         <div className="grid grid-cols-4 gap-2 my-8">
           {([
-            { n: results.again, l: "De novo" },
-            { n: results.hard, l: "Difícil" },
-            { n: results.good, l: "Bom" },
-            { n: results.easy, l: "Fácil" },
+            { n: results.again, l: t("again") },
+            { n: results.hard, l: t("hard") },
+            { n: results.good, l: t("good") },
+            { n: results.easy, l: t("easy") },
           ]).map((s) => (
             <div key={s.l} className="p-4 bg-card rounded-[var(--radius-lg)]">
               <div className="text-[28px] font-medium tracking-[-0.02em] tabular-nums text-foreground">{s.n}</div>
@@ -432,12 +435,12 @@ export default function ReviewClient({ courses, totalDue, totalOverdue, streak, 
           ))}
         </div>
         <div className="p-5 bg-card rounded-[var(--radius-lg)] mb-6 text-left">
-          <div className="font-mono text-[10px] tracking-[0.1em] uppercase text-muted-foreground mb-2.5">Agendado para depois</div>
+          <div className="font-mono text-[10px] tracking-[0.1em] uppercase text-muted-foreground mb-2.5">{t("scheduledAfter")}</div>
           <div className="grid grid-cols-2 gap-2 text-[13px] text-muted-foreground">
-            <div><strong className="text-foreground font-semibold tabular-nums">{results.again}</strong> em alguns minutos</div>
-            <div><strong className="text-foreground font-semibold tabular-nums">{results.hard}</strong> em 10 minutos</div>
-            <div><strong className="text-foreground font-semibold tabular-nums">{results.good}</strong> em 2 dias</div>
-            <div><strong className="text-foreground font-semibold tabular-nums">{results.easy}</strong> em 6 dias</div>
+            <div><strong className="text-foreground font-semibold tabular-nums">{results.again}</strong> {t("scheduleItems.again")}</div>
+            <div><strong className="text-foreground font-semibold tabular-nums">{results.hard}</strong> {t("scheduleItems.hard")}</div>
+            <div><strong className="text-foreground font-semibold tabular-nums">{results.good}</strong> {t("scheduleItems.good")}</div>
+            <div><strong className="text-foreground font-semibold tabular-nums">{results.easy}</strong> {t("scheduleItems.easy")}</div>
           </div>
         </div>
         <div className="flex gap-2 justify-center">
@@ -445,13 +448,13 @@ export default function ReviewClient({ courses, totalDue, totalOverdue, streak, 
             className="bg-foreground text-background px-5 py-3 rounded-[var(--radius)] text-[14px] font-medium cursor-pointer border-0 font-[inherit] transition-opacity hover:opacity-90"
             onClick={endSession}
           >
-            Voltar para revisão
+            {t("backToReview")}
           </button>
           <button
             className="bg-transparent text-foreground/80 px-5 py-3 rounded-[var(--radius)] text-[14px] border-0 cursor-pointer font-[inherit] transition-colors hover:bg-card hover:text-foreground"
             onClick={() => startSession("all")}
           >
-            Revisar mais
+            {t("reviewMore")}
           </button>
         </div>
       </div>
