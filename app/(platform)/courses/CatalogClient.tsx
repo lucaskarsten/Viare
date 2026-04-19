@@ -3,7 +3,6 @@
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import {
-  topicToCategory,
   courseAccentColor,
   formatLearners,
   formatDuration,
@@ -18,7 +17,7 @@ type DbCourse = {
   difficulty: "EASY" | "MEDIUM" | "HARD";
   estimatedHours: number | null;
   totalEnrollments: number;
-  topic: string;
+  category: string;
   lessonCount: number;
 };
 
@@ -47,7 +46,7 @@ const CAT_LABELS: Record<string, string> = {
 function adaptCourse(c: DbCourse): AdaptedCourse {
   return {
     ...c,
-    cat: topicToCategory(c.topic),
+    cat: c.category.toLowerCase(),
     color: courseAccentColor(c.id),
     letter: displayLetter(c.title),
     learnersStr: formatLearners(c.totalEnrollments),

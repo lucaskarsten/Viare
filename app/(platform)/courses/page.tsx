@@ -14,7 +14,7 @@ export default async function CoursesPage() {
       difficulty: true,
       estimatedHours: true,
       totalEnrollments: true,
-      topic: true,
+      category: true,
       modules: {
         select: {
           _count: { select: { lessons: true } },

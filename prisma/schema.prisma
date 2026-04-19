@@ -68,16 +68,17 @@ model VerificationToken {
 // ─── Course hierarchy ──────────────────────────────────────────────────────
 
 model Course {
-  id               String       @id @default(cuid())
-  slug             String       @unique
+  id               String         @id @default(cuid())
+  slug             String         @unique
   title            String
-  description      String       @db.Text
-  topic            String       // normalized topic key, e.g. "kali-linux"
+  description      String         @db.Text
+  topic            String         // normalized topic key, e.g. "kali-linux"
+  category         CourseCategory @default(TECH)
   tags             String[]
   image            String?
-  difficulty       Difficulty   @default(MEDIUM)
+  difficulty       Difficulty     @default(MEDIUM)
   estimatedHours   Int?
-  status           CourseStatus @default(DRAFT)
+  status           CourseStatus   @default(DRAFT)
   sourceType       CourseSource @default(AI_GENERATED)
   parentCourseId   String?      // set when forked from another course
   createdById      String
@@ -286,6 +287,15 @@ model Subscription {
 }
 
 // ─── Enums ─────────────────────────────────────────────────────────────────
+
+enum CourseCategory {
+  TECH
+  LANG
+  MUSIC
+  CRAFT
+  SCIENCE
+  LIFE
+}
 
 enum Role {
   STUDENT
