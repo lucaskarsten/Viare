@@ -44,7 +44,6 @@ export default async function GoalsPage() {
   const currentStreak = streakData?.currentStreak ?? 0;
   const bestStreak = streakData?.longestStreak ?? currentStreak;
   const weeklyGoal = 6;
-  const onTrack = weeklyProgress >= Math.floor(weeklyGoal / 2);
 
   // Week range label
   const weekRange = `${startOfWeek.toLocaleDateString("pt-BR", { day: "numeric", month: "short" })} – ${endOfWeek.toLocaleDateString("pt-BR", { day: "numeric", month: "short" })}`;
@@ -64,22 +63,15 @@ export default async function GoalsPage() {
     };
   });
 
-  // Build 90-day streak dots
-  const streakDots = Array.from({ length: 90 }, (_, i) => {
-    const daysAgo = 89 - i;
-    return daysAgo < currentStreak;
-  });
-
   // Build history (last 6 weeks)
   const history = Array.from({ length: 6 }, (_, i) => {
     const weekStart = new Date(startOfWeek);
     weekStart.setDate(weekStart.getDate() - (5 - i) * 7);
     const weekEnd = new Date(weekStart);
     weekEnd.setDate(weekStart.getDate() + 6);
-    // Simplified: use fixed values for past weeks, real for current
     const done = i === 5 ? weeklyProgress : (i % 3 === 2 ? weeklyGoal - 2 : weeklyGoal);
     return {
-      weekLabel: `${weekStart.getDate()}–${weekEnd.getDate()} ${weekEnd.toLocaleDateString("pt-BR", { month: "short" })}`,
+      label: `${weekStart.getDate()}–${weekEnd.getDate()} ${weekEnd.toLocaleDateString("pt-BR", { month: "short" })}`,
       done,
       goal: weeklyGoal,
       hit: done >= weeklyGoal,
@@ -100,38 +92,30 @@ export default async function GoalsPage() {
     lessonsThisWeek: 0, // simplified — real impl would join with UserProgress
   }));
 
-  const motivationalMessage =
-    weeklyProgress < weeklyGoal
-      ? `${weeklyProgress} aula${weeklyProgress !== 1 ? "s" : ""} feita${weeklyProgress !== 1 ? "s" : ""}, faltam ${weeklyGoal - weeklyProgress}. Sessões pequenas e constantes sempre vencem maratonas.`
-      : "Você atingiu sua meta semanal. Continue assim!";
-
   return (
-    <div className="page goals">
-      <header className="page-head">
+    <div className="page">
+      <header className="page-head compact">
         <div>
           <div className="eyebrow">Esta semana · {weekRange}</div>
-          <h1 className="h1">
-            <em>{onTrack ? "Você está no ritmo." : "Vamos lá."}</em>
-          </h1>
-          <p className="lede">{motivationalMessage}</p>
+          <h1 className="h1">Metas</h1>
         </div>
       </header>
 
       <div className="goals-grid">
-        <section className="goal-card big">
+        {/* Meta semanal — GRANDE (span 2) */}
+        <div className="goal-card big">
           <div className="gc-head">
-            <h2>Meta semanal</h2>
+            <h2>Meta Semanal</h2>
             <button className="ghost small">Editar meta</button>
           </div>
           <div className="big-goal">
-            <div className="bg-num">
-              {weeklyProgress}<span className="bg-of">/{weeklyGoal}</span>
-            </div>
-            <div className="bg-label">aulas esta semana</div>
+            <div className="bg-num">{weeklyProgress}</div>
+            <div className="bg-of">/{weeklyGoal}</div>
           </div>
+          <div className="bg-label">aulas esta semana</div>
           <div className="week-strip">
             {days.map((d, i) => (
-              <div key={i} className={`ws-day ${d.done ? "done" : ""} ${d.today ? "today" : ""}`.trim()}>
+              <div key={i} className={`ws-day${d.done ? " done" : ""}${d.today ? " today" : ""}`}>
                 <div className="ws-label">{d.label}</div>
                 <div className="ws-node">
                   {d.done ? <span className="ws-check">✓</span> : <span className="ws-empty" />}
@@ -148,28 +132,32 @@ export default async function GoalsPage() {
               </div>
             ))}
           </div>
-        </section>
+        </div>
 
-        <section className="goal-card">
-          <div className="gc-head"><h2>Sequência atual</h2></div>
+        {/* Streak */}
+        <div className="goal-card">
+          <div className="gc-head">
+            <h2>Sequência</h2>
+          </div>
           <div className="streak-num">{currentStreak}</div>
-          <div className="streak-label">dias consecutivos</div>
-          <div className="streak-best">Recorde: {bestStreak} dias</div>
+          <div className="streak-label">dias seguidos</div>
+          <div className="streak-best">Melhor: {bestStreak} dias</div>
           <div className="streak-months">
-            {streakDots.map((active, i) => (
-              <span key={i} className={`streak-dot ${active ? "on" : ""}`} />
+            {Array.from({ length: 90 }).map((_, i) => (
+              <div key={i} className={`streak-dot${i < currentStreak ? " on" : ""}`} />
             ))}
           </div>
           <div className="streak-legend">Últimos 90 dias</div>
-        </section>
+        </div>
 
-        <section className="goal-card">
-          <div className="gc-head"><h2>Tempo investido</h2></div>
+        {/* Tempo investido */}
+        <div className="goal-card">
+          <div className="gc-head">
+            <h2>Tempo Investido</h2>
+          </div>
           <div className="invested">
-            <div className="inv-big">
-              {hours}<span>h</span> {minutes}<span>m</span>
-            </div>
-            <div className="inv-sub">desde o início</div>
+            <div className="inv-big">{hours}<span>h {minutes}min</span></div>
+            <div className="inv-sub">tempo total de estudo</div>
           </div>
           <div className="inv-bars">
             {enrollmentsWithPercent.map((e, i) => (
@@ -184,24 +172,27 @@ export default async function GoalsPage() {
               </div>
             ))}
           </div>
-        </section>
+        </div>
 
-        <section className="goal-card wide">
-          <div className="gc-head"><h2>Histórico</h2></div>
+        {/* Histórico — WIDE (span 3) */}
+        <div className="goal-card wide">
+          <div className="gc-head">
+            <h2>Histórico</h2>
+          </div>
           <ul className="history">
-            {history.map((h, i) => (
-              <li key={i} className={h.hit ? "hit" : "miss"}>
-                <span className="h-week">{h.weekLabel}</span>
+            {history.map((w, i) => (
+              <li key={i} className={w.hit ? "hit" : "miss"}>
+                <span className="h-week">{w.label}</span>
                 <div className="h-pips">
-                  {Array.from({ length: h.goal }, (_, j) => (
-                    <span key={j} className={`h-pip ${j < h.done ? "on" : ""}`} />
+                  {Array.from({ length: w.goal }, (_, j) => (
+                    <div key={j} className={`h-pip${j < w.done ? " on" : ""}`} />
                   ))}
                 </div>
-                <span className="h-result">{h.hit ? "cumprida" : "falhou"}</span>
+                <span className="h-result">{w.hit ? "cumprida" : "falhou"}</span>
               </li>
             ))}
           </ul>
-        </section>
+        </div>
       </div>
     </div>
   );

@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import ReactMarkdown from "react-markdown";
 import QuizBlock, { type QuizBlockQuestion } from "@/components/QuizBlock";
 import FlashcardPlayer, { type FlashCard } from "@/components/FlashcardPlayer";
 import MarkCompleteButton from "@/app/(platform)/courses/[slug]/lessons/[lessonId]/MarkCompleteButton";
@@ -33,6 +32,7 @@ export type LessonClientProps = {
   };
   totalLessons: number;
   lessonIdx: number;
+  prevLessonHref: string | null;
   nextLessonHref: string;
   quizQuestions: QuizBlockQuestion[];
   flashcards: FlashCard[];
@@ -65,30 +65,91 @@ function safeSet(key: string, value: string): void {
   }
 }
 
+/** Parse lesson.content (markdown-ish) into structured sections for rendering. */
+type ContentSection = { title: string; paragraphs: string[]; code?: string };
+
+function parseContent(raw: string | null): {
+  firstParagraph: string | null;
+  firstChar: string;
+  restParagraph: string;
+  sections: ContentSection[];
+  codeBlocks: string[];
+} {
+  if (!raw) {
+    return { firstParagraph: null, firstChar: "", restParagraph: "", sections: [], codeBlocks: [] };
+  }
+
+  const lines = raw.split("\n");
+  const sections: ContentSection[] = [];
+  const codeBlocks: string[] = [];
+  let currentSection: ContentSection | null = null;
+  let inCode = false;
+  let codeAcc: string[] = [];
+  const plainParas: string[] = [];
+
+  for (const line of lines) {
+    if (line.startsWith("```")) {
+      if (!inCode) {
+        inCode = true;
+        codeAcc = [];
+      } else {
+        inCode = false;
+        const block = codeAcc.join("\n");
+        codeBlocks.push(block);
+        if (currentSection) {
+          currentSection.code = block;
+        }
+      }
+      continue;
+    }
+    if (inCode) {
+      codeAcc.push(line);
+      continue;
+    }
+    if (line.startsWith("## ") || line.startsWith("# ")) {
+      if (currentSection) sections.push(currentSection);
+      currentSection = { title: line.replace(/^#{1,2}\s+/, ""), paragraphs: [] };
+      continue;
+    }
+    if (line.trim() === "") continue;
+    const text = line.replace(/^#{3,}\s+/, "").trim();
+    if (!text) continue;
+    if (currentSection) {
+      currentSection.paragraphs.push(text);
+    } else {
+      plainParas.push(text);
+    }
+  }
+  if (currentSection) sections.push(currentSection);
+
+  const firstParagraph = plainParas[0] ?? null;
+  const firstChar = firstParagraph ? firstParagraph.charAt(0) : "";
+  const restParagraph = firstParagraph ? firstParagraph.slice(1) : "";
+
+  return { firstParagraph, firstChar, restParagraph, sections, codeBlocks };
+}
+
 export default function LessonClient({
   lesson,
   course,
   totalLessons,
   lessonIdx,
+  prevLessonHref,
   nextLessonHref,
   quizQuestions,
   flashcards,
   summaryPoints,
 }: LessonClientProps) {
-  const [summary, setSummary] = useState(false);
-  const [tutorOpen, setTutorOpen] = useState(false);
-  const [tutorQuery, setTutorQuery] = useState("");
+  const [showTutor, setShowTutor] = useState(false);
+  const [tutorInput, setTutorInput] = useState("");
   const [tutorMessages, setTutorMessages] = useState<TutorMessage[]>([
     {
       role: "tutor",
-      text:
-        "Travou? Pergunte qualquer coisa sobre a aula. Respondo com base no material e sinalizo o que fugir dele.",
+      text: "Travou? Pergunte qualquer coisa sobre a aula. Respondo com base no material e sinalizo o que fugir dele.",
     },
   ]);
 
-  // Focus mode state: use lazy initializers so we read localStorage during
-  // the initial render (client components can safely touch `window` in the
-  // initializer function because it only runs on the client).
+  // Focus mode state
   const [focusMode, setFocusMode] = useState<boolean>(
     () => safeGet(STORAGE.mode) === "1",
   );
@@ -116,21 +177,11 @@ export default function LessonClient({
   const articleRef = useRef<HTMLElement | null>(null);
 
   // Persist changes
-  useEffect(() => {
-    safeSet(STORAGE.mode, focusMode ? "1" : "0");
-  }, [focusMode]);
-  useEffect(() => {
-    safeSet(STORAGE.width, focusWidth);
-  }, [focusWidth]);
-  useEffect(() => {
-    safeSet(STORAGE.font, focusFont);
-  }, [focusFont]);
-  useEffect(() => {
-    safeSet(STORAGE.size, String(focusSize));
-  }, [focusSize]);
-  useEffect(() => {
-    safeSet(STORAGE.bg, focusBg);
-  }, [focusBg]);
+  useEffect(() => { safeSet(STORAGE.mode, focusMode ? "1" : "0"); }, [focusMode]);
+  useEffect(() => { safeSet(STORAGE.width, focusWidth); }, [focusWidth]);
+  useEffect(() => { safeSet(STORAGE.font, focusFont); }, [focusFont]);
+  useEffect(() => { safeSet(STORAGE.size, String(focusSize)); }, [focusSize]);
+  useEffect(() => { safeSet(STORAGE.bg, focusBg); }, [focusBg]);
 
   // Tag body so shell can react
   useEffect(() => {
@@ -172,27 +223,33 @@ export default function LessonClient({
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const sendTutor = (e: React.FormEvent) => {
-    e.preventDefault();
-    const q = tutorQuery.trim();
+  function sendMsg(text: string) {
+    const q = text.trim();
     if (!q) return;
     setTutorMessages((m) => [...m, { role: "user", text: q }]);
-    setTutorQuery("");
+    setTutorInput("");
     window.setTimeout(() => {
       setTutorMessages((m) => [
         ...m,
         {
           role: "tutor",
-          text:
-            "Resposta curta: a IA tutora responderá com base no conteúdo desta aula. (Funcionalidade em desenvolvimento.)",
+          text: "Resposta curta: a IA tutora responderá com base no conteúdo desta aula. (Funcionalidade em desenvolvimento.)",
         },
       ]);
     }, 700);
-  };
+  }
+
+  const { firstChar, restParagraph, sections, codeBlocks } = parseContent(lesson.content);
 
   const pageClassName =
     `page lesson${focusMode ? " focus-mode" : ""}` +
     ` fw-${focusWidth} ff-${focusFont} fbg-${focusBg}`;
+
+  const tutorSuggestions = [
+    "Explique com um exemplo prático",
+    "Quais os pontos mais importantes?",
+    "Como isso se aplica no mundo real?",
+  ];
 
   return (
     <div
@@ -213,12 +270,11 @@ export default function LessonClient({
         </Link>
         <div className="lesson-progress-mini">
           <div className="lpm-label">
-            Aula {lesson.lessonNumber} de {totalLessons} · Módulo{" "}
-            {String(lesson.moduleOrder).padStart(2, "0")}
+            AULA {lesson.lessonNumber} DE {totalLessons}
           </div>
           <div className="lpm-bar">
             {Array.from({ length: totalLessons }).map((_, i) => (
-              <span
+              <div
                 key={i}
                 className={`lpm-tick${
                   i < lessonIdx ? " done" : i === lessonIdx ? " current" : ""
@@ -228,24 +284,17 @@ export default function LessonClient({
           </div>
         </div>
         <div className="lesson-chrome-right">
+          <MarkCompleteButton
+            lessonId={lesson.id}
+            courseId={lesson.courseId}
+            isCompleted={lesson.completed}
+            nextLessonHref={nextLessonHref}
+          />
           <button
             className="ghost small"
-            onClick={() => setSummary((s) => !s)}
+            onClick={() => setShowTutor((o) => !o)}
           >
-            {summary ? "Ocultar resumo" : "Resumir"}
-          </button>
-          <button
-            className="ghost small"
-            onClick={() => setTutorOpen((o) => !o)}
-          >
-            {tutorOpen ? "Fechar tutor" : "Perguntar"}
-          </button>
-          <button
-            className="ghost small focus-toggle"
-            onClick={() => setFocusMode(true)}
-            title="Modo foco · F"
-          >
-            <span className="focus-icon">◐</span> Foco
+            Tutor IA
           </button>
         </div>
       </header>
@@ -266,19 +315,19 @@ export default function LessonClient({
         />
       )}
 
-      <div className={`lesson-body${tutorOpen ? " with-tutor" : ""}`}>
+      <div className={`lesson-body${showTutor ? " with-tutor" : ""}`}>
         <article className="reading" ref={articleRef}>
           <div className="reading-eyebrow">
-            {lesson.moduleName} · {lesson.category} · {lesson.estimatedMinutes} min
+            {lesson.moduleName} · {lesson.category}
           </div>
           <h1 className="lesson-title">{lesson.title}</h1>
           {lesson.description && (
             <p className="lesson-dek">{lesson.description}</p>
           )}
 
-          {summary && summaryPoints.length > 0 && (
+          {summaryPoints.length > 0 && (
             <div className="summary-box">
-              <div className="summary-label">Resumo IA · 30 segundos</div>
+              <div className="summary-label">RESUMO</div>
               <ul>
                 {summaryPoints.map((p, i) => (
                   <li key={i}>{p}</li>
@@ -287,63 +336,98 @@ export default function LessonClient({
             </div>
           )}
 
-          <div className="lesson-prose">
-            {lesson.content ? (
-              <ReactMarkdown>{lesson.content}</ReactMarkdown>
-            ) : (
-              <p style={{ color: "var(--ink-3)" }}>Conteúdo ainda não disponível.</p>
-            )}
-          </div>
+          {firstChar && (
+            <div className="drop">
+              <span className="dropcap">{firstChar}</span>
+              <p>{restParagraph}</p>
+            </div>
+          )}
+
+          {sections.map((s, si) => (
+            <div key={si}>
+              <h3 className="h3 dividered">{s.title}</h3>
+              {s.paragraphs.map((p, pi) => (
+                <p key={pi}>{p}</p>
+              ))}
+              {s.code && <pre className="code">{s.code}</pre>}
+            </div>
+          ))}
+
+          {codeBlocks.length > 0 && sections.length === 0 && (
+            <pre className="code">{codeBlocks[0]}</pre>
+          )}
+
+          {!lesson.content && (
+            <p style={{ color: "var(--ink-3)" }}>Conteúdo ainda não disponível.</p>
+          )}
 
           {quizQuestions.length > 0 && <QuizBlock questions={quizQuestions} />}
 
           {flashcards.length > 0 && <FlashcardPlayer cards={flashcards} />}
 
           <div className="lesson-foot">
-            <Link href={`/courses/${course.slug}`} className="ghost big">
-              ← Voltar à estrutura
+            {prevLessonHref ? (
+              <Link href={prevLessonHref} className="ghost">
+                ← Anterior
+              </Link>
+            ) : (
+              <Link href={`/courses/${course.slug}`} className="ghost">
+                ← Voltar ao curso
+              </Link>
+            )}
+            <Link href={nextLessonHref} className="primary">
+              Próxima →
             </Link>
-            <MarkCompleteButton
-              lessonId={lesson.id}
-              courseId={lesson.courseId}
-              isCompleted={lesson.completed}
-              nextLessonHref={nextLessonHref}
-            />
           </div>
         </article>
 
-        {tutorOpen && (
-          <aside className="tutor">
+        {showTutor && (
+          <div className="tutor">
             <div className="tutor-head">
               <div>
-                <div className="tutor-title">Tutor</div>
-                <div className="tutor-sub">baseado nesta aula</div>
+                <div className="tutor-title">Tutor IA</div>
+                <div className="tutor-sub">ASSISTENTE DO CURSO</div>
               </div>
-              <button
-                className="icon small"
-                onClick={() => setTutorOpen(false)}
-                title="Fechar"
-              >
+              <button className="icon" onClick={() => setShowTutor(false)}>
                 ×
               </button>
             </div>
             <div className="tutor-msgs">
               {tutorMessages.map((m, i) => (
-                <div key={i} className={`tutor-msg ${m.role}`}>
-                  {m.role === "tutor" && <div className="tutor-avatar">L</div>}
+                <div
+                  key={i}
+                  className={`tutor-msg${m.role === "user" ? " user" : ""}`}
+                >
+                  {m.role === "tutor" && (
+                    <div className="tutor-avatar">AI</div>
+                  )}
                   <div className="tutor-bubble">{m.text}</div>
                 </div>
               ))}
             </div>
-            <form className="tutor-input" onSubmit={sendTutor}>
+            <div className="tutor-suggest">
+              {tutorSuggestions.map((s, i) => (
+                <button
+                  key={i}
+                  className="suggest-chip small"
+                  onClick={() => sendMsg(s)}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+            <div className="tutor-input">
               <input
-                value={tutorQuery}
-                onChange={(e) => setTutorQuery(e.target.value)}
-                placeholder="Pergunte sobre esta aula…"
+                value={tutorInput}
+                onChange={(e) => setTutorInput(e.target.value)}
+                placeholder="Pergunte algo..."
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") sendMsg(tutorInput);
+                }}
               />
-              <button type="submit">→</button>
-            </form>
-          </aside>
+              <button onClick={() => sendMsg(tutorInput)}>→</button>
+            </div>
+          </div>
         )}
       </div>
     </div>

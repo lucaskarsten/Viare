@@ -1,24 +1,24 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import type { GenerationEvent } from "@/lib/generation";
 
 type Phase =
   | { status: "idle" }
   | { status: "searching" }
-  | { status: "outlining"; outline?: { title: string; modules: Array<{ title: string; lessons: Array<{ title: string; type: string }> }> } }
-  | { status: "generating"; outline: { title: string; modules: Array<{ title: string; lessons: Array<{ title: string; type: string }> }> }; completedLessons: Set<string> }
+  | { status: "outlining"; outline?: { title: string; modules: Array<{ title: string; lessons: Array<{ title: string; type: string }>; estimatedMinutes?: number }> } }
+  | { status: "generating"; outline: { title: string; modules: Array<{ title: string; lessons: Array<{ title: string; type: string }>; estimatedMinutes?: number }> }; completedLessons: Set<string> }
   | { status: "done"; courseSlug: string }
   | { status: "error"; message: string };
 
 const SUGGESTIONS = [
   "Kali Linux",
-  "Pão de fermentação",
+  "Piano clássico",
+  "Bread & sourdough",
+  "Negociação",
   "Estatística bayesiana",
   "Color theory",
-  "Violão fingerstyle",
-  "História medieval",
   "Rust ownership",
   "Aberturas de xadrez",
 ];
@@ -33,43 +33,65 @@ const THINKING = [
 ];
 
 const LANGUAGES = [
-  { code: "en", flag: "EN", native: "English" },
   { code: "pt", flag: "PT", native: "Português" },
+  { code: "en", flag: "EN", native: "English" },
   { code: "es", flag: "ES", native: "Español" },
   { code: "fr", flag: "FR", native: "Français" },
   { code: "de", flag: "DE", native: "Deutsch" },
   { code: "it", flag: "IT", native: "Italiano" },
-  { code: "ja", flag: "JA", native: "日本語" },
   { code: "zh", flag: "ZH", native: "中文" },
+  { code: "ja", flag: "JP", native: "日本語" },
 ];
+
+function estimatedMinutes(depth: string, pace: string): number {
+  const baseByDepth: Record<string, number> = { "Iniciante": 4, "Intermediário": 7, "Profundo": 12 };
+  const base = baseByDepth[depth] ?? 7;
+  const paceNum = parseInt(pace, 10) || 30;
+  return Math.round(base * (paceNum / 30));
+}
 
 export default function GeneratePage() {
   const router = useRouter();
   const [topic, setTopic] = useState("");
-  const [depth, setDepth] = useState("intermediário");
+  const [depth, setDepth] = useState("Intermediário");
   const [pace, setPace] = useState("30");
-  const [format, setFormat] = useState("mixed");
+  const [format, setFormat] = useState("Misto");
   const [language, setLanguage] = useState("pt");
   const [phase, setPhase] = useState<Phase>({ status: "idle" });
   const [logSteps, setLogSteps] = useState<string[]>([]);
+  const [elapsed, setElapsed] = useState(0);
   const abortRef = useRef<AbortController | null>(null);
+  const elapsedRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const isRunning = ["searching", "outlining", "generating"].includes(phase.status);
-  const stage = isRunning ? "thinking" : phase.status === "done" ? "done" : phase.status === "error" ? "error" : "idle";
 
   const outline =
     phase.status === "outlining" ? phase.outline :
     phase.status === "generating" ? phase.outline :
     null;
 
+  useEffect(() => {
+    if (!isRunning) {
+      if (elapsedRef.current) {
+        clearInterval(elapsedRef.current);
+        elapsedRef.current = null;
+      }
+      return;
+    }
+    elapsedRef.current = setInterval(() => setElapsed((s) => s + 1), 1000);
+    return () => {
+      if (elapsedRef.current) clearInterval(elapsedRef.current);
+    };
+  }, [isRunning]);
+
   async function handleGenerate() {
     if (!topic.trim() || isRunning) return;
+    setElapsed(0);
 
     abortRef.current = new AbortController();
     setPhase({ status: "searching" });
     setLogSteps([]);
 
-    // Animate THINKING steps while real generation runs
     THINKING.forEach((s, i) => {
       setTimeout(() => setLogSteps((prev) => [...prev, s]), 450 * (i + 1));
     });
@@ -87,7 +109,7 @@ export default function GeneratePage() {
       const reader = res.body!.getReader();
       const decoder = new TextDecoder();
       let buffer = "";
-      let currentOutline: { title: string; modules: Array<{ title: string; lessons: Array<{ title: string; type: string }> }> } | undefined;
+      let currentOutline: { title: string; modules: Array<{ title: string; lessons: Array<{ title: string; type: string }>; estimatedMinutes?: number }> } | undefined;
       const completed = new Set<string>();
 
       while (true) {
@@ -132,13 +154,15 @@ export default function GeneratePage() {
     }
   }
 
+  const estTime = estimatedMinutes(depth, pace);
+
   return (
-    <div className="page generate">
+    <div className="page">
       <header className="page-head compact">
         <div>
-          <div className="eyebrow">Novo curso</div>
-          <h1 className="h1"><em>O que você</em> quer aprender?</h1>
-          <p className="lede">Descreva com suas palavras. Quanto mais específico, melhor o currículo.</p>
+          <div className="eyebrow">GERAR CURSO</div>
+          <h1 className="h1">Sobre o que quer aprender?</h1>
+          <p className="lede">Digite um tema, quanto mais específico, melhor o currículo gerado.</p>
         </div>
       </header>
 
@@ -147,12 +171,13 @@ export default function GeneratePage() {
           className="gen-input"
           value={topic}
           onChange={(e) => setTopic(e.target.value)}
-          placeholder="ex: Aprender marcenaria japonesa, começando pelas ferramentas manuais…"
+          placeholder="Ex: Redes de computadores, história do jazz, panificação..."
+          rows={4}
           disabled={isRunning}
         />
 
         <div className="gen-suggest">
-          <span className="gen-suggest-label">Tente:</span>
+          <span className="gen-suggest-label">SUGESTÕES</span>
           {SUGGESTIONS.map((s) => (
             <button key={s} type="button" className="suggest-chip" onClick={() => setTopic(s)}>
               {s}
@@ -161,32 +186,32 @@ export default function GeneratePage() {
         </div>
 
         <div className="gen-options">
-          <div className="opt-group">
-            <div className="opt-label">Profundidade</div>
+          <div>
+            <div className="opt-label">PROFUNDIDADE</div>
             <div className="opt-row">
-              {["iniciante", "intermediário", "profundo"].map((v) => (
+              {["Iniciante", "Intermediário", "Profundo"].map((v) => (
                 <button key={v} type="button" className={`seg${depth === v ? " on" : ""}`} onClick={() => setDepth(v)}>
                   {v}
                 </button>
               ))}
             </div>
           </div>
-          <div className="opt-group">
-            <div className="opt-label">Duração de sessão</div>
+          <div>
+            <div className="opt-label">DURAÇÃO (min/aula)</div>
             <div className="opt-row">
-              {[{ v: "20", l: "20 min" }, { v: "30", l: "30 min" }, { v: "45", l: "45 min" }, { v: "60", l: "60 min" }].map((o) => (
-                <button key={o.v} type="button" className={`seg${pace === o.v ? " on" : ""}`} onClick={() => setPace(o.v)}>
-                  {o.l}
+              {["20", "30", "45", "60"].map((v) => (
+                <button key={v} type="button" className={`seg${pace === v ? " on" : ""}`} onClick={() => setPace(v)}>
+                  {v}
                 </button>
               ))}
             </div>
           </div>
-          <div className="opt-group">
-            <div className="opt-label">Formato</div>
+          <div>
+            <div className="opt-label">FORMATO</div>
             <div className="opt-row">
-              {[{ v: "reading", l: "Só leitura" }, { v: "mixed", l: "Misto" }, { v: "hands-on", l: "Prático" }].map((o) => (
-                <button key={o.v} type="button" className={`seg${format === o.v ? " on" : ""}`} onClick={() => setFormat(o.v)}>
-                  {o.l}
+              {["Leitura", "Misto", "Prático"].map((v) => (
+                <button key={v} type="button" className={`seg${format === v ? " on" : ""}`} onClick={() => setFormat(v)}>
+                  {v}
                 </button>
               ))}
             </div>
@@ -195,10 +220,8 @@ export default function GeneratePage() {
 
         <div className="gen-lang">
           <div className="opt-label">
-            Idioma
-            <span className="gen-lang-hint">
-              Você pode gerar traduções do mesmo curso depois — ficam linkadas como uma família.
-            </span>
+            IDIOMA
+            <span className="gen-lang-hint">Selecione o idioma principal do curso</span>
           </div>
           <div className="lang-grid">
             {LANGUAGES.map((l) => (
@@ -210,7 +233,7 @@ export default function GeneratePage() {
               >
                 <span className="lang-code">{l.flag}</span>
                 <span className="lang-native">{l.native}</span>
-                {language === l.code && <span className="lang-badge">Principal</span>}
+                {language === l.code && <span className="lang-badge">PRINCIPAL</span>}
               </button>
             ))}
           </div>
@@ -221,33 +244,33 @@ export default function GeneratePage() {
 
         <div className="gen-actions">
           <div className="gen-estimate">
-            <span className="dot" />
-            Estimado: 6 módulos · 18 aulas · ~9 horas
+            <div className="dot" />
+            ~{estTime} min para gerar
           </div>
           <button
             type="button"
             className="primary"
-            disabled={!topic.trim() || stage === "thinking"}
+            disabled={!topic.trim() || isRunning}
             onClick={handleGenerate}
           >
-            {stage === "thinking" ? "Gerando…" : "Gerar currículo →"}
+            {isRunning ? "Gerando…" : "Gerar curso"}
           </button>
         </div>
       </div>
 
-      {stage === "thinking" && (
+      {isRunning && (
         <div className="gen-output">
           <div className="thinking-panel">
             <div className="thinking-head">
-              <span className="pulse on" />
-              <span className="mono">lumen.reason()</span>
-              <span className="thinking-meta">processando…</span>
+              <div className={`pulse${isRunning ? " on" : ""}`} />
+              <span className="mono">Gerando curso...</span>
+              <span className="thinking-meta">{elapsed}s</span>
             </div>
             <ul className="thinking-log">
-              {logSteps.map((s, i) => (
+              {logSteps.map((step, i) => (
                 <li key={i}>
                   <span className="idx">{String(i + 1).padStart(2, "0")}</span>
-                  <span>{s}</span>
+                  {step}
                 </li>
               ))}
             </ul>
@@ -265,12 +288,12 @@ export default function GeneratePage() {
                   <button className="ghost">Editar estrutura</button>
                 </div>
               </div>
-              <ol className="modules">
+              <ul className="modules">
                 {outline.modules.map((mod, mi) => {
                   const completedLessons = phase.status === "generating" ? phase.completedLessons : new Set<string>();
                   return (
                     <li key={mi} className="module">
-                      <div className="module-num">{String(mi + 1).padStart(2, "0")}</div>
+                      <span className="module-num">{String(mi + 1).padStart(2, "0")}</span>
                       <div className="module-body">
                         <h3>{mod.title}</h3>
                         <ul className="module-lessons">
@@ -286,10 +309,11 @@ export default function GeneratePage() {
                           })}
                         </ul>
                       </div>
+                      <span className="module-mins">{mod.estimatedMinutes ?? 30}min</span>
                     </li>
                   );
                 })}
-              </ol>
+              </ul>
             </div>
           )}
         </div>
@@ -299,15 +323,15 @@ export default function GeneratePage() {
         <div className="gen-output">
           <div className="thinking-panel">
             <div className="thinking-head">
-              <span className="pulse" />
-              <span className="mono">lumen.reason()</span>
+              <div className="pulse" />
+              <span className="mono">Gerando curso...</span>
               <span className="thinking-meta">concluído</span>
             </div>
             <ul className="thinking-log">
               {logSteps.map((s, i) => (
                 <li key={i}>
                   <span className="idx">{String(i + 1).padStart(2, "0")}</span>
-                  <span>{s}</span>
+                  {s}
                 </li>
               ))}
             </ul>

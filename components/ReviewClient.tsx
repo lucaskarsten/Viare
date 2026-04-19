@@ -20,12 +20,21 @@ type Course = {
   cards: Card[];
 };
 
+type ScheduleDay = {
+  label: string;
+  count: number;
+  hot?: boolean;
+};
+
 type Results = { again: number; hard: number; good: number; easy: number };
 
 type Props = {
   courses: Course[];
   totalDue: number;
   totalOverdue: number;
+  streak: number;
+  schedule: ScheduleDay[];
+  message: string;
 };
 
 // Sample card pool used when course cards are sparse — mirrors the design reference
@@ -68,7 +77,14 @@ const SAMPLE_CARD_POOL: Card[] = [
   },
 ];
 
-export default function ReviewClient({ courses, totalDue, totalOverdue }: Props) {
+export default function ReviewClient({
+  courses,
+  totalDue,
+  totalOverdue,
+  streak,
+  schedule,
+  message,
+}: Props) {
   const [mode, setMode] = useState<"dashboard" | "session" | "done">("dashboard");
   const [sessionCards, setSessionCards] = useState<(Card & { courseMeta: Course })[]>([]);
   const [idx, setIdx] = useState(0);
@@ -163,22 +179,142 @@ export default function ReviewClient({ courses, totalDue, totalOverdue }: Props)
     return () => window.removeEventListener("keydown", handler);
   }, [mode, revealed, rate]);
 
-  // ——— DASHBOARD: render only the action buttons (host page renders the rest) ———
+  // ——— DASHBOARD ———
   if (mode === "dashboard") {
+    const maxN = Math.max(...schedule.map((x) => x.count), 1);
+
     return (
-      <>
-        <button
-          className="primary big"
-          onClick={() => startSession("all")}
-          disabled={totalDue === 0}
-        >
-          Revisar tudo · ~{Math.ceil(totalDue * 0.5)} min
-        </button>
-        <button className="ghost" onClick={() => startSession("overdue")}>
-          Só os {totalOverdue} atrasados
-        </button>
-        <button className="ghost">Sessão customizada…</button>
-      </>
+      <div className="page review">
+        <header className="review-hero">
+          <div className="review-hero-main">
+            <div className="eye">Revisão espaçada</div>
+            <h1 className="h1">
+              {totalDue > 0 ? (
+                <>
+                  {totalDue} <span className="h1-soft">cartões pendentes</span>
+                </>
+              ) : (
+                <>
+                  Tudo em dia <span className="h1-soft">·</span>
+                </>
+              )}
+            </h1>
+            <p className="lede">{message}</p>
+            <div className="review-actions">
+              <button
+                className="primary big"
+                onClick={() => startSession("all")}
+                disabled={totalDue === 0}
+              >
+                Revisar tudo · ~{Math.ceil(totalDue * 0.5)} min
+              </button>
+              <button className="ghost" onClick={() => startSession("overdue")}>
+                Só os {totalOverdue} atrasados
+              </button>
+              <button className="ghost">Sessão customizada…</button>
+            </div>
+          </div>
+          <aside className="review-streak">
+            <div className="streak-num">
+              {streak}<span>🔥</span>
+            </div>
+            <div className="streak-label">dias seguidos</div>
+            <div className="streak-cal">
+              {Array.from({ length: 28 }).map((_, i) => {
+                const state =
+                  i < streak ? "done" : i === streak ? "today" : i > streak + 8 ? "none" : "scheduled";
+                return <span key={i} className={`sc sc-${state}`} />;
+              })}
+            </div>
+            <div className="streak-foot">Últimas 4 semanas</div>
+          </aside>
+        </header>
+
+        <section className="review-section">
+          <h2 className="h2">Pendentes por curso</h2>
+          <div className="course-queue">
+            {courses.length === 0 ? (
+              <p style={{ padding: "16px", color: "var(--ink-3)" }}>
+                Nenhum curso em andamento.
+              </p>
+            ) : (
+              courses.map((c) => (
+                <div key={c.id} className={`cq ${c.due === 0 ? "empty" : ""}`}>
+                  <div className="cq-bar" style={{ background: c.color }} />
+                  <div className="cq-body">
+                    <div className="cq-head">
+                      <div className="cq-name">{c.name}</div>
+                      <div className="cq-due">
+                        {c.due === 0 ? (
+                          "em dia"
+                        ) : (
+                          <>
+                            <strong>{c.due}</strong> pendentes
+                          </>
+                        )}
+                      </div>
+                    </div>
+                    {c.due > 0 && (
+                      <div className="cq-breakdown">
+                        {c.overdue > 0 && (
+                          <span className="cqb overdue">{c.overdue} atrasados</span>
+                        )}
+                        {c.learning > 0 && (
+                          <span className="cqb learning">{c.learning} aprendendo</span>
+                        )}
+                        {c.new > 0 && (
+                          <span className="cqb new">{c.new} novos</span>
+                        )}
+                      </div>
+                    )}
+                    <div className="cq-progress">
+                      <div className="cq-progress-bar">
+                        <div
+                          style={{
+                            width: `${((c.total - c.due) / Math.max(c.total, 1)) * 100}%`,
+                            background: c.color,
+                          }}
+                        />
+                      </div>
+                      <span className="cq-progress-label">
+                        {c.total - c.due} / {c.total} aprendidos
+                      </span>
+                    </div>
+                  </div>
+                  {c.due > 0 && (
+                    <button className="cq-go" onClick={() => startSession(c.id)}>
+                      Revisar →
+                    </button>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+        </section>
+
+        <section className="review-section">
+          <h2 className="h2">Esta semana</h2>
+          <div className="schedule">
+            {schedule.map((d, i) => {
+              const h = Math.max(8, (d.count / maxN) * 120);
+              return (
+                <div key={i} className={`sched-col${d.hot ? " hot" : ""}`}>
+                  <div className="sched-num">{d.count}</div>
+                  <div className="sched-bar" style={{ height: h }}>
+                    <div className="sched-bar-fill" style={{ height: "100%" }} />
+                  </div>
+                  <div className="sched-day">{d.label}</div>
+                </div>
+              );
+            })}
+          </div>
+          <div className="review-tip">
+            <span className="review-tip-eye">Dica</span>
+            Sessões curtas e diárias vencem maratonas no fim de semana. O
+            algoritmo recompensa consistência.
+          </div>
+        </section>
+      </div>
     );
   }
 
@@ -283,17 +419,8 @@ export default function ReviewClient({ courses, totalDue, totalOverdue }: Props)
       : 0;
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        background: "var(--paper)",
-        zIndex: 50,
-        display: "grid",
-        placeItems: "center",
-      }}
-    >
-      <div className="page review-done" style={{ position: "static", inset: "unset" }}>
+    <div className="review-session">
+      <div className="page review-done">
         <div className="rd-card">
           <div className="rd-eye">Sessão completa</div>
           <h1 className="h1">Muito bem.</h1>

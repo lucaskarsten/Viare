@@ -56,7 +56,7 @@ export default function QuizLesson({ lessonId, questions, isCompleted }: Props) 
     return (
       <div className="quiz">
         <div style={{ textAlign: "center", padding: "1.5rem 0" }}>
-          <div style={{ fontSize: "3.5rem", fontWeight: 500, color: "var(--vr-accent)", fontVariantNumeric: "tabular-nums" }}>
+          <div style={{ fontSize: "3.5rem", fontWeight: 500, color: "var(--accent)", fontVariantNumeric: "tabular-nums" }}>
             {score}<span style={{ fontSize: "1.5rem", color: "var(--ink-3)" }}>%</span>
           </div>
           <p style={{ color: "var(--ink-3)", marginTop: "0.25rem" }}>

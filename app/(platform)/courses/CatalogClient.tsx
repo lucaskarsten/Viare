@@ -198,7 +198,7 @@ function CatalogCard({ course }: { course: AdaptedCourse }) {
     <article className="ccard">
       <div
         className="ccard-top"
-        style={{ "--accent": course.color, background: course.color } as React.CSSProperties}
+        style={{ "--accent": course.color } as React.CSSProperties}
       >
         <span className="ccard-tag">{CAT_LABELS[course.cat] ?? course.cat}</span>
         <span className="ccard-free-badge">grátis</span>

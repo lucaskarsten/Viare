@@ -4,6 +4,10 @@
 @plugin "@tailwindcss/typography";
 
 @custom-variant dark (&:is(.dark *));
+@custom-variant palette-cool (html[data-palette="cool"] &);
+@custom-variant palette-warm (html[data-palette="warm"] &);
+@custom-variant palette-mono (html[data-palette="mono"] &);
+@custom-variant palette-forest (html[data-palette="forest"] &);
 
 @theme inline {
   --color-background: var(--background);

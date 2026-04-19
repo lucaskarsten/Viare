@@ -6,7 +6,6 @@ import EnrollButton from "./EnrollButton";
 import CourseDetailTabs, {
   type CourseDetailModule,
 } from "@/components/CourseDetailTabs";
-import type { CourseMapModule } from "@/components/CourseMap";
 
 type Params = Promise<{ slug: string }>;
 
@@ -100,16 +99,8 @@ export default async function CoursePage({ params }: { params: Params }) {
     ? flatLessons.findIndex((l) => l.id === nextLessonRaw.id) + 1
     : 1;
 
-  // Compute counts for stats sidebar
-  const quizCount = course.modules.reduce(
-    (sum, m) => sum + m.lessons.filter((l) => l.type === "QUIZ").length,
-    0,
-  );
-  const labCount = course.modules.reduce(
-    (sum, m) => sum + m.lessons.filter((l) => l.type === "LAB").length,
-    0,
-  );
-  const flashcardCount = 0;
+  const estimatedHours = course.estimatedHours ?? Math.max(1, Math.round((totalLessons * 12) / 60));
+  const moduleCount = course.modules.length;
 
   // Course detail modules (tabbed outline)
   const detailModules: CourseDetailModule[] = course.modules.map((m, mi) => {
@@ -146,67 +137,26 @@ export default async function CoursePage({ params }: { params: Params }) {
     };
   });
 
-  // Map modules for the Map tab (existing SVG map)
-  const mapModules: CourseMapModule[] = course.modules.map((m, mi) => ({
-    id: m.id,
-    title: m.title,
-    order: m.order,
-    locked:
-      mi > 0 &&
-      !course.modules[mi - 1].lessons.every((l) => completedLessonIds.has(l.id)),
-    current:
-      mi ===
-      course.modules.findIndex((mod) =>
-        mod.lessons.some((l) => !completedLessonIds.has(l.id)),
-      ),
-    lessons: m.lessons.map((l, li) => ({
-      id: l.id,
-      title: l.title,
-      order: l.order ?? li + 1,
-      completed: completedLessonIds.has(l.id),
-      current:
-        !completedLessonIds.has(l.id) &&
-        m.lessons.slice(0, li).every((pl) => completedLessonIds.has(pl.id)),
-      locked:
-        mi > 0 &&
-        !course.modules[mi - 1].lessons.every((pl) => completedLessonIds.has(pl.id)),
-    })),
-  }));
-
   const difficultyLabel = DIFFICULTY_LABEL[course.difficulty] ?? "Intermediário";
-  const remainingLessons = Math.max(0, totalLessons - completedLessons);
-  const estimatedRemainingHours = course.estimatedHours
-    ? Math.max(1, Math.round((course.estimatedHours * remainingLessons) / Math.max(1, totalLessons)))
-    : Math.max(1, Math.round((remainingLessons * 12) / 60));
-  const customizedCount = 0;
+  const categoryLabel = course.category ?? "Segurança";
 
   return (
-    <div className="page course">
+    <div className="page">
       <div className="breadcrumb">
-        <Link href="/dashboard">← Biblioteca</Link>
+        <Link href="/dashboard" className="ghost small">← Biblioteca</Link>
       </div>
 
-      <header className="course-hero">
+      <div className="course-hero">
         <div className="course-hero-main">
-          <div className="course-tag">{difficultyLabel}</div>
+          <div className="course-tag">{categoryLabel} · {difficultyLabel}</div>
           <h1 className="h1">{course.title}</h1>
           <p className="lede">{course.description}</p>
           <div className="course-meta">
-            <span>
-              ★ {course.avgRating > 0 ? course.avgRating.toFixed(1) : "—"}
-              {course.totalRatings > 0
-                ? ` (${course.totalRatings.toLocaleString()})`
-                : ""}
-            </span>
+            <span>{difficultyLabel}</span>
+            <span className="sep">·</span>
+            <span>{estimatedHours}h estimadas</span>
             <span className="sep">·</span>
             <span>{course._count.enrollments} alunos</span>
-            <span className="sep">·</span>
-            <span>
-              {course.sourceType === "AI_GENERATED" ? "Gerado por IA" : "Curado"}
-              {customizedCount > 0
-                ? ` · você personalizou ${customizedCount} aulas`
-                : ""}
-            </span>
           </div>
           <div className="course-actions">
             <EnrollButton
@@ -215,48 +165,38 @@ export default async function CoursePage({ params }: { params: Params }) {
               firstLessonHref={nextLessonHref}
               nextLessonNumber={nextLessonIndex}
             />
-            <button className="ghost">⑂ Fork &amp; remix</button>
-            <button className="ghost">Personalizar</button>
-            <button className="icon" title="Avaliar">
-              ★
-            </button>
+            <button className="ghost">Compartilhar</button>
           </div>
         </div>
+
         <aside className="course-hero-side">
-          <div className="chs-progress">
-            <div className="chsp-num">{progressPct}%</div>
+          <div className="progress-block">
+            <div className="progress-num">{progressPct}<span>%</span></div>
+            <div className="progress-label">concluído</div>
             <div className="progress-bar big">
               <div style={{ width: `${progressPct}%` }} />
             </div>
-            <div className="chsp-label">
-              {completedLessons} de {totalLessons} aulas
-            </div>
           </div>
-          <div className="chs-stats">
-            <div className="chs-stat">
-              <span>Quizzes</span>
-              <strong>{quizCount}</strong>
-            </div>
-            <div className="chs-stat">
-              <span>Flashcards</span>
-              <strong>{flashcardCount}</strong>
-            </div>
-            <div className="chs-stat">
-              <span>Labs</span>
-              <strong>{labCount}</strong>
-            </div>
-            <div className="chs-stat">
-              <span>~{estimatedRemainingHours}h</span>
-              <strong>restantes</strong>
-            </div>
-          </div>
+          <ul className="side-stats">
+            <li>
+              <span>Aulas concluídas</span>
+              <strong>{completedLessons}/{totalLessons}</strong>
+            </li>
+            <li>
+              <span>Tempo estimado</span>
+              <strong>{estimatedHours}h</strong>
+            </li>
+            <li>
+              <span>Módulos</span>
+              <strong>{moduleCount}</strong>
+            </li>
+          </ul>
         </aside>
-      </header>
+      </div>
 
       <CourseDetailTabs
         courseSlug={slug}
         modules={detailModules}
-        mapModules={mapModules}
       />
     </div>
   );

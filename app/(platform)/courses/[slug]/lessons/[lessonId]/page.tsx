@@ -78,8 +78,12 @@ export default async function LessonPage({ params }: { params: Params }) {
     select: { id: true, title: true, moduleId: true },
   });
   const currentIndex = allLessons.findIndex((l) => l.id === lessonId);
+  const prevLesson = currentIndex > 0 ? allLessons[currentIndex - 1] : null;
   const nextLesson =
     currentIndex < allLessons.length - 1 ? allLessons[currentIndex + 1] : null;
+  const prevLessonHref = prevLesson
+    ? `/courses/${slug}/lessons/${prevLesson.id}`
+    : null;
   const nextLessonHref = nextLesson
     ? `/courses/${slug}/lessons/${nextLesson.id}`
     : `/courses/${slug}`;
@@ -152,6 +156,7 @@ export default async function LessonPage({ params }: { params: Params }) {
       }}
       totalLessons={allLessons.length}
       lessonIdx={currentIndex}
+      prevLessonHref={prevLessonHref}
       nextLessonHref={nextLessonHref}
       quizQuestions={quizQuestions}
       flashcards={[]}

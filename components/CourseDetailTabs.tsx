@@ -1,7 +1,6 @@
 "use client";
 import { useState } from "react";
-import Link from "next/link";
-import CourseMap, { CourseMapModule } from "./CourseMap";
+import { useRouter } from "next/navigation";
 
 export type CourseDetailLesson = {
   id: string;
@@ -26,104 +25,103 @@ export type CourseDetailModule = {
 type Props = {
   courseSlug: string;
   modules: CourseDetailModule[];
-  mapModules: CourseMapModule[];
 };
 
-export default function CourseDetailTabs({ courseSlug, modules, mapModules }: Props) {
-  const [tab, setTab] = useState<"outline" | "map" | "notes" | "flashcards" | "reviews">("outline");
+type Tab = "overview" | "lessons" | "flashcards" | "reviews" | "notes";
+
+const TABS: { id: Tab; label: string }[] = [
+  { id: "overview", label: "Visão geral" },
+  { id: "lessons", label: "Aulas" },
+  { id: "flashcards", label: "Flashcards" },
+  { id: "reviews", label: "Avaliações" },
+  { id: "notes", label: "Notas" },
+];
+
+function kindClass(kind: string): string {
+  if (kind === "quiz") return "k-quiz";
+  if (kind === "lab") return "k-lab";
+  return "k-read";
+}
+
+export default function CourseDetailTabs({ courseSlug, modules }: Props) {
+  const [tab, setTab] = useState<Tab>("lessons");
+  const router = useRouter();
 
   return (
     <>
-      <nav className="course-tabs">
-        <button
-          className={`ct-tab${tab === "outline" ? " active" : ""}`}
-          onClick={() => setTab("outline")}
-        >
-          Estrutura
-        </button>
-        <button
-          className={`ct-tab${tab === "map" ? " active" : ""}`}
-          onClick={() => setTab("map")}
-        >
-          Mapa
-        </button>
-        <button
-          className={`ct-tab${tab === "notes" ? " active" : ""}`}
-          onClick={() => setTab("notes")}
-        >
-          Minhas notas
-        </button>
-        <button
-          className={`ct-tab${tab === "flashcards" ? " active" : ""}`}
-          onClick={() => setTab("flashcards")}
-        >
-          Flashcards
-        </button>
-        <button
-          className={`ct-tab${tab === "reviews" ? " active" : ""}`}
-          onClick={() => setTab("reviews")}
-        >
-          Avaliações
-        </button>
-      </nav>
+      <div className="tabs">
+        {TABS.map((t) => (
+          <button
+            key={t.id}
+            className={`tab${tab === t.id ? " on" : ""}`}
+            onClick={() => setTab(t.id)}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
 
-      {tab === "outline" && (
-        <div className="modules">
-          {modules.map((m) => {
-            const totalDur = m.lessons.reduce((sum, l) => sum + l.estimatedMinutes, 0);
-            return (
-              <div
-                key={m.id}
-                className={`module${m.isCurrent ? " current" : ""}${m.isLocked ? " locked" : ""}`}
-              >
-                <div className="module-head">
-                  <span className="module-n">{String(m.order).padStart(2, "0")}</span>
-                  <div className="module-info">
-                    <div className="module-title">{m.title}</div>
-                  </div>
-                  <span className="module-dur">{totalDur}m</span>
-                </div>
-                <div className="module-lessons">
-                  {m.lessons.map((l) => {
-                    const className = `course-module-lesson${l.done ? " done" : ""}${
-                      l.current ? " current" : ""
-                    }`;
-                    const content = (
-                      <>
-                        <span className="cml-check">
-                          {l.done ? "✓" : l.current ? "▸" : "○"}
-                        </span>
-                        <span className="cml-n">Aula {l.order}</span>
-                        <span className="cml-title">{l.title}</span>
-                        <span className="cml-kind">{l.kind}</span>
-                        <span className="cml-dur">{l.estimatedMinutes}m</span>
-                      </>
-                    );
-                    if (l.locked || m.isLocked) {
-                      return (
-                        <span key={l.id} className={`${className} locked`}>
-                          {content}
-                        </span>
-                      );
-                    }
-                    return (
-                      <Link
-                        key={l.id}
-                        href={`/courses/${courseSlug}/lessons/${l.id}`}
-                        className={className}
-                      >
-                        {content}
-                      </Link>
-                    );
-                  })}
-                </div>
-              </div>
-            );
-          })}
+      {tab === "overview" && (
+        <div className="notes-list">
+          <p style={{ color: "var(--ink-3)", padding: "24px 0" }}>
+            Selecione a aba <strong>Aulas</strong> para ver o conteúdo do curso.
+          </p>
         </div>
       )}
 
-      {tab === "map" && <CourseMap modules={mapModules} slug={courseSlug} />}
+      {tab === "lessons" && (
+        <ul className="course-modules">
+          {modules.map((m) => {
+            const allDone = m.lessons.every((l) => l.done);
+            return (
+              <li
+                key={m.id}
+                className={`course-module${m.isLocked ? " locked" : ""}${m.isCurrent ? " current" : ""}`}
+              >
+                <div className="cm-head">
+                  <span className="cm-num">{String(m.order).padStart(2, "0")}</span>
+                  <h3>{m.title}</h3>
+                  {allDone && <span className="cm-badge">Concluído</span>}
+                  {m.isCurrent && !allDone && <span className="cm-badge">Você está aqui</span>}
+                  {m.isLocked && <span className="cm-lock">bloqueado</span>}
+                </div>
+                <ul className="cm-lessons">
+                  {m.lessons.map((l) => {
+                    const lessonClass = `cm-lesson${l.done ? " done" : ""}${l.current ? " current" : ""}`;
+                    const inner = (
+                      <>
+                        <span className="cml-check">
+                          {l.done ? "✓" : l.current ? "▸" : <span className="empty-circle" />}
+                        </span>
+                        <span className="cml-n">{String(l.order).padStart(2, "0")}</span>
+                        <span className="cml-title">{l.title}</span>
+                        <span className={`cml-kind ${kindClass(l.kind)}`}>{l.kind}</span>
+                        <span className="cml-dur">{l.estimatedMinutes}min</span>
+                      </>
+                    );
+                    if (m.isLocked || l.locked) {
+                      return (
+                        <li key={l.id} className={`${lessonClass} locked`}>
+                          {inner}
+                        </li>
+                      );
+                    }
+                    return (
+                      <li
+                        key={l.id}
+                        className={lessonClass}
+                        onClick={() => router.push(`/courses/${courseSlug}/lessons/${l.id}`)}
+                      >
+                        {inner}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </li>
+            );
+          })}
+        </ul>
+      )}
 
       {tab === "notes" && (
         <div className="notes-list">
@@ -143,6 +141,24 @@ export default function CourseDetailTabs({ courseSlug, modules, mapModules }: Pr
 
       {tab === "reviews" && (
         <div className="reviews">
+          <div className="reviews-head">
+            <div className="big-rating">
+              <div className="big-num">—</div>
+              <div className="stars">★★★★★</div>
+              <div className="rc">Sem avaliações ainda</div>
+            </div>
+            <div className="rating-bars">
+              {[5, 4, 3, 2, 1].map((n) => (
+                <div key={n} className="rb">
+                  <span>{n}</span>
+                  <div className="rb-bar">
+                    <div style={{ width: "0%" }} />
+                  </div>
+                  <span className="rb-n">0%</span>
+                </div>
+              ))}
+            </div>
+          </div>
           <p style={{ color: "var(--ink-3)", padding: "24px 0" }}>
             Nenhuma avaliação ainda.
           </p>

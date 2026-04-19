@@ -2,12 +2,7 @@
 
 import { useState } from "react";
 
-const COURSE_COLORS = ["#c97a4a", "#8a9a5b", "#6b7a8f", "#b8a06e", "#7a5a8f", "#5a8a8a"];
-
-const TOPICS = [
-  "Segurança", "Linux", "Python", "Pão", "Piano",
-  "Negociação", "Xadrez", "Francês", "ML", "Desenho", "Estatística", "Café",
-];
+type FilterType = "Todos" | "Cursos" | "Notas" | "Conquistas";
 
 type PostKind = "course-share" | "note" | "milestone";
 
@@ -17,9 +12,11 @@ interface FeedCourse {
   color: string;
   rating?: number;
   learners?: string;
+  lessons?: number;
 }
 
 interface Post {
+  id: number;
   kind: PostKind;
   who: string;
   handle: string;
@@ -30,14 +27,14 @@ interface Post {
   milestone?: { big: string; label: string };
   likes: number;
   comments: number;
-  remixes: number;
 }
 
 const POSTS: Post[] = [
   {
+    id: 1,
     kind: "course-share",
     who: "Amara Okafor",
-    handle: "@amaralearns",
+    handle: "amaralearns",
     when: "há 2 horas",
     text: "Acabei esse curso de Kali e foi o primeiro que me fez sentir capaz de montar um home lab sem destruir o roteador.",
     course: {
@@ -46,27 +43,28 @@ const POSTS: Post[] = [
       color: "#c97a4a",
       rating: 4.8,
       learners: "3.2k",
+      lessons: 18,
     },
     likes: 184,
     comments: 22,
-    remixes: 14,
   },
   {
+    id: 2,
     kind: "note",
     who: "Tomás Ribeiro",
-    handle: "@tomaslearns",
+    handle: "tomaslearns",
     when: "há 4 horas",
     text: "A aula 5 do curso de pão reprogramou meu entendimento sobre hidratação. Deixo minhas notas caso alguém esteja travado no miolo fechado.",
     note: "Hidratação não é um número só — é um orçamento. Proteínas da farinha, umidade ambiente e quanto tempo você pode esperar, tudo vem da mesma conta.",
     course: { title: "Pão & fermentação", color: "#8a9a5b" },
     likes: 62,
     comments: 9,
-    remixes: 3,
   },
   {
+    id: 3,
     kind: "course-share",
     who: "Priya Sundaram",
-    handle: "@priya",
+    handle: "priya",
     when: "Ontem",
     text: "Gerei esse curso de estatística bayesiana depois que três livros falharam comigo. Primeira vez que 'priori' e 'posteriori' deixam de parecer bruxaria.",
     course: {
@@ -75,22 +73,45 @@ const POSTS: Post[] = [
       color: "#6b7a8f",
       rating: 4.9,
       learners: "1.1k",
+      lessons: 12,
     },
     likes: 412,
     comments: 58,
-    remixes: 91,
   },
   {
+    id: 4,
     kind: "milestone",
     who: "Iván Méndez",
-    handle: "@ivanm",
+    handle: "ivanm",
     when: "Ontem",
     text: "100 dias seguidos. Metade foi o curso de marcenaria japonesa. A outra metade foi aprender a aparecer nos dias que eu não queria.",
     milestone: { big: "100", label: "dias seguidos" },
     likes: 889,
     comments: 103,
-    remixes: 0,
   },
+];
+
+const TRENDING = [
+  { title: "OSINT Fundamentals", color: "#c97a4a", lessons: 14 },
+  { title: "Massa Caseira", color: "#8a9a5b", lessons: 9 },
+  { title: "Harmonia Jazz", color: "#6b7a8f", lessons: 11 },
+];
+
+const TOPICS = [
+  { label: "segurança", size: 3 },
+  { label: "linux", size: 2 },
+  { label: "ofício", size: 2 },
+  { label: "música", size: 1 },
+  { label: "estatística", size: 1 },
+  { label: "negociação", size: 1 },
+  { label: "história", size: 1 },
+  { label: "tipografia", size: 1 },
+];
+
+const PEOPLE = [
+  { name: "Elena Marchetti", initials: "EM", bio: "tipografia + design lento" },
+  { name: "Kenji Watanabe", initials: "KW", bio: "marcenaria, 30 anos" },
+  { name: "Fatima Zaidi", initials: "FZ", bio: "matemática aplicada & ensino" },
 ];
 
 function getInitials(name: string): string {
@@ -105,17 +126,17 @@ function FeedPost({ post }: { post: Post }) {
   const likes = post.likes + (liked ? 1 : 0);
 
   return (
-    <article className={`post post-${post.kind}`}>
-      <header className="post-head">
+    <article className="post" key={post.id}>
+      <div className="post-head">
         <div className="post-avatar">{getInitials(post.who)}</div>
         <div className="post-who">
-          <div className="post-name">
-            {post.who} <span className="post-handle">{post.handle}</span>
-          </div>
+          <span className="post-name">
+            {post.who}
+            <span className="post-handle"> @{post.handle}</span>
+          </span>
           <div className="post-when">{post.when}</div>
         </div>
-        <button className="icon small">⋯</button>
-      </header>
+      </div>
 
       <p className="post-text">{post.text}</p>
 
@@ -124,25 +145,23 @@ function FeedPost({ post }: { post: Post }) {
           <div className="pc-visual" style={{ background: post.course.color }}>
             <div className="placeholder-stripes" />
           </div>
-          <div className="pc-body">
-            <div className="pc-eye">CURSO COMPARTILHADO</div>
+          <div>
+            <div className="pc-eye">CURSO</div>
             <div className="pc-t">{post.course.title}</div>
             {post.course.sub && <div className="pc-s">{post.course.sub}</div>}
-            {post.course.rating && (
-              <div className="pc-meta">★ {post.course.rating} · {post.course.learners} alunos</div>
-            )}
+            <div className="pc-meta">{post.course.lessons} aulas</div>
           </div>
-          <button className="ghost">Remixar →</button>
+          <span>→</span>
         </div>
       )}
 
       {post.kind === "note" && post.note && post.course && (
         <blockquote className="post-note">
-          <div className="pn-q">&ldquo;</div>
+          <span className="pn-q">&ldquo;</span>
           <p>{post.note}</p>
           <footer>
             <span className="pn-swatch" style={{ background: post.course.color }} />
-            de <em>{post.course.title}</em>
+            {post.course.title}
           </footer>
         </blockquote>
       )}
@@ -154,121 +173,107 @@ function FeedPost({ post }: { post: Post }) {
         </div>
       )}
 
-      <footer className="post-actions">
+      <div className="post-actions">
         <button className={`pa${liked ? " liked" : ""}`} onClick={() => setLiked((l) => !l)}>
-          <span className="pa-icon">{liked ? "♥" : "♡"}</span> {likes}
+          <span className="pa-icon">♥</span> {likes}
         </button>
         <button className="pa">
-          <span className="pa-icon">◌</span> {post.comments}
+          <span className="pa-icon">💬</span> {post.comments}
         </button>
-        {post.remixes > 0 && (
-          <button className="pa">
-            <span className="pa-icon">⟲</span> {post.remixes} remixes
-          </button>
-        )}
         <div className="spacer" />
         <button className="pa">
-          <span className="pa-icon">↗</span> Compartilhar
+          <span className="pa-icon">🔖</span>
         </button>
-      </footer>
+      </div>
     </article>
   );
 }
 
-interface FeaturedCourse {
-  id: string;
-  slug: string;
-  title: string;
-  totalEnrollments: number;
-}
+const FILTERS: FilterType[] = ["Todos", "Cursos", "Notas", "Conquistas"];
 
-interface FeedClientProps {
-  featuredCourses: FeaturedCourse[];
-}
-
-export default function FeedClient({ featuredCourses }: FeedClientProps) {
-  const [filter, setFilter] = useState<"trending" | "following" | "new" | "friends">("trending");
+export default function FeedClient() {
+  const [active, setActive] = useState<FilterType>("Todos");
 
   return (
-    <div className="page feed">
-      <header className="page-head">
+    <div className="page">
+      <header className="page-head compact">
         <div>
-          <div className="eyebrow">Descobrir</div>
-          <h1 className="h1">
-            <em>O que os outros</em> estão aprendendo.
-          </h1>
-          <p className="lede">
-            Cursos, notas e descobertas de quem você segue e da comunidade. Remixe qualquer curso para torná-lo seu.
-          </p>
+          <div className="eyebrow">DESCOBRIR</div>
+          <h1 className="h1">Feed</h1>
         </div>
         <div className="feed-search">
-          <input placeholder="Buscar 4.218 cursos públicos…" />
-          <span className="search-kbd">/</span>
+          <input placeholder="Buscar no feed..." />
+          <span className="search-kbd">⌘K</span>
         </div>
       </header>
 
       <div className="feed-filters">
-        <button
-          className={`filter ${filter === "trending" ? "on" : ""}`}
-          onClick={() => setFilter("trending")}
-        >
-          Em alta
-        </button>
-        <button
-          className={`filter ${filter === "following" ? "on" : ""}`}
-          onClick={() => setFilter("following")}
-        >
-          Seguindo
-        </button>
-        <button
-          className={`filter ${filter === "new" ? "on" : ""}`}
-          onClick={() => setFilter("new")}
-        >
-          Novos
-        </button>
-        <button
-          className={`filter ${filter === "friends" ? "on" : ""}`}
-          onClick={() => setFilter("friends")}
-        >
-          Amigos
-        </button>
+        {FILTERS.map((f) => (
+          <button
+            key={f}
+            className={`filter${active === f ? " on" : ""}`}
+            onClick={() => setActive(f)}
+          >
+            {f}
+          </button>
+        ))}
         <div className="spacer" />
-        <button className="ghost small">Tópicos ↓</button>
       </div>
 
       <div className="feed-grid">
         <div className="feed-main">
-          {POSTS.map((p, i) => (
-            <FeedPost key={i} post={p} />
+          {POSTS.map((post) => (
+            <FeedPost key={post.id} post={post} />
           ))}
         </div>
 
-        <aside className="feed-side">
-          <div className="side-section">
-            <div className="side-section-head">Cursos em destaque</div>
-            {featuredCourses.map((c, i) => (
-              <a href={`/courses/${c.slug}`} key={c.id} className="side-course">
-                <div
-                  className="sc-dot"
-                  style={{ background: COURSE_COLORS[i % COURSE_COLORS.length] }}
-                />
-                <div className="sc-body">
-                  <div className="sc-title">{c.title}</div>
-                  <div className="sc-meta">{c.totalEnrollments} alunos</div>
-                </div>
-              </a>
-            ))}
+        <div className="feed-side">
+          <div className="side-block">
+            <div className="side-head">TRENDING</div>
+            <ul className="mini-courses">
+              {TRENDING.map((c) => (
+                <li key={c.title}>
+                  <div className="mc-swatch" style={{ background: c.color }}>
+                    <div className="placeholder-stripes" />
+                  </div>
+                  <div className="mc-body">
+                    <div className="mc-t">{c.title}</div>
+                    <div className="mc-m">{c.lessons} aulas</div>
+                  </div>
+                </li>
+              ))}
+            </ul>
           </div>
 
-          <div className="side-section">
-            <div className="side-section-head">Tópicos</div>
+          <div className="side-block">
+            <div className="side-head">TÓPICOS</div>
             <div className="topic-cloud">
               {TOPICS.map((t) => (
-                <span key={t} className="tc-item">{t}</span>
+                <span
+                  key={t.label}
+                  className={`topic${t.size >= 3 ? " t-3" : t.size >= 2 ? " t-2" : ""}`}
+                >
+                  {t.label}
+                </span>
               ))}
             </div>
           </div>
-        </aside>
+
+          <div className="side-block">
+            <div className="side-head">PESSOAS PARA SEGUIR</div>
+            <ul className="people-list">
+              {PEOPLE.map((p) => (
+                <li key={p.name}>
+                  <div className="p-avatar">{p.initials}</div>
+                  <div className="p-body">
+                    <div className="p-n">{p.name}</div>
+                    <div className="p-b">{p.bio}</div>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
   );
