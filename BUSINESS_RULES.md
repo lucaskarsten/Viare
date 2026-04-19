@@ -78,3 +78,17 @@ const userId = session?.user?.id;
 **LAB-02** — Hints são revelados de forma one-way: uma vez revelado, não pode ser "escondido". Débito de XP deve ser atômico com a revelação.
 
 **LAB-03** — Conclusão de lab requer validação da flag correta. Nunca marcar como concluído sem verificação.
+
+---
+
+## CONTENT — Moderação de Conteúdo
+
+**CONTENT-01** — Todo input de usuário que entra em prompt LLM DEVE ser sanitizado contra prompt injection antes da chamada ao Anthropic. Input isolado com delimitadores explícitos no prompt (não injetado diretamente).
+
+**CONTENT-02** — As seguintes categorias são absolutamente bloqueadas e NUNCA chegam a `status: PUBLISHED`: CSAM, instruções de violência real, fabricação de armas/explosivos/agentes biológicos, malware funcional (código de ataque operacional), dados pessoais reais identificáveis.
+
+**CONTENT-03** — Categorias restritas (segurança ofensiva operacional, drogas, conteúdo adulto) devem manter `status: DRAFT` com `requiresReview: true` para revisão manual. O caráter educacional (conceitual) vs operacional (passo a passo funcional) é o critério de distinção.
+
+**CONTENT-04** — Cursos forkados herdam a classificação de conteúdo do curso original. Fork não é reset de moderação. Conteúdo novo adicionado no fork é classificado independentemente.
+
+**CONTENT-05** — Mensagens de erro ao usuário sobre rejeição de conteúdo NÃO revelam os padrões de detecção utilizados. Sempre usar mensagens genéricas ("tópico não disponível", "revise o título").

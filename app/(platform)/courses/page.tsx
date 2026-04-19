@@ -29,7 +29,7 @@ export default async function CoursesPage() {
   }));
 
   return (
-    <div className="page catalog">
+    <div className="flex flex-col gap-14 pb-20">
       <CatalogClient courses={courses} />
     </div>
   );

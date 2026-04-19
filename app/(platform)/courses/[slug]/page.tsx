@@ -17,27 +17,19 @@ const DIFFICULTY_LABEL: Record<string, string> = {
 
 function lessonKindLabel(type: string): string {
   switch (type) {
-    case "QUIZ":
-      return "quiz";
-    case "LAB":
-      return "lab";
-    case "PROJECT":
-      return "projeto";
-    default:
-      return "leitura";
+    case "QUIZ": return "quiz";
+    case "LAB": return "lab";
+    case "PROJECT": return "projeto";
+    default: return "leitura";
   }
 }
 
 function lessonEstimatedMinutes(type: string): number {
   switch (type) {
-    case "QUIZ":
-      return 8;
-    case "LAB":
-      return 25;
-    case "PROJECT":
-      return 45;
-    default:
-      return 12;
+    case "QUIZ": return 8;
+    case "LAB": return 25;
+    case "PROJECT": return 45;
+    default: return 12;
   }
 }
 
@@ -87,7 +79,6 @@ export default async function CoursePage({ params }: { params: Params }) {
   const completedLessons = completedLessonIds.size;
   const progressPct = enrollment?.progressPercent ?? 0;
 
-  // Find the "next" lesson: first non-completed lesson in module order
   const flatLessons = course.modules.flatMap((m) =>
     m.lessons.map((l, li) => ({ ...l, moduleIdx: course.modules.indexOf(m), lessonIdx: li })),
   );
@@ -102,7 +93,6 @@ export default async function CoursePage({ params }: { params: Params }) {
   const estimatedHours = course.estimatedHours ?? Math.max(1, Math.round((totalLessons * 12) / 60));
   const moduleCount = course.modules.length;
 
-  // Course detail modules (tabbed outline)
   const detailModules: CourseDetailModule[] = course.modules.map((m, mi) => {
     const isLocked =
       mi > 0 &&
@@ -141,57 +131,77 @@ export default async function CoursePage({ params }: { params: Params }) {
   const categoryLabel = course.category ?? "Segurança";
 
   return (
-    <div className="page">
-      <div className="breadcrumb">
-        <Link href="/dashboard" className="ghost small">← Biblioteca</Link>
-      </div>
-
-      <div className="course-hero">
-        <div className="course-hero-main">
-          <div className="course-tag">{categoryLabel} · {difficultyLabel}</div>
-          <h1 className="h1">{course.title}</h1>
-          <p className="lede">{course.description}</p>
-          <div className="course-meta">
-            <span>{difficultyLabel}</span>
-            <span className="sep">·</span>
-            <span>{estimatedHours}h estimadas</span>
-            <span className="sep">·</span>
-            <span>{course._count.enrollments} alunos</span>
-          </div>
-          <div className="course-actions">
-            <EnrollButton
-              courseId={course.id}
-              enrollment={enrollment}
-              firstLessonHref={nextLessonHref}
-              nextLessonNumber={nextLessonIndex}
-            />
-            <button className="ghost">Compartilhar</button>
-          </div>
+    <div className="flex flex-col gap-14">
+      <div>
+        <div className="mb-6">
+          <Link
+            href="/dashboard"
+            className="text-[13px] text-muted-foreground no-underline hover:text-foreground transition-colors"
+          >
+            ← Biblioteca
+          </Link>
         </div>
 
-        <aside className="course-hero-side">
-          <div className="progress-block">
-            <div className="progress-num">{progressPct}<span>%</span></div>
-            <div className="progress-label">concluído</div>
-            <div className="progress-bar big">
-              <div style={{ width: `${progressPct}%` }} />
+        <div className="grid grid-cols-[1fr_320px] gap-16 items-start pb-10 border-b border-border">
+          <div>
+            <div className="font-mono text-[11px] tracking-[0.1em] uppercase text-muted-foreground mb-4">
+              {categoryLabel} · {difficultyLabel}
+            </div>
+            <h1 className="font-medium text-[36px] leading-[1.15] tracking-[-0.02em] m-0 text-balance text-foreground">
+              {course.title}
+            </h1>
+            <p className="text-[15px] leading-[1.6] text-muted-foreground mt-3.5 max-w-[62ch] text-pretty m-0">
+              {course.description}
+            </p>
+            <div className="text-[13px] text-muted-foreground flex gap-2 items-center mt-5">
+              <span>{difficultyLabel}</span>
+              <span className="opacity-50">·</span>
+              <span>{estimatedHours}h estimadas</span>
+              <span className="opacity-50">·</span>
+              <span>{course._count.enrollments} alunos</span>
+            </div>
+            <div className="flex gap-2 mt-7 items-center">
+              <EnrollButton
+                courseId={course.id}
+                enrollment={enrollment}
+                firstLessonHref={nextLessonHref}
+                nextLessonNumber={nextLessonIndex}
+              />
+              <button className="text-muted-foreground text-[13px] px-2.5 py-2 rounded transition-colors bg-transparent border-0 cursor-pointer inline-flex items-center hover:text-foreground hover:bg-card">
+                Compartilhar
+              </button>
             </div>
           </div>
-          <ul className="side-stats">
-            <li>
-              <span>Aulas concluídas</span>
-              <strong>{completedLessons}/{totalLessons}</strong>
-            </li>
-            <li>
-              <span>Tempo estimado</span>
-              <strong>{estimatedHours}h</strong>
-            </li>
-            <li>
-              <span>Módulos</span>
-              <strong>{moduleCount}</strong>
-            </li>
-          </ul>
-        </aside>
+
+          <aside className="bg-card p-6 rounded-[var(--radius-lg)]">
+            <div className="pb-5 border-b border-border">
+              <div className="text-[44px] leading-none tracking-[-0.04em] font-medium tabular-nums text-foreground">
+                {progressPct}<span className="text-[22px] text-muted-foreground font-normal">%</span>
+              </div>
+              <div className="text-[13px] text-muted-foreground mt-1">concluído</div>
+              <div className="h-1 bg-border/50 overflow-hidden rounded-[2px] mt-3">
+                <div
+                  className="h-full bg-accent rounded-[2px] transition-[width] duration-300"
+                  style={{ width: `${progressPct}%` }}
+                />
+              </div>
+            </div>
+            <ul className="list-none p-0 mt-4 m-0 flex flex-col gap-2">
+              <li className="flex justify-between text-[13px]">
+                <span className="text-muted-foreground">Aulas concluídas</span>
+                <strong className="font-medium tabular-nums text-foreground">{completedLessons}/{totalLessons}</strong>
+              </li>
+              <li className="flex justify-between text-[13px]">
+                <span className="text-muted-foreground">Tempo estimado</span>
+                <strong className="font-medium tabular-nums text-foreground">{estimatedHours}h</strong>
+              </li>
+              <li className="flex justify-between text-[13px]">
+                <span className="text-muted-foreground">Módulos</span>
+                <strong className="font-medium tabular-nums text-foreground">{moduleCount}</strong>
+              </li>
+            </ul>
+          </aside>
+        </div>
       </div>
 
       <CourseDetailTabs

@@ -8,13 +8,20 @@ Você cria dados de seed para desenvolvimento do Viare.
 ```ts
 const users = [
   { email: "admin@viare.dev", role: "ADMIN", name: "Admin Viare" },
-  { email: "student1@viare.dev", role: "STUDENT", name: "Alice Hacker" },
-  { email: "student2@viare.dev", role: "STUDENT", name: "Bob Pentest" },
+  { email: "student1@viare.dev", role: "STUDENT", name: "Alice Souza" },
+  { email: "student2@viare.dev", role: "STUDENT", name: "Bruno Lima" },
 ];
 ```
 
-### Cursos de cibersegurança (conteúdo relevante)
-Tópicos: Kali Linux, OWASP Top 10, Redes TCP/IP, Python para pentest, Engenharia social, CTF para iniciantes, Criptografia básica, Forense digital.
+### Cursos de exemplo (variedade de tópicos — plataforma é genérica)
+Usar tópicos variados para representar a diversidade da plataforma:
+- Tecnologia: "Python para Iniciantes", "Git e GitHub na prática"
+- Idiomas: "Inglês para Desenvolvedores"  
+- Negócios: "Fundamentos de Marketing Digital"
+- Ciências: "Introdução à Estatística"
+- Opcional (contexto cybersec ainda é válido): "OWASP Top 10", "Fundamentos de Redes"
+
+Cursos de seed não devem ser todos do mesmo nicho — mostrar que a plataforma suporta qualquer tópico.
 
 ### Estrutura de seed
 ```ts

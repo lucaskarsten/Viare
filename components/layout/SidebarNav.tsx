@@ -52,50 +52,34 @@ export default function SidebarNav({
 
   return (
     <>
-      <button className="sidebar-search" onClick={openSearch}>
-        <span className="ss-icon">⌕</span>
-        <span className="ss-label">Buscar qualquer coisa</span>
-        <span className="ss-kbd">⌘K</span>
+      <button
+        className="flex items-center gap-2.5 w-full px-3 py-[9px] rounded bg-card border-0 cursor-pointer text-muted-foreground text-[13px] transition-colors mb-2 hover:bg-muted hover:text-foreground"
+        onClick={openSearch}
+      >
+        <span className="text-[14px]">⌕</span>
+        <span className="flex-1 text-left">Buscar qualquer coisa</span>
+        <span className="font-mono text-[10px] px-1.5 py-0.5 bg-background rounded-[3px] tracking-[0.04em]">⌘K</span>
       </button>
 
-      <button className="generate-cta" onClick={() => router.push("/courses/generate")}>
-        <span className="plus">+</span>
+      <button
+        className="flex items-center gap-2 bg-foreground text-background px-3 py-2.5 rounded text-[13px] font-medium text-left transition-opacity hover:opacity-85 w-full border-0 cursor-pointer"
+        onClick={() => router.push("/courses/generate")}
+      >
+        <span className="text-base leading-none">+</span>
         Novo curso
       </button>
 
-      <nav className="nav">
-        <div className="nav-section">Espaço</div>
-        <NavItem
-          href="/dashboard"
-          active={pathname === "/dashboard"}
-          label="Biblioteca"
-          count={enrollmentCount || undefined}
-        />
-        <NavItem
-          href="/review"
-          active={pathname.startsWith("/review")}
-          label="Revisar"
-        />
-        <NavItem
-          href="/goals"
-          active={pathname.startsWith("/goals")}
-          label="Metas"
-        />
-        <NavItem
-          href="/discover"
-          active={pathname.startsWith("/discover")}
-          label="Descobrir"
-        />
-        <NavItem
-          href="/courses"
-          active={pathname === "/courses"}
-          label="Catálogo"
-          count={catalogCount || undefined}
-        />
+      <nav className="flex flex-col gap-px">
+        <div className="text-[10px] tracking-[0.12em] uppercase text-muted-foreground px-2 py-1.5 mt-1 font-mono">Espaço</div>
+        <NavItem href="/dashboard" active={pathname === "/dashboard"} label="Biblioteca" count={enrollmentCount || undefined} />
+        <NavItem href="/review" active={pathname.startsWith("/review")} label="Revisar" />
+        <NavItem href="/goals" active={pathname.startsWith("/goals")} label="Metas" />
+        <NavItem href="/discover" active={pathname.startsWith("/discover")} label="Descobrir" />
+        <NavItem href="/courses" active={pathname === "/courses"} label="Catálogo" count={catalogCount || undefined} />
 
         {enrollments.length > 0 && (
           <>
-            <div className="nav-section" style={{ marginTop: 24 }}>Em andamento</div>
+            <div className="text-[10px] tracking-[0.12em] uppercase text-muted-foreground px-2 py-1.5 mt-6 font-mono">Em andamento</div>
             {enrollments.map((enrollment, i) => (
               <NavItem
                 key={enrollment.id}
@@ -109,17 +93,17 @@ export default function SidebarNav({
         )}
       </nav>
 
-      <div className="sidebar-foot">
-        <div className="lang-toggle">
-          <button className="on">PT</button>
-          <button>EN</button>
+      <div className="mt-auto flex flex-col gap-3">
+        <div className="flex gap-0.5 bg-muted p-0.5 rounded w-fit">
+          <button className="text-[11px] px-2.5 py-1 rounded-[3px] font-medium tracking-[0.04em] bg-background text-foreground border-0 cursor-pointer">PT</button>
+          <button className="text-[11px] px-2.5 py-1 rounded-[3px] text-muted-foreground font-medium tracking-[0.04em] border-0 cursor-pointer">EN</button>
         </div>
 
-        <div className="user">
-          <div className="avatar">{initials}</div>
+        <div className="flex items-center gap-2.5 px-1.5 pt-3.5 border-t border-border">
+          <div className="w-8 h-8 rounded-full bg-accent text-accent-foreground grid place-items-center text-[12px] font-semibold tracking-[0.02em] shrink-0">{initials}</div>
           <div>
-            <div className="user-name">{firstName}</div>
-            <div className="user-plan">Pro · {currentStreak} dias seguidos</div>
+            <div className="text-[13px] font-medium text-foreground">{firstName}</div>
+            <div className="text-[11px] text-muted-foreground">Pro · {currentStreak} dias seguidos</div>
           </div>
         </div>
       </div>
@@ -141,10 +125,15 @@ function NavItem({
   count?: number;
 }) {
   return (
-    <Link href={href} className={`nav-item${active ? " active" : ""}`}>
-      {dot && <span className="nav-dot" style={{ background: dot }} />}
-      <span className="nav-label">{label}</span>
-      {count !== undefined && <span className="nav-count">{count}</span>}
+    <Link
+      href={href}
+      className={`flex items-center gap-2 px-2 py-[7px] rounded text-[13px] no-underline transition-colors hover:bg-muted hover:text-foreground${
+        active ? " bg-muted text-foreground font-medium" : " text-muted-foreground"
+      }`}
+    >
+      {dot && <span className="w-2 h-2 rounded-[2px] shrink-0" style={{ background: dot }} />}
+      <span className="flex-1">{label}</span>
+      {count !== undefined && <span className="text-[11px] tabular-nums">{count}</span>}
     </Link>
   );
 }

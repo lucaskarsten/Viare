@@ -32,17 +32,17 @@ export default async function Sidebar({ user }: { user: SidebarUser }) {
   const currentStreak = streakData?.currentStreak ?? 0;
 
   return (
-    <aside className="sidebar">
-      <div className="brand">
-        <div className="brand-mark" aria-hidden>
+    <aside className="sticky top-0 h-screen overflow-y-auto flex flex-col gap-5 bg-card border-r border-border px-[18px] py-6">
+      <div className="flex items-center gap-2.5 px-1.5">
+        <div className="text-accent flex" aria-hidden>
           <svg viewBox="0 0 24 24" width="22" height="22">
             <circle cx="12" cy="12" r="5" fill="currentColor" />
             <circle cx="12" cy="12" r="10.5" fill="none" stroke="currentColor" strokeWidth="1" />
           </svg>
         </div>
-        <div className="brand-word">
-          <div className="brand-name">Viare</div>
-          <div className="brand-sub">aprenda o que quiser, como quiser</div>
+        <div>
+          <div className="text-base font-semibold leading-none tracking-tight text-foreground">Viare</div>
+          <div className="text-[11px] text-muted-foreground tracking-[0.02em] mt-0.5">aprenda o que quiser, como quiser</div>
         </div>
       </div>
 

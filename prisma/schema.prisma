@@ -86,6 +86,7 @@ model Course {
   totalRatings     Int          @default(0)
   totalEnrollments Int          @default(0)
   generationPrompt String?      @db.Text // original user prompt
+  requiresReview   Boolean      @default(false) // RULE: CONTENT-03 — flagged for manual review
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt
 

@@ -1,6 +1,14 @@
 # Viare
 
-Plataforma de educação em cibersegurança com geração de cursos por IA. Cursos estruturados são criados sob demanda combinando pesquisa web (Tavily) e geração de conteúdo (Claude), com lições teóricas, quizzes, labs CTF e gamificação.
+Plataforma de aprendizado com geração e gestão de cursos personalizados por IA. Você não compra cursos — você organiza e gerencia seu próprio catálogo de conhecimento sobre qualquer assunto.
+
+Funciona como um GitHub para cursos: crie os seus, faça fork de cursos da comunidade, customize e compartilhe de volta.
+
+## Como funciona
+
+1. **Crie** — informe um tópico qualquer, a IA pesquisa (Tavily) e monta módulos + lições + quizzes
+2. **Gerencie** — organize seu catálogo, acompanhe progresso, gamificação com streaks e conquistas
+3. **Fork** — pegue um curso existente, customize para o seu contexto e compartilhe com a comunidade
 
 ## Stack
 
@@ -12,7 +20,7 @@ Plataforma de educação em cibersegurança com geração de cursos por IA. Curs
 | UI | Tailwind CSS v4 + shadcn/ui |
 | IA | Anthropic Claude + Tavily |
 | Pagamentos | Stripe |
-| Testes | Vitest 2 + @testing-library/react |
+| Testes | Vitest + @testing-library/react |
 | Deploy | Vercel |
 
 ## Setup local
@@ -57,11 +65,12 @@ Acesse [http://localhost:3000](http://localhost:3000).
 
 ## Funcionalidades
 
-- **Geração de cursos com IA** — digite um tópico, a IA pesquisa e monta módulos + lições + quizzes
-- **Catálogo de cursos** — busca por tópico, filtro por dificuldade, avaliações
-- **Player de aulas** — lições teóricas (markdown), quizzes interativos, navegação prev/next
+- **Geração de cursos com IA** — qualquer tópico: programação, idiomas, história, medicina, negócios...
+- **Fork & customize** — fork de cursos da comunidade, edite módulos e lições, publique sua versão
+- **Catálogo** — busca por tópico, filtro por dificuldade, avaliações da comunidade
+- **Player de aulas** — lições em markdown, quizzes interativos, navegação prev/next
 - **Progresso e gamificação** — streak diário, % de conclusão, badges
-- **Subscriptions** — planos via Stripe
+- **Subscriptions** — planos via Stripe (gestão e criação ilimitada de cursos)
 
 ## Desenvolvimento
 
@@ -87,7 +96,7 @@ app/
 agents/                 — Agentes de prompt Claude Code por domínio
 .claude/
   agents/               — Agentes remotos (security, test-writer, etc.)
-  commands/             — /ready, /pr, /learn
+  commands/             — /ready, /pr, /learn, /css, /db, /new-feature
   hooks/                — Lint e gate de commit automáticos
 lib/
   generation.ts         — Pipeline de geração: Tavily → Claude → DB
@@ -97,3 +106,11 @@ prisma/
 __tests__/              — Testes Vitest organizados por camada
 BUSINESS_RULES.md       — Regras de negócio com anchor comments
 ```
+
+## Moderação de conteúdo
+
+Viare usa geração por IA com moderação em dupla camada:
+- **Input:** sanitização contra prompt injection antes de enviar ao modelo
+- **Output:** classificação de conteúdo gerado antes de publicar
+
+Ver `BUSINESS_RULES.md` (domínio CONTENT) e `agents/content-safety.md` para a política completa.

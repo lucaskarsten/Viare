@@ -65,13 +65,12 @@ export default async function DashboardPage() {
   const greeting = hour < 12 ? "Bom dia" : hour < 18 ? "Boa tarde" : "Boa noite";
   const firstName = session?.user?.name?.split(" ")[0] ?? "você";
   const currentStreak = streakData?.currentStreak ?? 0;
-  const weeklyGoalDone = Math.min(completedCount % 7, 6); // simplified weekly progress
+  const weeklyGoalDone = Math.min(completedCount % 7, 6);
   const weeklyGoal = `${weeklyGoalDone}/6`;
 
   const resumeEnrollment = enrollments.find((e) => e.status === "IN_PROGRESS") ?? enrollments[0] ?? null;
   const resumeColor = COURSE_COLORS[0];
 
-  // Build resume card next-lesson info
   const resumeNextLesson = resumeEnrollment?.course.modules[0]?.lessons[0] ?? null;
   const resumeModuleNum = resumeEnrollment?.course.modules[0]?.order != null
     ? String(resumeEnrollment.course.modules[0].order + 1).padStart(2, "0")
@@ -84,7 +83,6 @@ export default async function DashboardPage() {
     PROJECT: "Projeto",
   };
 
-  // Motivational message based on progress
   const remaining = 6 - weeklyGoalDone;
   const motivationalMessage =
     remaining > 0
@@ -92,92 +90,103 @@ export default async function DashboardPage() {
       : "Você atingiu sua meta semanal. Continue assim!";
 
   return (
-    <div className="page library">
-      <header className="page-head">
+    <div className="flex flex-col gap-14">
+      <header className="flex items-end justify-between gap-12 pb-8 border-b border-border">
         <div>
-          <div className="eyebrow">{formattedDate}</div>
-          <h1 className="h1">
-            <em>{greeting},</em> {firstName}.
+          <div className="font-mono text-[11px] tracking-[0.08em] uppercase text-muted-foreground mb-3">
+            {formattedDate}
+          </div>
+          <h1 className="text-4xl font-medium leading-[1.15] tracking-tight m-0 text-balance text-foreground">
+            <em className="not-italic text-muted-foreground font-normal">{greeting},</em> {firstName}.
           </h1>
-          <p className="lede">{motivationalMessage}</p>
+          <p className="text-[15px] leading-relaxed text-muted-foreground mt-3.5 max-w-[62ch] text-pretty m-0">
+            {motivationalMessage}
+          </p>
         </div>
-        <div className="head-stats">
-          <div className="stat">
-            <div className="stat-value">{currentStreak}</div>
-            <div className="stat-label">dias seguidos</div>
+        <div className="flex gap-8">
+          <div className="text-right">
+            <div className="text-[28px] leading-none tracking-[-0.03em] font-medium tabular-nums text-foreground">{currentStreak}</div>
+            <div className="text-[11px] text-muted-foreground tracking-[0.05em] uppercase mt-1 font-mono">dias seguidos</div>
           </div>
-          <div className="stat">
-            <div className="stat-value">{weeklyGoal}</div>
-            <div className="stat-label">meta semanal</div>
+          <div className="text-right">
+            <div className="text-[28px] leading-none tracking-[-0.03em] font-medium tabular-nums text-foreground">{weeklyGoal}</div>
+            <div className="text-[11px] text-muted-foreground tracking-[0.05em] uppercase mt-1 font-mono">meta semanal</div>
           </div>
-          <div className="stat">
-            <div className="stat-value">{completedCount}</div>
-            <div className="stat-label">aulas ao todo</div>
+          <div className="text-right">
+            <div className="text-[28px] leading-none tracking-[-0.03em] font-medium tabular-nums text-foreground">{completedCount}</div>
+            <div className="text-[11px] text-muted-foreground tracking-[0.05em] uppercase mt-1 font-mono">aulas ao todo</div>
           </div>
         </div>
       </header>
 
       {resumeEnrollment && (
-        <section className="resume">
-          <div className="section-head">
-            <h2>Continuar</h2>
-            <Link href={`/courses/${resumeEnrollment.course.slug}`} className="ghost">
+        <section>
+          <div className="flex items-baseline justify-between mb-5">
+            <h2 className="font-medium text-[20px] m-0 tracking-tight text-foreground">Continuar</h2>
+            <Link
+              href={`/courses/${resumeEnrollment.course.slug}`}
+              className="text-muted-foreground text-[13px] px-2.5 py-1.5 rounded no-underline inline-flex items-center transition-colors hover:text-foreground hover:bg-card"
+            >
               Abrir curso →
             </Link>
           </div>
           <Link
-            className="resume-card"
+            className="grid grid-cols-[280px_1fr_auto] items-center gap-8 p-6 bg-card rounded-[10px] no-underline text-inherit cursor-pointer transition-[transform,box-shadow] hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(0,0,0,0.08)]"
             href={
               resumeNextLesson
                 ? `/courses/${resumeEnrollment.course.slug}/lessons/${resumeNextLesson.id}`
                 : `/courses/${resumeEnrollment.course.slug}`
             }
           >
-            <div className="resume-visual" style={{ background: resumeColor }}>
-              <div className="resume-visual-inner">
-                <div className="placeholder-stripes" />
-                <div className="resume-chapter">Ch. {resumeModuleNum}</div>
-                <div className="resume-title-small">{resumeEnrollment.course.title}</div>
+            <div
+              className="aspect-[16/10] rounded relative overflow-hidden text-white"
+              style={{ background: resumeColor }}
+            >
+              <div className="absolute inset-0 bg-[repeating-linear-gradient(135deg,rgba(255,255,255,0.08)_0,rgba(255,255,255,0.08)_1px,transparent_1px,transparent_8px)]" />
+              <div className="absolute inset-0 p-5 flex flex-col justify-end">
+                <div className="font-mono text-[10px] tracking-[0.08em] opacity-70 relative">Ch. {resumeModuleNum}</div>
+                <div className="text-[20px] leading-[1.1] relative font-medium tracking-tight">{resumeEnrollment.course.title}</div>
               </div>
             </div>
-            <div className="resume-body">
-              <div className="eyebrow">
+            <div>
+              <div className="font-mono text-[11px] tracking-[0.08em] uppercase text-muted-foreground mb-3">
                 A seguir · {resumeEnrollment.course.estimatedHours ? `${resumeEnrollment.course.estimatedHours * 60 / Math.max(resumeEnrollment.course._count.modules, 1)} min` : "14 min"}
               </div>
-              <h3>{resumeNextLesson?.title ?? resumeEnrollment.course.title}</h3>
-              <p>{resumeEnrollment.course.description}</p>
-              <div className="resume-meta">
+              <h3 className="font-medium text-[22px] tracking-[-0.025em] mt-1.5 mb-2.5 text-foreground">
+                {resumeNextLesson?.title ?? resumeEnrollment.course.title}
+              </h3>
+              <p className="text-muted-foreground max-w-[58ch] m-0 mb-3.5">{resumeEnrollment.course.description}</p>
+              <div className="text-[12px] text-muted-foreground flex gap-2 items-center">
                 <span>Aula 1 de {resumeEnrollment.course._count.modules}</span>
-                <span className="sep">·</span>
+                <span className="opacity-50">·</span>
                 <span>{resumeNextLesson ? (lessonKindLabel[resumeNextLesson.type] ?? resumeNextLesson.type) : "Leitura"}</span>
               </div>
-              <div className="progress-bar">
-                <div style={{ width: `${resumeEnrollment.progressPercent ?? 0}%` }} />
+              <div className="h-[3px] bg-border rounded-[2px] overflow-hidden mt-3">
+                <div className="h-full bg-accent rounded-[2px] transition-[width_.4s]" style={{ width: `${resumeEnrollment.progressPercent ?? 0}%` }} />
               </div>
             </div>
-            <div className="resume-arrow">→</div>
+            <div className="text-[28px] text-muted-foreground px-2">→</div>
           </Link>
         </section>
       )}
 
-      <section className="courses">
-        <div className="section-head">
-          <h2>Seus cursos</h2>
-          <div className="filters">
-            <button className="filter on">Todos</button>
-            <button className="filter">Em andamento</button>
-            <button className="filter">Não iniciados</button>
-            <button className="filter">Concluídos</button>
+      <section>
+        <div className="flex items-baseline justify-between mb-5">
+          <h2 className="font-medium text-[20px] m-0 tracking-tight text-foreground">Seus cursos</h2>
+          <div className="flex gap-1">
+            <button className="text-[12px] px-2.5 py-[5px] rounded-full border-0 cursor-pointer bg-foreground text-background">Todos</button>
+            <button className="text-[12px] px-2.5 py-[5px] rounded-full text-muted-foreground border-0 cursor-pointer hover:text-foreground">Em andamento</button>
+            <button className="text-[12px] px-2.5 py-[5px] rounded-full text-muted-foreground border-0 cursor-pointer hover:text-foreground">Não iniciados</button>
+            <button className="text-[12px] px-2.5 py-[5px] rounded-full text-muted-foreground border-0 cursor-pointer hover:text-foreground">Concluídos</button>
           </div>
         </div>
-        <div className="course-grid">
+        <div className="grid grid-cols-3 gap-6">
           {enrollments.map((enrollment, i) => {
             const color = COURSE_COLORS[i % COURSE_COLORS.length];
             const tag = enrollment.course.tags[0] ?? DIFFICULTY_LABELS[enrollment.course.difficulty] ?? "Curso";
             const lastAccess = enrollment.lastAccessedAt
               ? enrollment.lastAccessedAt.toLocaleDateString("pt-BR", { day: "numeric", month: "short" })
               : "—";
-            // done/total: use progressPercent as proxy since we don't have per-enrollment lesson count
             const done = Math.round((enrollment.progressPercent ?? 0) / 100 * enrollment.course._count.modules);
             const total = enrollment.course._count.modules;
 
@@ -185,37 +194,37 @@ export default async function DashboardPage() {
               <Link
                 key={enrollment.id}
                 href={`/courses/${enrollment.course.slug}`}
-                className="course-card"
+                className="bg-card rounded-[10px] overflow-hidden cursor-pointer flex flex-col no-underline text-inherit transition-[transform,box-shadow] hover:-translate-y-0.5 hover:shadow-[0_8px_24px_rgba(0,0,0,0.06)]"
               >
-                <div className="cc-top" style={{ "--accent": color } as React.CSSProperties}>
-                  <div className="cc-stripes" />
-                  <span className="cc-tag">{tag}</span>
+                <div className="aspect-[16/8] relative p-4" style={{ background: color }}>
+                  <div className="absolute inset-0 bg-[repeating-linear-gradient(135deg,rgba(255,255,255,0.08)_0,rgba(255,255,255,0.08)_1px,transparent_1px,transparent_10px)]" />
+                  <span className="relative bg-black/20 text-white font-mono text-[10px] tracking-[0.08em] uppercase py-[3px] px-[7px] rounded-[2px] backdrop-blur-sm inline-block">
+                    {tag}
+                  </span>
                 </div>
-                <div className="cc-body">
-                  <h3>{enrollment.course.title}</h3>
-                  <p>{enrollment.course.description}</p>
-                  <div className="cc-meta">
+                <div className="p-5">
+                  <h3 className="font-medium text-[17px] tracking-tight m-0 mb-1.5 text-foreground">{enrollment.course.title}</h3>
+                  <p className="text-muted-foreground text-[13px] leading-[1.45] m-0 min-h-[38px]">{enrollment.course.description}</p>
+                  <div className="text-[11px] text-muted-foreground mt-3.5 flex gap-1.5 items-center">
                     <span>{done}/{total} aulas</span>
-                    <span className="sep">·</span>
+                    <span className="opacity-50">·</span>
                     <span>{lastAccess}</span>
                   </div>
-                  <div className="progress-bar">
-                    <div
-                      style={{
-                        width: `${enrollment.progressPercent ?? 0}%`,
-                        background: color,
-                      }}
-                    />
+                  <div className="h-[3px] bg-border rounded-[2px] overflow-hidden mt-3">
+                    <div className="h-full rounded-[2px] transition-[width_.4s]" style={{ width: `${enrollment.progressPercent ?? 0}%`, background: color }} />
                   </div>
                 </div>
               </Link>
             );
           })}
-          <Link href="/courses/generate" className="course-card new">
-            <div className="new-inner">
-              <div className="plus-big">+</div>
-              <div className="new-title">Gerar um novo curso</div>
-              <div className="new-sub">
+          <Link
+            href="/courses/generate"
+            className="bg-transparent border border-dashed border-border rounded-[10px] overflow-hidden cursor-pointer flex flex-col no-underline text-inherit items-center justify-center min-h-[280px] transition-colors hover:bg-card"
+          >
+            <div className="text-center p-6">
+              <div className="text-[32px] text-muted-foreground font-light">+</div>
+              <div className="text-[15px] font-medium tracking-[-0.015em] mt-2 text-foreground">Gerar um novo curso</div>
+              <div className="text-[12px] text-muted-foreground mt-1 max-w-[24ch] mx-auto">
                 Digite qualquer tema. Lumen escreve o currículo.
               </div>
             </div>
@@ -224,18 +233,21 @@ export default async function DashboardPage() {
       </section>
 
       {archivedEnrollments.length > 0 && (
-        <section className="archive">
-          <div className="section-head">
-            <h2>Arquivo</h2>
+        <section>
+          <div className="flex items-baseline justify-between mb-5">
+            <h2 className="font-medium text-[20px] m-0 tracking-tight text-foreground">Arquivo</h2>
           </div>
-          <ul className="archive-list">
+          <ul className="list-none p-0 m-0 border-t border-border">
             {archivedEnrollments.map((e) => (
-              <li key={e.id}>
-                <span className="a-title">{e.course.title}</span>
-                <span className="a-meta">
+              <li
+                key={e.id}
+                className="grid grid-cols-[1fr_auto_auto] gap-6 items-center py-4 px-1 border-b border-border cursor-pointer transition-[padding] hover:pl-3"
+              >
+                <span className="text-[14px] font-medium tracking-[-0.01em] text-foreground">{e.course.title}</span>
+                <span className="text-[12px] text-muted-foreground tabular-nums">
                   Pausado · {e.updatedAt.toLocaleDateString("pt-BR", { month: "short", year: "numeric" })}
                 </span>
-                <span className="a-action">→</span>
+                <span className="text-muted-foreground">→</span>
               </li>
             ))}
           </ul>

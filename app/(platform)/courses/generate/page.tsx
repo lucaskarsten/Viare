@@ -13,14 +13,8 @@ type Phase =
   | { status: "error"; message: string };
 
 const SUGGESTIONS = [
-  "Kali Linux",
-  "Piano clássico",
-  "Bread & sourdough",
-  "Negociação",
-  "Estatística bayesiana",
-  "Color theory",
-  "Rust ownership",
-  "Aberturas de xadrez",
+  "Kali Linux", "Piano clássico", "Bread & sourdough", "Negociação",
+  "Estatística bayesiana", "Color theory", "Rust ownership", "Aberturas de xadrez",
 ];
 
 const THINKING = [
@@ -50,6 +44,9 @@ function estimatedMinutes(depth: string, pace: string): number {
   return Math.round(base * (paceNum / 30));
 }
 
+const btnGhost = "bg-transparent text-foreground px-4 py-2.5 rounded text-[13px] border border-border cursor-pointer font-[inherit] transition-colors hover:bg-card";
+const btnPrimary = "bg-foreground text-background px-4 py-2.5 rounded text-[13px] font-medium cursor-pointer border-0 font-[inherit] transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed";
+
 export default function GeneratePage() {
   const router = useRouter();
   const [topic, setTopic] = useState("");
@@ -57,6 +54,7 @@ export default function GeneratePage() {
   const [pace, setPace] = useState("30");
   const [format, setFormat] = useState("Misto");
   const [language, setLanguage] = useState("pt");
+  const [alsoGenerate, setAlsoGenerate] = useState<string[]>([]);
   const [phase, setPhase] = useState<Phase>({ status: "idle" });
   const [logSteps, setLogSteps] = useState<string[]>([]);
   const [elapsed, setElapsed] = useState(0);
@@ -64,37 +62,24 @@ export default function GeneratePage() {
   const elapsedRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const isRunning = ["searching", "outlining", "generating"].includes(phase.status);
-
-  const outline =
-    phase.status === "outlining" ? phase.outline :
-    phase.status === "generating" ? phase.outline :
-    null;
+  const outline = phase.status === "outlining" ? phase.outline : phase.status === "generating" ? phase.outline : null;
 
   useEffect(() => {
     if (!isRunning) {
-      if (elapsedRef.current) {
-        clearInterval(elapsedRef.current);
-        elapsedRef.current = null;
-      }
+      if (elapsedRef.current) { clearInterval(elapsedRef.current); elapsedRef.current = null; }
       return;
     }
     elapsedRef.current = setInterval(() => setElapsed((s) => s + 1), 1000);
-    return () => {
-      if (elapsedRef.current) clearInterval(elapsedRef.current);
-    };
+    return () => { if (elapsedRef.current) clearInterval(elapsedRef.current); };
   }, [isRunning]);
 
   async function handleGenerate() {
     if (!topic.trim() || isRunning) return;
     setElapsed(0);
-
     abortRef.current = new AbortController();
     setPhase({ status: "searching" });
     setLogSteps([]);
-
-    THINKING.forEach((s, i) => {
-      setTimeout(() => setLogSteps((prev) => [...prev, s]), 450 * (i + 1));
-    });
+    THINKING.forEach((s, i) => { setTimeout(() => setLogSteps((prev) => [...prev, s]), 450 * (i + 1)); });
 
     try {
       const res = await fetch("/api/courses/generate", {
@@ -103,7 +88,6 @@ export default function GeneratePage() {
         body: JSON.stringify({ topic: topic.trim() }),
         signal: abortRef.current.signal,
       });
-
       if (!res.ok) throw new Error("Falha ao iniciar geração");
 
       const reader = res.body!.getReader();
@@ -115,30 +99,21 @@ export default function GeneratePage() {
       while (true) {
         const { done, value } = await reader.read();
         if (done) break;
-
         buffer += decoder.decode(value, { stream: true });
         const lines = buffer.split("\n");
         buffer = lines.pop() ?? "";
-
         for (const line of lines) {
           if (!line.trim()) continue;
           const event: GenerationEvent = JSON.parse(line);
-
           if (event.type === "searching") {
             setPhase({ status: "searching" });
           } else if (event.type === "outline") {
             currentOutline = event.outline;
             setPhase({ status: "outlining", outline: event.outline });
-            setTimeout(() => {
-              if (currentOutline) {
-                setPhase({ status: "generating", outline: currentOutline, completedLessons: new Set() });
-              }
-            }, 800);
+            setTimeout(() => { if (currentOutline) setPhase({ status: "generating", outline: currentOutline, completedLessons: new Set() }); }, 800);
           } else if (event.type === "lesson_done") {
             completed.add(`${event.moduleIndex}-${event.lessonIndex}`);
-            if (currentOutline) {
-              setPhase({ status: "generating", outline: currentOutline, completedLessons: new Set(completed) });
-            }
+            if (currentOutline) setPhase({ status: "generating", outline: currentOutline, completedLessons: new Set(completed) });
           } else if (event.type === "done") {
             setPhase({ status: "done", courseSlug: event.courseSlug });
             setTimeout(() => router.push(`/courses/${event.courseSlug}`), 1500);
@@ -148,27 +123,27 @@ export default function GeneratePage() {
         }
       }
     } catch (err) {
-      if ((err as Error).name !== "AbortError") {
-        setPhase({ status: "error", message: (err as Error).message });
-      }
+      if ((err as Error).name !== "AbortError") setPhase({ status: "error", message: (err as Error).message });
     }
   }
 
   const estTime = estimatedMinutes(depth, pace);
 
   return (
-    <div className="page">
-      <header className="page-head compact">
-        <div>
-          <div className="eyebrow">GERAR CURSO</div>
-          <h1 className="h1">Sobre o que quer aprender?</h1>
-          <p className="lede">Digite um tema, quanto mais específico, melhor o currículo gerado.</p>
-        </div>
+    <div className="flex flex-col gap-10 pb-20">
+      <header className="pb-8 border-b border-border">
+        <div className="font-mono text-[11px] tracking-[0.1em] uppercase text-muted-foreground mb-2">GERAR CURSO</div>
+        <h1 className="font-medium text-[28px] leading-[1.15] tracking-[-0.02em] m-0 text-foreground">
+          Sobre o que quer aprender?
+        </h1>
+        <p className="text-[15px] leading-[1.6] text-muted-foreground mt-2 m-0">
+          Digite um tema, quanto mais específico, melhor o currículo gerado.
+        </p>
       </header>
 
-      <div className="gen-form">
+      <div className="flex flex-col gap-0">
         <textarea
-          className="gen-input"
+          className="w-full bg-transparent border-0 border-b border-border font-[inherit] text-[22px] leading-[1.35] text-foreground py-4 resize-none min-h-[100px] outline-none tracking-[-0.02em] font-normal placeholder:text-muted-foreground focus:border-accent"
           value={topic}
           onChange={(e) => setTopic(e.target.value)}
           placeholder="Ex: Redes de computadores, história do jazz, panificação..."
@@ -176,100 +151,124 @@ export default function GeneratePage() {
           disabled={isRunning}
         />
 
-        <div className="gen-suggest">
-          <span className="gen-suggest-label">SUGESTÕES</span>
+        <div className="flex flex-wrap gap-1.5 items-center mt-4">
+          <span className="font-mono text-[10px] tracking-[0.08em] uppercase text-muted-foreground mr-1">SUGESTÕES</span>
           {SUGGESTIONS.map((s) => (
-            <button key={s} type="button" className="suggest-chip" onClick={() => setTopic(s)}>
+            <button key={s} type="button"
+              className="text-[12px] px-[11px] py-[5px] border border-border rounded-full text-muted-foreground transition-all bg-transparent cursor-pointer font-[inherit] hover:border-foreground hover:text-foreground"
+              onClick={() => setTopic(s)}
+            >
               {s}
             </button>
           ))}
         </div>
 
-        <div className="gen-options">
-          <div>
-            <div className="opt-label">PROFUNDIDADE</div>
-            <div className="opt-row">
-              {["Iniciante", "Intermediário", "Profundo"].map((v) => (
-                <button key={v} type="button" className={`seg${depth === v ? " on" : ""}`} onClick={() => setDepth(v)}>
-                  {v}
-                </button>
-              ))}
+        <div className="mt-10 grid grid-cols-3 gap-8 py-6 border-t border-b border-border">
+          {[
+            { label: "PROFUNDIDADE", opts: ["Iniciante", "Intermediário", "Profundo"], val: depth, set: setDepth },
+            { label: "DURAÇÃO (min/aula)", opts: ["20", "30", "45", "60"], val: pace, set: setPace },
+            { label: "FORMATO", opts: ["Leitura", "Misto", "Prático"], val: format, set: setFormat },
+          ].map((g) => (
+            <div key={g.label}>
+              <div className="font-mono text-[10px] tracking-[0.08em] uppercase text-muted-foreground mb-2.5">{g.label}</div>
+              <div className="flex gap-1.5 flex-wrap">
+                {g.opts.map((v) => (
+                  <button key={v} type="button"
+                    className={`text-[13px] px-3 py-1.5 rounded-[var(--radius)] transition-all border-0 cursor-pointer font-[inherit]${
+                      g.val === v ? " bg-foreground text-background" : " bg-card text-muted-foreground hover:bg-muted"
+                    }`}
+                    onClick={() => g.set(v)}
+                  >
+                    {v}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
-          <div>
-            <div className="opt-label">DURAÇÃO (min/aula)</div>
-            <div className="opt-row">
-              {["20", "30", "45", "60"].map((v) => (
-                <button key={v} type="button" className={`seg${pace === v ? " on" : ""}`} onClick={() => setPace(v)}>
-                  {v}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div>
-            <div className="opt-label">FORMATO</div>
-            <div className="opt-row">
-              {["Leitura", "Misto", "Prático"].map((v) => (
-                <button key={v} type="button" className={`seg${format === v ? " on" : ""}`} onClick={() => setFormat(v)}>
-                  {v}
-                </button>
-              ))}
-            </div>
-          </div>
+          ))}
         </div>
 
-        <div className="gen-lang">
-          <div className="opt-label">
-            IDIOMA
-            <span className="gen-lang-hint">Selecione o idioma principal do curso</span>
+        <div className="mt-8">
+          <div className="flex items-baseline gap-3 mb-3">
+            <span className="font-mono text-[10px] tracking-[0.08em] uppercase text-muted-foreground">IDIOMA</span>
+            <span className="text-[12px] text-muted-foreground">Selecione o idioma principal do curso</span>
           </div>
-          <div className="lang-grid">
-            {LANGUAGES.map((l) => (
-              <button
-                key={l.code}
-                type="button"
-                className={`lang-card${language === l.code ? " primary" : ""}`}
-                onClick={() => setLanguage(l.code)}
-              >
-                <span className="lang-code">{l.flag}</span>
-                <span className="lang-native">{l.native}</span>
-                {language === l.code && <span className="lang-badge">PRINCIPAL</span>}
-              </button>
-            ))}
+          <div className="grid grid-cols-4 gap-2">
+            {LANGUAGES.map((l) => {
+              const isPrimary = language === l.code;
+              const isAlso = alsoGenerate.includes(l.code);
+              return (
+                <button key={l.code} type="button"
+                  className={`flex flex-col gap-1 px-3.5 py-3 border rounded-[var(--radius-lg)] cursor-pointer font-[inherit] transition-all text-left relative hover:border-foreground/40${
+                    isPrimary ? " border-accent bg-accent/10" : isAlso ? " border-accent bg-accent/10" : " border-border bg-background hover:bg-card"
+                  }`}
+                  onClick={() => {
+                    if (isPrimary) return;
+                    if (isAlso) {
+                      setAlsoGenerate((s) => s.filter((x) => x !== l.code));
+                    } else {
+                      setLanguage(l.code);
+                    }
+                  }}
+                  onContextMenu={(e) => {
+                    e.preventDefault();
+                    if (isPrimary) return;
+                    setAlsoGenerate((s) =>
+                      s.includes(l.code) ? s.filter((x) => x !== l.code) : [...s, l.code]
+                    );
+                  }}
+                >
+                  <span className={`font-mono text-[11px] font-semibold tracking-[0.08em]${isPrimary ? " text-accent" : " text-muted-foreground"}`}>
+                    {l.flag}
+                  </span>
+                  <span className="text-[13px] font-medium text-foreground tracking-[-0.01em]">{l.native}</span>
+                  {isPrimary && (
+                    <span className="font-mono text-[9px] tracking-[0.08em] uppercase text-accent bg-accent/10 px-[6px] py-[2px] rounded-[3px] w-fit mt-[2px]">
+                      PRINCIPAL
+                    </span>
+                  )}
+                  {isAlso && (
+                    <span className="font-mono text-[9px] tracking-[0.08em] uppercase text-muted-foreground bg-muted px-[6px] py-[2px] rounded-[3px] w-fit mt-[2px]">
+                      + TAMBÉM
+                    </span>
+                  )}
+                </button>
+              );
+            })}
           </div>
-          <div className="gen-lang-hint-small">
-            Dica: clique para selecionar o idioma principal do curso.
-          </div>
+          {alsoGenerate.length > 0 && (
+            <div className="flex gap-2 items-center mt-2.5 text-[13px] text-muted-foreground">
+              <span className="font-mono text-[10px] tracking-[0.08em] uppercase text-muted-foreground/60">Família:</span>
+              Gerando principal em {LANGUAGES.find((l) => l.code === language)?.native} + {alsoGenerate.length} tradução{alsoGenerate.length > 1 ? "ões" : ""} vinculada{alsoGenerate.length > 1 ? "s" : ""}.
+            </div>
+          )}
+          <p className="mt-2 text-[11px] text-muted-foreground italic">
+            Dica: botão direito (ou toque de novo) pra adicionar como tradução vinculada.
+          </p>
         </div>
 
-        <div className="gen-actions">
-          <div className="gen-estimate">
-            <div className="dot" />
+        <div className="flex justify-between items-center mt-7">
+          <div className="text-[12px] text-muted-foreground flex items-center gap-2">
+            <div className="w-1.5 h-1.5 bg-accent rounded-full" />
             ~{estTime} min para gerar
           </div>
-          <button
-            type="button"
-            className="primary"
-            disabled={!topic.trim() || isRunning}
-            onClick={handleGenerate}
-          >
+          <button type="button" className={btnPrimary} disabled={!topic.trim() || isRunning} onClick={handleGenerate}>
             {isRunning ? "Gerando…" : "Gerar curso"}
           </button>
         </div>
       </div>
 
       {isRunning && (
-        <div className="gen-output">
-          <div className="thinking-panel">
-            <div className="thinking-head">
-              <div className={`pulse${isRunning ? " on" : ""}`} />
-              <span className="mono">Gerando curso...</span>
-              <span className="thinking-meta">{elapsed}s</span>
+        <div className="mt-16">
+          <div className="bg-card rounded-[var(--radius-lg)] p-6 border border-border">
+            <div className="flex items-center gap-2.5 pb-3.5 border-b border-border">
+              <div className={`w-2 h-2 rounded-full${isRunning ? " bg-accent animate-pulse" : " bg-muted-foreground"}`} />
+              <span className="font-mono text-[12px] text-foreground/70">Gerando curso...</span>
+              <span className="ml-auto text-[11px] text-muted-foreground font-mono">{elapsed}s</span>
             </div>
-            <ul className="thinking-log">
+            <ul className="list-none p-0 pt-4 m-0 font-mono text-[12px] text-foreground/70 flex flex-col">
               {logSteps.map((step, i) => (
-                <li key={i}>
-                  <span className="idx">{String(i + 1).padStart(2, "0")}</span>
+                <li key={i} className="flex gap-3.5 py-1 animate-[fadeIn_0.3s_ease-out]">
+                  <span className="text-muted-foreground">{String(i + 1).padStart(2, "0")}</span>
                   {step}
                 </li>
               ))}
@@ -277,31 +276,35 @@ export default function GeneratePage() {
           </div>
 
           {outline && (
-            <div className="curriculum">
-              <div className="curriculum-head">
+            <div className="mt-12">
+              <div className="flex justify-between items-end gap-8 mb-8 pb-6 border-b border-border">
                 <div>
-                  <h2>{outline.title} · seu currículo</h2>
-                  <p className="lede">Edite o que quiser antes de começar.</p>
+                  <h2 className="font-medium text-[24px] tracking-[-0.03em] m-0 mb-1.5 text-foreground">
+                    {outline.title} · seu currículo
+                  </h2>
+                  <p className="text-[14px] text-muted-foreground m-0">Edite o que quiser antes de começar.</p>
                 </div>
-                <div className="curriculum-actions">
-                  <button className="ghost">Regenerar</button>
-                  <button className="ghost">Editar estrutura</button>
+                <div className="flex gap-1.5 shrink-0">
+                  <button className={btnGhost}>Regenerar</button>
+                  <button className={btnGhost}>Editar estrutura</button>
                 </div>
               </div>
-              <ul className="modules">
+              <ul className="list-none p-0 m-0">
                 {outline.modules.map((mod, mi) => {
                   const completedLessons = phase.status === "generating" ? phase.completedLessons : new Set<string>();
                   return (
-                    <li key={mi} className="module">
-                      <span className="module-num">{String(mi + 1).padStart(2, "0")}</span>
-                      <div className="module-body">
-                        <h3>{mod.title}</h3>
-                        <ul className="module-lessons">
+                    <li key={mi} className="grid grid-cols-[60px_1fr_auto] gap-6 py-6 border-b border-border">
+                      <span className="font-mono text-[13px] text-muted-foreground leading-none tracking-[0.02em] pt-1.5">
+                        {String(mi + 1).padStart(2, "0")}
+                      </span>
+                      <div>
+                        <h3 className="font-medium text-[17px] m-0 mb-2.5 tracking-[-0.02em] text-foreground">{mod.title}</h3>
+                        <ul className="list-none p-0 m-0 flex flex-col gap-1">
                           {mod.lessons.map((lesson, li) => {
                             const done = completedLessons.has(`${mi}-${li}`);
                             return (
-                              <li key={li} style={{ color: done ? "var(--ok)" : undefined }}>
-                                <span className="bullet" />
+                              <li key={li} className="flex items-center gap-2.5 text-[14px]" style={{ color: done ? "var(--primary)" : undefined }}>
+                                <span className="w-1 h-1 rounded-full bg-muted-foreground shrink-0" />
                                 {lesson.title}
                                 {done && " ✓"}
                               </li>
@@ -309,7 +312,9 @@ export default function GeneratePage() {
                           })}
                         </ul>
                       </div>
-                      <span className="module-mins">{mod.estimatedMinutes ?? 30}min</span>
+                      <span className="font-mono text-[11px] text-muted-foreground tracking-[0.05em] self-start pt-3.5">
+                        {mod.estimatedMinutes ?? 30}min
+                      </span>
                     </li>
                   );
                 })}
@@ -320,41 +325,36 @@ export default function GeneratePage() {
       )}
 
       {phase.status === "done" && (
-        <div className="gen-output">
-          <div className="thinking-panel">
-            <div className="thinking-head">
-              <div className="pulse" />
-              <span className="mono">Gerando curso...</span>
-              <span className="thinking-meta">concluído</span>
+        <div className="mt-16">
+          <div className="bg-card rounded-[var(--radius-lg)] p-6 border border-border">
+            <div className="flex items-center gap-2.5 pb-3.5 border-b border-border">
+              <div className="w-2 h-2 rounded-full bg-muted-foreground" />
+              <span className="font-mono text-[12px] text-foreground/70">Gerando curso...</span>
+              <span className="ml-auto text-[11px] text-muted-foreground font-mono">concluído</span>
             </div>
-            <ul className="thinking-log">
+            <ul className="list-none p-0 pt-4 m-0 font-mono text-[12px] text-foreground/70 flex flex-col">
               {logSteps.map((s, i) => (
-                <li key={i}>
-                  <span className="idx">{String(i + 1).padStart(2, "0")}</span>
+                <li key={i} className="flex gap-3.5 py-1">
+                  <span className="text-muted-foreground">{String(i + 1).padStart(2, "0")}</span>
                   {s}
                 </li>
               ))}
             </ul>
           </div>
-          <p style={{ color: "var(--ok)", fontWeight: 500, marginTop: "1rem" }}>
-            ✓ Curso pronto! Redirecionando…
-          </p>
+          <p className="text-primary font-medium mt-4">✓ Curso pronto! Redirecionando…</p>
         </div>
       )}
 
       {phase.status === "error" && (
-        <div className="gen-output">
-          <div style={{ color: "var(--danger)", marginTop: "1rem" }}>
-            <p style={{ fontWeight: 500 }}>Erro ao gerar curso</p>
-            <p style={{ fontSize: "0.85em", marginTop: "0.25rem" }}>{phase.message}</p>
-            <button
-              className="ghost"
-              style={{ marginTop: "0.5rem" }}
-              onClick={() => { setPhase({ status: "idle" }); setLogSteps([]); }}
-            >
-              Tentar novamente
-            </button>
-          </div>
+        <div className="mt-16">
+          <p className="text-destructive font-medium">Erro ao gerar curso</p>
+          <p className="text-[0.85em] text-destructive mt-1">{phase.message}</p>
+          <button
+            className={`${btnGhost} mt-2`}
+            onClick={() => { setPhase({ status: "idle" }); setLogSteps([]); }}
+          >
+            Tentar novamente
+          </button>
         </div>
       )}
     </div>

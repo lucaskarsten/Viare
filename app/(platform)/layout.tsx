@@ -46,9 +46,9 @@ export default async function PlatformLayout({
   }));
 
   return (
-    <div className="shell">
+    <div className="grid grid-cols-[256px_1fr] min-h-screen bg-background text-foreground">
       <Sidebar user={session.user} />
-      <main className="vr-main">{children}</main>
+      <main className="px-16 pt-12 pb-24 max-w-[1200px]">{children}</main>
       <GlobalSearch courses={courses} />
     </div>
   );
