@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useTranslations } from "next-intl";
 import QuizBlock, { type QuizBlockQuestion } from "@/components/QuizBlock";
 import FlashcardPlayer, { type FlashCard } from "@/components/FlashcardPlayer";
 import MarkCompleteButton from "@/app/(platform)/courses/[slug]/lessons/[lessonId]/MarkCompleteButton";
@@ -140,13 +141,11 @@ export default function LessonClient({
   flashcards,
   summaryPoints,
 }: LessonClientProps) {
+  const t = useTranslations("lesson");
   const [showTutor, setShowTutor] = useState(false);
   const [tutorInput, setTutorInput] = useState("");
-  const [tutorMessages, setTutorMessages] = useState<TutorMessage[]>([
-    {
-      role: "tutor",
-      text: "Travou? Pergunte qualquer coisa sobre a aula. Respondo com base no material e sinalizo o que fugir dele.",
-    },
+  const [tutorMessages, setTutorMessages] = useState<TutorMessage[]>(() => [
+    { role: "tutor", text: t("tutorGreeting") },
   ]);
 
   // Focus mode state
@@ -294,7 +293,7 @@ export default function LessonClient({
             className="ghost small"
             onClick={() => setShowTutor((o) => !o)}
           >
-            Tutor IA
+            {t("tutorTitle")}
           </button>
         </div>
       </header>
@@ -358,7 +357,7 @@ export default function LessonClient({
           )}
 
           {!lesson.content && (
-            <p style={{ color: "var(--ink-3)" }}>Conteúdo ainda não disponível.</p>
+            <p style={{ color: "var(--ink-3)" }}>{t("contentUnavailable")}</p>
           )}
 
           {quizQuestions.length > 0 && <QuizBlock questions={quizQuestions} />}
@@ -368,15 +367,15 @@ export default function LessonClient({
           <div className="lesson-foot">
             {prevLessonHref ? (
               <Link href={prevLessonHref} className="ghost">
-                ← Anterior
+                {t("previous")}
               </Link>
             ) : (
               <Link href={`/courses/${course.slug}`} className="ghost">
-                ← Voltar ao curso
+                {t("backToCourse")}
               </Link>
             )}
             <Link href={nextLessonHref} className="primary">
-              Próxima →
+              {t("next")}
             </Link>
           </div>
         </article>
@@ -385,7 +384,7 @@ export default function LessonClient({
           <div className="tutor">
             <div className="tutor-head">
               <div>
-                <div className="tutor-title">Tutor IA</div>
+                <div className="tutor-title">{t("tutorTitle")}</div>
                 <div className="tutor-sub">ASSISTENTE DO CURSO</div>
               </div>
               <button className="icon" onClick={() => setShowTutor(false)}>
@@ -420,7 +419,7 @@ export default function LessonClient({
               <input
                 value={tutorInput}
                 onChange={(e) => setTutorInput(e.target.value)}
-                placeholder="Pergunte algo..."
+                placeholder={t("tutorPlaceholder")}
                 onKeyDown={(e) => {
                   if (e.key === "Enter") sendMsg(tutorInput);
                 }}

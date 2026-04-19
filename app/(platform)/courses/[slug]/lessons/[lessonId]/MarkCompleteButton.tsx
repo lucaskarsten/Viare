@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 type Props = {
   lessonId: string;
@@ -11,6 +12,7 @@ type Props = {
 };
 
 export default function MarkCompleteButton({ lessonId, courseId, isCompleted, nextLessonHref }: Props) {
+  const t = useTranslations("lesson");
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [done, setDone] = useState(isCompleted);
@@ -35,14 +37,14 @@ export default function MarkCompleteButton({ lessonId, courseId, isCompleted, ne
   if (done) {
     return (
       <span style={{ color: "var(--ok)", fontWeight: 500, fontSize: "0.875rem" }}>
-        ✓ Concluída
+        {t("completed")}
       </span>
     );
   }
 
   return (
     <button onClick={markComplete} disabled={loading} className="primary">
-      {loading ? "Salvando…" : "Marcar como concluída →"}
+      {loading ? t("saving") : t("markComplete")}
     </button>
   );
 }

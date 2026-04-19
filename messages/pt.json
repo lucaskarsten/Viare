@@ -160,5 +160,18 @@
       "LAB": "Lab",
       "PROJECT": "Projeto"
     }
+  },
+  "lesson": {
+    "contentUnavailable": "Conteúdo ainda não disponível.",
+    "previous": "← Anterior",
+    "next": "Próxima →",
+    "backToCourse": "← Voltar ao curso",
+    "markComplete": "Marcar como concluída →",
+    "completed": "✓ Concluída",
+    "saving": "Salvando…",
+    "tutorTitle": "Tutor IA",
+    "tutorGreeting": "Travou? Pergunte qualquer coisa sobre a aula. Respondo com base no material e sinalizo o que fugir dele.",
+    "tutorPlaceholder": "Pergunte algo…",
+    "lessonOf": "Aula {current} de {total}"
   }
 }

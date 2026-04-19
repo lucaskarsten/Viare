@@ -12,6 +12,7 @@ import {
   Role,
 } from "@prisma/client";
 import { LESSON_CONTENT } from "./lesson-content";
+import { QUIZ_QUESTIONS } from "./quiz-questions";
 
 const db = new PrismaClient();
 
@@ -791,7 +792,7 @@ async function main() {
       for (const l of m.lessons) {
         const contentKey = `${courseSlug}/${m.slug}/${l.slug}`;
         const content = LESSON_CONTENT[contentKey] ?? null;
-        await db.lesson.upsert({
+        const lessonRow = await db.lesson.upsert({
           where: { moduleId_slug: { moduleId: mod.id, slug: l.slug } },
           update: { title: l.title, type: l.type, order: l.order, content },
           create: {
@@ -803,6 +804,21 @@ async function main() {
             content,
           },
         });
+
+        const questions = QUIZ_QUESTIONS[contentKey];
+        if (questions && questions.length > 0) {
+          await db.quizQuestion.deleteMany({ where: { lessonId: lessonRow.id } });
+          await db.quizQuestion.createMany({
+            data: questions.map((q, i) => ({
+              lessonId: lessonRow.id,
+              question: q.question,
+              options: q.options,
+              correctIndex: q.correctIndex,
+              explanation: q.explanation,
+              order: i,
+            })),
+          });
+        }
       }
     }
   }

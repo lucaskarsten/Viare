@@ -56,10 +56,10 @@ export default function ReviewClient({ courses, totalDue, totalOverdue, streak, 
   const [results, setResults] = useState<Results>({ again: 0, hard: 0, good: 0, easy: 0 });
 
   const ratingButtons = [
-    { key: "again" as const, label: t("again"), next: t("nextTime.again"), kbd: "1", color: "#b84a3e" },
-    { key: "hard" as const, label: t("hard"), next: t("nextTime.hard"), kbd: "2", color: "#c98a2e" },
-    { key: "good" as const, label: t("good"), next: t("nextTime.good"), kbd: "3", color: "#4a8a5a" },
-    { key: "easy" as const, label: t("easy"), next: t("nextTime.easy"), kbd: "4", color: "#4a7aa8" },
+    { key: "again" as const, label: t("again"), next: t("nextTime.again"), kbd: "1", color: "var(--rating-again)" },
+    { key: "hard" as const, label: t("hard"), next: t("nextTime.hard"), kbd: "2", color: "var(--rating-hard)" },
+    { key: "good" as const, label: t("good"), next: t("nextTime.good"), kbd: "3", color: "var(--rating-good)" },
+    { key: "easy" as const, label: t("easy"), next: t("nextTime.easy"), kbd: "4", color: "var(--rating-easy)" },
   ];
 
   const buildPool = useCallback(
@@ -213,7 +213,13 @@ export default function ReviewClient({ courses, totalDue, totalOverdue, streak, 
                     {c.due > 0 && (
                       <div className="flex flex-wrap gap-1.5 mt-1">
                         {c.overdue > 0 && (
-                          <span className="font-mono text-[10px] tracking-[0.05em] uppercase px-2 py-[3px] rounded-[3px] text-[#b84a3e] bg-[#b84a3e]/10">
+                          <span
+                            className="font-mono text-[10px] tracking-[0.05em] uppercase px-2 py-[3px] rounded-[3px]"
+                            style={{
+                              color: "var(--rating-again)",
+                              background: "color-mix(in oklch, var(--rating-again), transparent 88%)",
+                            }}
+                          >
                             {t("overdue", { count: c.overdue })}
                           </span>
                         )}
@@ -320,9 +326,8 @@ export default function ReviewClient({ courses, totalDue, totalOverdue, streak, 
             {(["again", "hard", "good", "easy"] as const).map((k) => (
               <span
                 key={k}
-                className={`font-mono text-[11px] px-2 py-1 rounded-[4px] bg-card text-center min-w-[28px]${
-                  k === "again" ? " text-[#b84a3e]" : k === "hard" ? " text-[#c98a2e]" : k === "good" ? " text-[#4a8a5a]" : " text-[#4a7aa8]"
-                }`}
+                className="font-mono text-[11px] px-2 py-1 rounded-[4px] bg-card text-center min-w-[28px]"
+                style={{ color: `var(--rating-${k})` }}
               >
                 {results[k]}
               </span>

@@ -160,5 +160,18 @@
       "LAB": "Lab",
       "PROJECT": "Project"
     }
+  },
+  "lesson": {
+    "contentUnavailable": "Content not yet available.",
+    "previous": "← Previous",
+    "next": "Next →",
+    "backToCourse": "← Back to course",
+    "markComplete": "Mark as complete →",
+    "completed": "✓ Completed",
+    "saving": "Saving…",
+    "tutorTitle": "AI Tutor",
+    "tutorGreeting": "Stuck? Ask anything about this lesson. I answer based on the material and flag anything outside of it.",
+    "tutorPlaceholder": "Ask something…",
+    "lessonOf": "Lesson {current} of {total}"
   }
 }

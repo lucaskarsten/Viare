@@ -20,6 +20,11 @@
   --accent-soft: var(--vr-accent-soft);
   --ok: #5a7a4a;
   --danger: #a94442;
+  /* Semantic rating/review tokens (palette-neutral, dark-aware) */
+  --rating-again: #b84a3e;
+  --rating-hard: #c98a2e;
+  --rating-good: #4a8a5a;
+  --rating-easy: #4a7aa8;
   /* Radius aliases — source of truth is tailwind.css */
   --vr-radius: var(--radius);
   --vr-radius-lg: var(--radius-lg);
@@ -156,6 +161,10 @@ html.dark {
   --ink-4: #6A6359;
   --rule: rgba(243,238,228,0.12);
   --rule-soft: rgba(243,238,228,0.06);
+  --rating-again: #e88c83;
+  --rating-hard: #e0b870;
+  --rating-good: #7aa68a;
+  --rating-easy: #8aaed0;
 }
 /* Dark + palette overrides: set both BEM and shadcn tokens */
 html.dark[data-palette="cool"] {
