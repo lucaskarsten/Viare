@@ -2,7 +2,6 @@
 
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Sparkles, ChevronDown, Loader2, CheckCircle2, Circle, AlertCircle } from "lucide-react";
 import type { GenerationEvent } from "@/lib/generation";
 
 type Phase =
@@ -13,26 +12,73 @@ type Phase =
   | { status: "done"; courseSlug: string }
   | { status: "error"; message: string };
 
+const SUGGESTIONS = [
+  "Kali Linux",
+  "Pão de fermentação",
+  "Estatística bayesiana",
+  "Color theory",
+  "Violão fingerstyle",
+  "História medieval",
+  "Rust ownership",
+  "Aberturas de xadrez",
+];
+
+const THINKING = [
+  "Varrendo fontes primárias…",
+  "Verificando atualidade das informações…",
+  "Estruturando módulos e aulas…",
+  "Rascunhando quizzes e labs…",
+  "Selecionando vocabulário para flashcards…",
+  "Pronto.",
+];
+
+const LANGUAGES = [
+  { code: "en", flag: "EN", native: "English" },
+  { code: "pt", flag: "PT", native: "Português" },
+  { code: "es", flag: "ES", native: "Español" },
+  { code: "fr", flag: "FR", native: "Français" },
+  { code: "de", flag: "DE", native: "Deutsch" },
+  { code: "it", flag: "IT", native: "Italiano" },
+  { code: "ja", flag: "JA", native: "日本語" },
+  { code: "zh", flag: "ZH", native: "中文" },
+];
+
 export default function GeneratePage() {
   const router = useRouter();
   const [topic, setTopic] = useState("");
-  const [customContext, setCustomContext] = useState("");
-  const [showContext, setShowContext] = useState(false);
+  const [depth, setDepth] = useState("intermediário");
+  const [pace, setPace] = useState("30");
+  const [format, setFormat] = useState("mixed");
+  const [language, setLanguage] = useState("pt");
   const [phase, setPhase] = useState<Phase>({ status: "idle" });
+  const [logSteps, setLogSteps] = useState<string[]>([]);
   const abortRef = useRef<AbortController | null>(null);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!topic.trim() || phase.status !== "idle") return;
+  const isRunning = ["searching", "outlining", "generating"].includes(phase.status);
+  const stage = isRunning ? "thinking" : phase.status === "done" ? "done" : phase.status === "error" ? "error" : "idle";
+
+  const outline =
+    phase.status === "outlining" ? phase.outline :
+    phase.status === "generating" ? phase.outline :
+    null;
+
+  async function handleGenerate() {
+    if (!topic.trim() || isRunning) return;
 
     abortRef.current = new AbortController();
     setPhase({ status: "searching" });
+    setLogSteps([]);
+
+    // Animate THINKING steps while real generation runs
+    THINKING.forEach((s, i) => {
+      setTimeout(() => setLogSteps((prev) => [...prev, s]), 450 * (i + 1));
+    });
 
     try {
       const res = await fetch("/api/courses/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ topic: topic.trim(), customContext: customContext.trim() || undefined }),
+        body: JSON.stringify({ topic: topic.trim() }),
         signal: abortRef.current.signal,
       });
 
@@ -41,7 +87,6 @@ export default function GeneratePage() {
       const reader = res.body!.getReader();
       const decoder = new TextDecoder();
       let buffer = "";
-
       let currentOutline: { title: string; modules: Array<{ title: string; lessons: Array<{ title: string; type: string }> }> } | undefined;
       const completed = new Set<string>();
 
@@ -87,174 +132,207 @@ export default function GeneratePage() {
     }
   }
 
-  const isRunning = ["searching", "outlining", "generating"].includes(phase.status);
-
   return (
-    <div className="max-w-2xl mx-auto space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold flex items-center gap-2">
-          <Sparkles className="h-6 w-6 text-primary" />
-          Gerar curso com IA
-        </h1>
-        <p className="text-muted-foreground mt-1">
-          Digite um tópico e a IA irá pesquisar e montar um curso completo para você.
-        </p>
-      </div>
-
-      <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="page generate">
+      <header className="page-head compact">
         <div>
-          <input
-            type="text"
-            placeholder="Ex: Kali Linux, Python para dados, Fundamentos de redes..."
-            value={topic}
-            onChange={(e) => setTopic(e.target.value)}
-            disabled={isRunning}
-            className="w-full rounded-md border bg-background px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50"
-            autoFocus
-          />
+          <div className="eyebrow">Novo curso</div>
+          <h1 className="h1"><em>O que você</em> quer aprender?</h1>
+          <p className="lede">Descreva com suas palavras. Quanto mais específico, melhor o currículo.</p>
+        </div>
+      </header>
+
+      <div className="gen-form">
+        <textarea
+          className="gen-input"
+          value={topic}
+          onChange={(e) => setTopic(e.target.value)}
+          placeholder="ex: Aprender marcenaria japonesa, começando pelas ferramentas manuais…"
+          disabled={isRunning}
+        />
+
+        <div className="gen-suggest">
+          <span className="gen-suggest-label">Tente:</span>
+          {SUGGESTIONS.map((s) => (
+            <button key={s} type="button" className="suggest-chip" onClick={() => setTopic(s)}>
+              {s}
+            </button>
+          ))}
         </div>
 
-        <button
-          type="button"
-          onClick={() => setShowContext(!showContext)}
-          className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors"
-        >
-          <ChevronDown className={`h-4 w-4 transition-transform ${showContext ? "rotate-180" : ""}`} />
-          Personalizar curso (opcional)
-        </button>
-
-        {showContext && (
-          <textarea
-            placeholder="Ex: Foco em CTF e pentest. Tenho 2 semanas. Já sei Python."
-            value={customContext}
-            onChange={(e) => setCustomContext(e.target.value)}
-            disabled={isRunning}
-            rows={3}
-            className="w-full rounded-md border bg-background px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring disabled:opacity-50 resize-none"
-          />
-        )}
-
-        <button
-          type="submit"
-          disabled={!topic.trim() || isRunning}
-          className="w-full flex items-center justify-center gap-2 rounded-md bg-primary text-primary-foreground px-4 py-3 font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {isRunning ? (
-            <>
-              <Loader2 className="h-4 w-4 animate-spin" />
-              Gerando...
-            </>
-          ) : (
-            <>
-              <Sparkles className="h-4 w-4" />
-              Gerar curso
-            </>
-          )}
-        </button>
-      </form>
-
-      {/* Progress feedback */}
-      {phase.status !== "idle" && (
-        <div className="rounded-xl border bg-card p-6 space-y-4">
-          <Step
-            done={["outlining", "generating", "done"].includes(phase.status)}
-            active={phase.status === "searching"}
-            label="Pesquisando conteúdo na web..."
-          />
-          <Step
-            done={["generating", "done"].includes(phase.status)}
-            active={phase.status === "outlining"}
-            label="Estruturando módulos e aulas..."
-          />
-
-          {(phase.status === "outlining" || phase.status === "generating" || phase.status === "done") && (
-            <div className="ml-6 mt-2 space-y-3">
-              {(phase.status === "outlining" ? phase.outline : phase.status === "generating" || phase.status === "done" ? (phase as { outline: { title: string; modules: Array<{ title: string; lessons: Array<{ title: string; type: string }> }> } }).outline : null)?.modules.map((mod, mi) => (
-                <div key={mi}>
-                  <p className="text-xs font-medium text-muted-foreground mb-1">{mod.title}</p>
-                  <div className="space-y-1">
-                    {mod.lessons.map((lesson, li) => {
-                      const key = `${mi}-${li}`;
-                      const isDone = phase.status === "done" || (phase.status === "generating" && (phase as { completedLessons: Set<string> }).completedLessons.has(key));
-                      const isActive =
-                        phase.status === "generating" &&
-                        !(phase as { completedLessons: Set<string> }).completedLessons.has(key) &&
-                        isNextLesson(mi, li, (phase as { completedLessons: Set<string> }).completedLessons, (phase as { outline: { modules: Array<{ lessons: unknown[] }> } }).outline.modules);
-
-                      return (
-                        <div key={li} className={`flex items-center gap-2 text-xs ${isDone ? "text-foreground" : isActive ? "text-primary" : "text-muted-foreground"}`}>
-                          {isDone ? (
-                            <CheckCircle2 className="h-3.5 w-3.5 text-green-500 shrink-0" />
-                          ) : isActive ? (
-                            <Loader2 className="h-3.5 w-3.5 animate-spin shrink-0" />
-                          ) : (
-                            <Circle className="h-3.5 w-3.5 shrink-0" />
-                          )}
-                          {lesson.title}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
+        <div className="gen-options">
+          <div className="opt-group">
+            <div className="opt-label">Profundidade</div>
+            <div className="opt-row">
+              {["iniciante", "intermediário", "profundo"].map((v) => (
+                <button key={v} type="button" className={`seg${depth === v ? " on" : ""}`} onClick={() => setDepth(v)}>
+                  {v}
+                </button>
               ))}
             </div>
-          )}
-
-          {phase.status === "done" && (
-            <div className="flex items-center gap-2 text-sm text-green-600 font-medium pt-2">
-              <CheckCircle2 className="h-4 w-4" />
-              Curso pronto! Redirecionando...
-            </div>
-          )}
-
-          {phase.status === "error" && (
-            <div className="flex items-start gap-2 text-sm text-destructive pt-2">
-              <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" />
-              <div>
-                <p className="font-medium">Erro ao gerar curso</p>
-                <p className="text-xs mt-0.5">{phase.message}</p>
-                <button
-                  onClick={() => setPhase({ status: "idle" })}
-                  className="mt-2 text-xs underline underline-offset-2"
-                >
-                  Tentar novamente
+          </div>
+          <div className="opt-group">
+            <div className="opt-label">Duração de sessão</div>
+            <div className="opt-row">
+              {[{ v: "20", l: "20 min" }, { v: "30", l: "30 min" }, { v: "45", l: "45 min" }, { v: "60", l: "60 min" }].map((o) => (
+                <button key={o.v} type="button" className={`seg${pace === o.v ? " on" : ""}`} onClick={() => setPace(o.v)}>
+                  {o.l}
                 </button>
+              ))}
+            </div>
+          </div>
+          <div className="opt-group">
+            <div className="opt-label">Formato</div>
+            <div className="opt-row">
+              {[{ v: "reading", l: "Só leitura" }, { v: "mixed", l: "Misto" }, { v: "hands-on", l: "Prático" }].map((o) => (
+                <button key={o.v} type="button" className={`seg${format === o.v ? " on" : ""}`} onClick={() => setFormat(o.v)}>
+                  {o.l}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="gen-lang">
+          <div className="opt-label">
+            Idioma
+            <span className="gen-lang-hint">
+              Você pode gerar traduções do mesmo curso depois — ficam linkadas como uma família.
+            </span>
+          </div>
+          <div className="lang-grid">
+            {LANGUAGES.map((l) => (
+              <button
+                key={l.code}
+                type="button"
+                className={`lang-card${language === l.code ? " primary" : ""}`}
+                onClick={() => setLanguage(l.code)}
+              >
+                <span className="lang-code">{l.flag}</span>
+                <span className="lang-native">{l.native}</span>
+                {language === l.code && <span className="lang-badge">Principal</span>}
+              </button>
+            ))}
+          </div>
+          <div className="gen-lang-hint-small">
+            Dica: clique para selecionar o idioma principal do curso.
+          </div>
+        </div>
+
+        <div className="gen-actions">
+          <div className="gen-estimate">
+            <span className="dot" />
+            Estimado: 6 módulos · 18 aulas · ~9 horas
+          </div>
+          <button
+            type="button"
+            className="primary"
+            disabled={!topic.trim() || stage === "thinking"}
+            onClick={handleGenerate}
+          >
+            {stage === "thinking" ? "Gerando…" : "Gerar currículo →"}
+          </button>
+        </div>
+      </div>
+
+      {stage === "thinking" && (
+        <div className="gen-output">
+          <div className="thinking-panel">
+            <div className="thinking-head">
+              <span className="pulse on" />
+              <span className="mono">lumen.reason()</span>
+              <span className="thinking-meta">processando…</span>
+            </div>
+            <ul className="thinking-log">
+              {logSteps.map((s, i) => (
+                <li key={i}>
+                  <span className="idx">{String(i + 1).padStart(2, "0")}</span>
+                  <span>{s}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {outline && (
+            <div className="curriculum">
+              <div className="curriculum-head">
+                <div>
+                  <h2>{outline.title} · seu currículo</h2>
+                  <p className="lede">Edite o que quiser antes de começar.</p>
+                </div>
+                <div className="curriculum-actions">
+                  <button className="ghost">Regenerar</button>
+                  <button className="ghost">Editar estrutura</button>
+                </div>
               </div>
+              <ol className="modules">
+                {outline.modules.map((mod, mi) => {
+                  const completedLessons = phase.status === "generating" ? phase.completedLessons : new Set<string>();
+                  return (
+                    <li key={mi} className="module">
+                      <div className="module-num">{String(mi + 1).padStart(2, "0")}</div>
+                      <div className="module-body">
+                        <h3>{mod.title}</h3>
+                        <ul className="module-lessons">
+                          {mod.lessons.map((lesson, li) => {
+                            const done = completedLessons.has(`${mi}-${li}`);
+                            return (
+                              <li key={li} style={{ color: done ? "var(--ok)" : undefined }}>
+                                <span className="bullet" />
+                                {lesson.title}
+                                {done && " ✓"}
+                              </li>
+                            );
+                          })}
+                        </ul>
+                      </div>
+                    </li>
+                  );
+                })}
+              </ol>
             </div>
           )}
         </div>
       )}
-    </div>
-  );
-}
 
-function Step({ done, active, label }: { done: boolean; active: boolean; label: string }) {
-  return (
-    <div className={`flex items-center gap-3 text-sm ${done ? "text-foreground" : active ? "text-primary" : "text-muted-foreground"}`}>
-      {done ? (
-        <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />
-      ) : active ? (
-        <Loader2 className="h-4 w-4 animate-spin shrink-0" />
-      ) : (
-        <Circle className="h-4 w-4 shrink-0" />
+      {phase.status === "done" && (
+        <div className="gen-output">
+          <div className="thinking-panel">
+            <div className="thinking-head">
+              <span className="pulse" />
+              <span className="mono">lumen.reason()</span>
+              <span className="thinking-meta">concluído</span>
+            </div>
+            <ul className="thinking-log">
+              {logSteps.map((s, i) => (
+                <li key={i}>
+                  <span className="idx">{String(i + 1).padStart(2, "0")}</span>
+                  <span>{s}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <p style={{ color: "var(--ok)", fontWeight: 500, marginTop: "1rem" }}>
+            ✓ Curso pronto! Redirecionando…
+          </p>
+        </div>
       )}
-      <span className={active ? "font-medium" : ""}>{label}</span>
+
+      {phase.status === "error" && (
+        <div className="gen-output">
+          <div style={{ color: "var(--danger)", marginTop: "1rem" }}>
+            <p style={{ fontWeight: 500 }}>Erro ao gerar curso</p>
+            <p style={{ fontSize: "0.85em", marginTop: "0.25rem" }}>{phase.message}</p>
+            <button
+              className="ghost"
+              style={{ marginTop: "0.5rem" }}
+              onClick={() => { setPhase({ status: "idle" }); setLogSteps([]); }}
+            >
+              Tentar novamente
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
-}
-
-function isNextLesson(
-  mi: number,
-  li: number,
-  completed: Set<string>,
-  modules: Array<{ lessons: unknown[] }>
-): boolean {
-  for (let m = 0; m < modules.length; m++) {
-    for (let l = 0; l < modules[m].lessons.length; l++) {
-      if (!completed.has(`${m}-${l}`)) {
-        return m === mi && l === li;
-      }
-    }
-  }
-  return false;
 }

@@ -29,6 +29,8 @@ export default function RootLayout({
   return (
     <html
       lang="pt-BR"
+      data-palette="cool"
+      data-theme="light"
       className={`${ibmPlexSans.variable} ${ibmPlexMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">{children}</body>

@@ -1,4 +1,4 @@
-import { auth } from "@/auth";
+import { auth } from "@/lib/dev-auth";
 import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import Sidebar from "@/components/layout/Sidebar";
@@ -46,9 +46,9 @@ export default async function PlatformLayout({
   }));
 
   return (
-    <div className="platform-grid grid grid-cols-[256px_1fr] min-h-screen bg-background">
+    <div className="shell">
       <Sidebar user={session.user} />
-      <main className="overflow-y-auto">{children}</main>
+      <main className="vr-main">{children}</main>
       <GlobalSearch courses={courses} />
     </div>
   );

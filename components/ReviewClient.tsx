@@ -1,170 +1,350 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
-type CourseReview = {
-  courseId: string;
-  courseTitle: string;
-  courseSlug: string;
-  progressPercent: number;
-  dueCount: number;
-  cards: { front: string; back: string }[];
+type Card = {
+  q: string;
+  a: string;
+  tag: string;
+  course: string;
 };
 
-type Props = { courses: CourseReview[] };
+type Course = {
+  id: string;
+  name: string;
+  color: string;
+  due: number;
+  total: number;
+  new: number;
+  learning: number;
+  overdue: number;
+  cards: Card[];
+};
 
-export default function ReviewClient({ courses }: Props) {
+type Results = { again: number; hard: number; good: number; easy: number };
+
+type Props = {
+  courses: Course[];
+  totalDue: number;
+  totalOverdue: number;
+};
+
+// Sample card pool used when course cards are sparse — mirrors the design reference
+const SAMPLE_CARD_POOL: Card[] = [
+  {
+    course: "__sample__",
+    q: "What does nmap -sS do?",
+    a: "A stealth (SYN) scan — never completes the TCP handshake, so it's harder to log.",
+    tag: "lab",
+  },
+  {
+    course: "__sample__",
+    q: "Vulnerabilidade vs. exploit?",
+    a: "Vulnerabilidade é a falha. Exploit é a técnica que a abusa.",
+    tag: "concept",
+  },
+  {
+    course: "__sample__",
+    q: "O que é BATNA?",
+    a: "Melhor Alternativa a um Acordo Negociado — seu plano B. BATNA forte = posição forte.",
+    tag: "concept",
+  },
+  {
+    course: "__sample__",
+    q: "What layer does ARP live at?",
+    a: "Layer 2 (data link). It resolves IP → MAC on the local network.",
+    tag: "concept",
+  },
+  {
+    course: "__sample__",
+    q: "Ancoragem, em uma frase.",
+    a: "O primeiro número mencionado numa negociação molda o intervalo de todas as contra-propostas.",
+    tag: "concept",
+  },
+  {
+    course: "__sample__",
+    q: "Metasploit: payload vs. exploit?",
+    a: "Exploit delivers the payload. Payload is what runs after delivery (e.g. a reverse shell).",
+    tag: "lab",
+  },
+];
+
+export default function ReviewClient({ courses, totalDue, totalOverdue }: Props) {
   const [mode, setMode] = useState<"dashboard" | "session" | "done">("dashboard");
-  const [activeCourse, setActiveCourse] = useState<CourseReview | null>(null);
-  const [cardIndex, setCardIndex] = useState(0);
-  const [flipped, setFlipped] = useState(false);
-  const [sessionResults, setSessionResults] = useState<string[]>([]);
+  const [sessionCards, setSessionCards] = useState<(Card & { courseMeta: Course })[]>([]);
+  const [idx, setIdx] = useState(0);
+  const [revealed, setRevealed] = useState(false);
+  const [results, setResults] = useState<Results>({ again: 0, hard: 0, good: 0, easy: 0 });
 
-  const startSession = (course: CourseReview) => {
-    setActiveCourse(course);
-    setCardIndex(0);
-    setFlipped(false);
-    setSessionResults([]);
-    setMode("session");
-  };
+  // Build a flat pool of cards across all courses, each tagged with course metadata
+  const buildPool = useCallback(
+    (filter: "all" | "overdue" | string): (Card & { courseMeta: Course })[] => {
+      let pool: (Card & { courseMeta: Course })[] = [];
 
-  const rate = (rating: string) => {
-    setSessionResults((r) => [...r, rating]);
-    if (activeCourse && cardIndex < activeCourse.cards.length - 1) {
-      setCardIndex((i) => i + 1);
-      setFlipped(false);
-    } else {
-      setMode("done");
-    }
-  };
+      const targetCourses =
+        filter === "all" || filter === "overdue"
+          ? courses
+          : courses.filter((c) => c.id === filter);
 
+      for (const course of targetCourses) {
+        const cards = course.cards.length > 0 ? course.cards : SAMPLE_CARD_POOL;
+        const limit = filter === "overdue" ? course.overdue : course.due;
+        const slice = cards.slice(0, Math.max(limit, 1));
+        pool = pool.concat(slice.map((card) => ({ ...card, courseMeta: course })));
+      }
+
+      if (pool.length === 0) {
+        pool = SAMPLE_CARD_POOL.map((card) => ({
+          ...card,
+          courseMeta: courses[0] ?? {
+            id: "__sample__",
+            name: "Revisão",
+            color: "#c97a4a",
+            due: 0,
+            total: 0,
+            new: 0,
+            learning: 0,
+            overdue: 0,
+            cards: [],
+          },
+        }));
+      }
+
+      // Shuffle
+      return [...pool].sort(() => Math.random() - 0.5);
+    },
+    [courses]
+  );
+
+  const startSession = useCallback(
+    (filter: "all" | "overdue" | string) => {
+      const pool = buildPool(filter);
+      setSessionCards(pool);
+      setIdx(0);
+      setRevealed(false);
+      setResults({ again: 0, hard: 0, good: 0, easy: 0 });
+      setMode("session");
+    },
+    [buildPool]
+  );
+
+  const rate = useCallback(
+    (rating: keyof Results) => {
+      setResults((r) => ({ ...r, [rating]: r[rating] + 1 }));
+      if (idx + 1 >= sessionCards.length) {
+        setMode("done");
+      } else {
+        setIdx((i) => i + 1);
+        setRevealed(false);
+      }
+    },
+    [idx, sessionCards.length]
+  );
+
+  const endSession = useCallback(() => setMode("dashboard"), []);
+
+  // Keyboard shortcuts: Space to reveal, 1-4 to rate
   useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (mode === "session") {
-        if (e.code === "Space") {
-          e.preventDefault();
-          setFlipped((f) => !f);
-        }
-        if (flipped) {
-          if (e.key === "1") rate("again");
-          if (e.key === "2") rate("hard");
-          if (e.key === "3") rate("good");
-          if (e.key === "4") rate("easy");
-        }
+    if (mode !== "session") return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === " ") {
+        e.preventDefault();
+        setRevealed((f) => !f);
+      } else if (revealed && ["1", "2", "3", "4"].includes(e.key)) {
+        const map: Record<string, keyof Results> = {
+          "1": "again",
+          "2": "hard",
+          "3": "good",
+          "4": "easy",
+        };
+        rate(map[e.key]);
       }
     };
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mode, flipped, cardIndex, activeCourse]);
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [mode, revealed, rate]);
 
+  // ——— DASHBOARD: render only the action buttons (host page renders the rest) ———
   if (mode === "dashboard") {
     return (
-      <div className="px-16 py-12 max-w-[800px] mx-auto">
-        <h1 className="text-3xl font-medium tracking-tight mb-2">Revisão</h1>
-        <p className="text-muted-foreground text-sm mb-8">
-          Reforce o que você aprendeu com repetição espaçada.
-        </p>
-        {courses.length === 0 ? (
-          <p className="text-muted-foreground">Nenhum curso em andamento.</p>
-        ) : (
-          <div className="space-y-3">
-            {courses.map((c) => (
-              <div
-                key={c.courseId}
-                className="flex items-center gap-4 p-4 rounded-lg border bg-card"
-              >
-                <div className="flex-1 min-w-0">
-                  <div className="font-medium text-[15px]">{c.courseTitle}</div>
-                  <div className="text-[12px] text-muted-foreground mt-0.5">
-                    {c.progressPercent}% concluído
-                  </div>
-                </div>
-                <span className="text-[12px] font-mono bg-accent/10 text-accent px-2 py-1 rounded">
-                  {c.dueCount} para revisar
-                </span>
-                <button
-                  onClick={() => startSession(c)}
-                  className="text-[13px] font-medium px-3 py-1.5 bg-foreground text-background rounded"
-                >
-                  Revisar →
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+      <>
+        <button
+          className="primary big"
+          onClick={() => startSession("all")}
+          disabled={totalDue === 0}
+        >
+          Revisar tudo · ~{Math.ceil(totalDue * 0.5)} min
+        </button>
+        <button className="ghost" onClick={() => startSession("overdue")}>
+          Só os {totalOverdue} atrasados
+        </button>
+        <button className="ghost">Sessão customizada…</button>
+      </>
     );
   }
 
-  if (mode === "session" && activeCourse) {
-    const card = activeCourse.cards[cardIndex];
+  // ——— SESSION ———
+  if (mode === "session") {
+    const card = sessionCards[idx];
+    if (!card) return null;
+    const { courseMeta } = card;
+    const total = sessionCards.length;
+    const progress = ((idx + (revealed ? 0.5 : 0)) / total) * 100;
+
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] px-6">
-        <div className="text-[12px] text-muted-foreground font-mono mb-8">
-          {cardIndex + 1} / {activeCourse.cards.length} · {activeCourse.courseTitle}
-        </div>
-        <div
-          onClick={() => setFlipped((f) => !f)}
-          className="w-full max-w-lg min-h-40 rounded-xl border bg-card p-8 flex items-center justify-center cursor-pointer hover:shadow-md transition-shadow"
-        >
-          <div className="text-center">
-            <div className="text-[10px] uppercase tracking-widest font-mono text-muted-foreground mb-3">
-              {flipped ? "Módulo" : "Aula"}
+      <div className="review-session">
+        <header className="rs-top">
+          <button className="rs-exit" onClick={endSession}>
+            ← Encerrar
+          </button>
+          <div className="rs-progress">
+            <div className="rs-progress-bar">
+              <div style={{ width: `${progress}%` }} />
             </div>
-            <div className="text-[20px] font-medium">{flipped ? card.back : card.front}</div>
-            {!flipped && (
-              <div className="text-[12px] text-muted-foreground mt-4">Espaço para revelar</div>
+            <span>
+              {idx + 1} / {total}
+            </span>
+          </div>
+          <div className="rs-results">
+            <span className="rr again">{results.again}</span>
+            <span className="rr hard">{results.hard}</span>
+            <span className="rr good">{results.good}</span>
+            <span className="rr easy">{results.easy}</span>
+          </div>
+        </header>
+
+        <main className="rs-card-wrap">
+          <div className="rs-card-meta">
+            <span className="rs-course" style={{ color: courseMeta.color }}>
+              <span
+                className="rs-course-dot"
+                style={{ background: courseMeta.color }}
+              />
+              {courseMeta.name}
+            </span>
+            <span className="rs-tag">{card.tag}</span>
+          </div>
+
+          <div className={`rs-card ${revealed ? "revealed" : ""}`}>
+            <div className="rs-q-label">Pergunta</div>
+            <div className="rs-q">{card.q}</div>
+            {revealed && (
+              <>
+                <div className="rs-divider" />
+                <div className="rs-a-label">Resposta</div>
+                <div className="rs-a">{card.a}</div>
+              </>
             )}
           </div>
-        </div>
-        {flipped && (
-          <div className="flex gap-3 mt-8">
-            <button
-              onClick={() => rate("again")}
-              className="px-4 py-2 rounded border text-[13px] border-red-300 text-red-600 hover:bg-red-50"
-            >
-              De novo
+
+          {!revealed && (
+            <button className="rs-reveal" onClick={() => setRevealed(true)}>
+              Mostrar resposta{" "}
+              <span className="rs-reveal-kbd">Space</span>
             </button>
-            <button
-              onClick={() => rate("hard")}
-              className="px-4 py-2 rounded border text-[13px] border-orange-300 text-orange-600 hover:bg-orange-50"
-            >
-              Difícil
-            </button>
-            <button
-              onClick={() => rate("good")}
-              className="px-4 py-2 rounded border text-[13px] border-accent/40 text-accent hover:bg-accent/5"
-            >
-              Bom
-            </button>
-            <button
-              onClick={() => rate("easy")}
-              className="px-4 py-2 rounded border text-[13px] border-green-300 text-green-600 hover:bg-green-50"
-            >
-              Fácil
-            </button>
-          </div>
-        )}
-        {!flipped && (
-          <div className="text-[11px] text-muted-foreground mt-6 font-mono">
-            Espaço · revelar &nbsp;|&nbsp; 1-4 · avaliar
-          </div>
-        )}
+          )}
+
+          {revealed && (
+            <div className="rs-rate">
+              <div className="rs-rate-label">Quão bem você lembrou?</div>
+              <div className="rs-rate-buttons">
+                <button className="rb rb-again" onClick={() => rate("again")}>
+                  <span className="rb-label">De novo</span>
+                  <span className="rb-next">&lt; 1 min</span>
+                  <span className="rb-kbd">1</span>
+                </button>
+                <button className="rb rb-hard" onClick={() => rate("hard")}>
+                  <span className="rb-label">Difícil</span>
+                  <span className="rb-next">10 min</span>
+                  <span className="rb-kbd">2</span>
+                </button>
+                <button className="rb rb-good" onClick={() => rate("good")}>
+                  <span className="rb-label">Bom</span>
+                  <span className="rb-next">2 dias</span>
+                  <span className="rb-kbd">3</span>
+                </button>
+                <button className="rb rb-easy" onClick={() => rate("easy")}>
+                  <span className="rb-label">Fácil</span>
+                  <span className="rb-next">6 dias</span>
+                  <span className="rb-kbd">4</span>
+                </button>
+              </div>
+            </div>
+          )}
+        </main>
       </div>
     );
   }
 
+  // ——— DONE ———
+  const totalRated = Object.values(results).reduce((s, n) => s + n, 0);
+  const retention =
+    totalRated > 0
+      ? Math.round(((results.good + results.easy) / totalRated) * 100)
+      : 0;
+
   return (
-    <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center">
-      <div className="text-4xl mb-4">✓</div>
-      <h2 className="text-2xl font-medium mb-2">Sessão concluída</h2>
-      <p className="text-muted-foreground mb-8">{sessionResults.length} cartões revisados</p>
-      <button
-        onClick={() => setMode("dashboard")}
-        className="px-4 py-2 bg-foreground text-background rounded text-[13px] font-medium"
-      >
-        Voltar ao início
-      </button>
+    <div
+      style={{
+        position: "fixed",
+        inset: 0,
+        background: "var(--paper)",
+        zIndex: 50,
+        display: "grid",
+        placeItems: "center",
+      }}
+    >
+      <div className="page review-done" style={{ position: "static", inset: "unset" }}>
+        <div className="rd-card">
+          <div className="rd-eye">Sessão completa</div>
+          <h1 className="h1">Muito bem.</h1>
+          <p className="lede">
+            Você revisou {totalRated} cartões com {retention}% de retenção.
+          </p>
+          <div className="rd-grid">
+            <div className="rd-stat">
+              <div className="rd-n">{results.again}</div>
+              <div className="rd-l">De novo</div>
+            </div>
+            <div className="rd-stat">
+              <div className="rd-n">{results.hard}</div>
+              <div className="rd-l">Difícil</div>
+            </div>
+            <div className="rd-stat">
+              <div className="rd-n">{results.good}</div>
+              <div className="rd-l">Bom</div>
+            </div>
+            <div className="rd-stat">
+              <div className="rd-n">{results.easy}</div>
+              <div className="rd-l">Fácil</div>
+            </div>
+          </div>
+          <div className="rd-next">
+            <div className="rd-next-label">Agendado para depois</div>
+            <div className="rd-next-grid">
+              <div>
+                <strong>{results.again}</strong> em alguns minutos
+              </div>
+              <div>
+                <strong>{results.hard}</strong> em 10 minutos
+              </div>
+              <div>
+                <strong>{results.good}</strong> em 2 dias
+              </div>
+              <div>
+                <strong>{results.easy}</strong> em 6 dias
+              </div>
+            </div>
+          </div>
+          <div className="rd-actions">
+            <button className="primary" onClick={endSession}>
+              Voltar para revisão
+            </button>
+            <button className="ghost" onClick={() => startSession("all")}>
+              Revisar mais
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

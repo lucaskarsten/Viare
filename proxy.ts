@@ -5,6 +5,8 @@ const protectedPaths = ["/dashboard", "/learn", "/profile", "/settings"];
 const adminPaths = ["/admin"];
 
 export default auth((req) => {
+  if (process.env.SKIP_AUTH === "true") return NextResponse.next();
+
   const { nextUrl, auth: session } = req;
   const isLoggedIn = !!session?.user;
   const isProtected = protectedPaths.some((p) => nextUrl.pathname.startsWith(p));

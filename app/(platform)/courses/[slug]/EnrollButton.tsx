@@ -2,15 +2,20 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, BookOpen, PlayCircle } from "lucide-react";
 
 type Props = {
   courseId: string;
   enrollment: { id: string; progressPercent: number; status: string } | null;
   firstLessonHref: string | null;
+  nextLessonNumber?: number;
 };
 
-export default function EnrollButton({ courseId, enrollment, firstLessonHref }: Props) {
+export default function EnrollButton({
+  courseId,
+  enrollment,
+  firstLessonHref,
+  nextLessonNumber,
+}: Props) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
@@ -30,25 +35,22 @@ export default function EnrollButton({ courseId, enrollment, firstLessonHref }: 
   }
 
   if (enrollment) {
+    const label =
+      enrollment.progressPercent > 0 && nextLessonNumber
+        ? `Continuar aula ${nextLessonNumber} →`
+        : enrollment.progressPercent > 0
+          ? "Continuar →"
+          : "Começar curso →";
     return (
-      <a
-        href={firstLessonHref ?? "#"}
-        className="flex items-center gap-2 rounded-md bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:bg-primary/90 transition-colors shrink-0"
-      >
-        <PlayCircle className="h-4 w-4" />
-        {enrollment.progressPercent > 0 ? "Continuar" : "Começar"}
+      <a href={firstLessonHref ?? "#"} className="primary">
+        {label}
       </a>
     );
   }
 
   return (
-    <button
-      onClick={enroll}
-      disabled={loading}
-      className="flex items-center gap-2 rounded-md bg-primary text-primary-foreground px-4 py-2 text-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 shrink-0"
-    >
-      {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <BookOpen className="h-4 w-4" />}
-      Matricular-se grátis
+    <button onClick={enroll} disabled={loading} className="primary">
+      {loading ? "Matriculando…" : "Começar curso →"}
     </button>
   );
 }

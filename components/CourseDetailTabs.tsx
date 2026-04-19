@@ -1,40 +1,153 @@
 "use client";
 import { useState } from "react";
+import Link from "next/link";
 import CourseMap, { CourseMapModule } from "./CourseMap";
 
-type Props = {
-  modules: CourseMapModule[];
-  slug: string;
-  lessonListContent: React.ReactNode;
+export type CourseDetailLesson = {
+  id: string;
+  title: string;
+  order: number;
+  kind: string;
+  estimatedMinutes: number;
+  done: boolean;
+  current: boolean;
+  locked: boolean;
 };
 
-export default function CourseDetailTabs({ modules, slug, lessonListContent }: Props) {
-  const [tab, setTab] = useState<"outline" | "map">("outline");
+export type CourseDetailModule = {
+  id: string;
+  title: string;
+  order: number;
+  isCurrent: boolean;
+  isLocked: boolean;
+  lessons: CourseDetailLesson[];
+};
+
+type Props = {
+  courseSlug: string;
+  modules: CourseDetailModule[];
+  mapModules: CourseMapModule[];
+};
+
+export default function CourseDetailTabs({ courseSlug, modules, mapModules }: Props) {
+  const [tab, setTab] = useState<"outline" | "map" | "notes" | "flashcards" | "reviews">("outline");
+
   return (
-    <div>
-      <div className="flex gap-1 mb-6 border-b border-border">
+    <>
+      <nav className="course-tabs">
         <button
+          className={`ct-tab${tab === "outline" ? " active" : ""}`}
           onClick={() => setTab("outline")}
-          className={`px-4 py-2 text-[13px] font-medium border-b-2 -mb-px transition-colors ${
-            tab === "outline"
-              ? "border-accent text-accent"
-              : "border-transparent text-muted-foreground hover:text-foreground"
-          }`}
         >
-          Conteúdo
+          Estrutura
         </button>
         <button
+          className={`ct-tab${tab === "map" ? " active" : ""}`}
           onClick={() => setTab("map")}
-          className={`px-4 py-2 text-[13px] font-medium border-b-2 -mb-px transition-colors ${
-            tab === "map"
-              ? "border-accent text-accent"
-              : "border-transparent text-muted-foreground hover:text-foreground"
-          }`}
         >
           Mapa
         </button>
-      </div>
-      {tab === "outline" ? lessonListContent : <CourseMap modules={modules} slug={slug} />}
-    </div>
+        <button
+          className={`ct-tab${tab === "notes" ? " active" : ""}`}
+          onClick={() => setTab("notes")}
+        >
+          Minhas notas
+        </button>
+        <button
+          className={`ct-tab${tab === "flashcards" ? " active" : ""}`}
+          onClick={() => setTab("flashcards")}
+        >
+          Flashcards
+        </button>
+        <button
+          className={`ct-tab${tab === "reviews" ? " active" : ""}`}
+          onClick={() => setTab("reviews")}
+        >
+          Avaliações
+        </button>
+      </nav>
+
+      {tab === "outline" && (
+        <div className="modules">
+          {modules.map((m) => {
+            const totalDur = m.lessons.reduce((sum, l) => sum + l.estimatedMinutes, 0);
+            return (
+              <div
+                key={m.id}
+                className={`module${m.isCurrent ? " current" : ""}${m.isLocked ? " locked" : ""}`}
+              >
+                <div className="module-head">
+                  <span className="module-n">{String(m.order).padStart(2, "0")}</span>
+                  <div className="module-info">
+                    <div className="module-title">{m.title}</div>
+                  </div>
+                  <span className="module-dur">{totalDur}m</span>
+                </div>
+                <div className="module-lessons">
+                  {m.lessons.map((l) => {
+                    const className = `course-module-lesson${l.done ? " done" : ""}${
+                      l.current ? " current" : ""
+                    }`;
+                    const content = (
+                      <>
+                        <span className="cml-check">
+                          {l.done ? "✓" : l.current ? "▸" : "○"}
+                        </span>
+                        <span className="cml-n">Aula {l.order}</span>
+                        <span className="cml-title">{l.title}</span>
+                        <span className="cml-kind">{l.kind}</span>
+                        <span className="cml-dur">{l.estimatedMinutes}m</span>
+                      </>
+                    );
+                    if (l.locked || m.isLocked) {
+                      return (
+                        <span key={l.id} className={`${className} locked`}>
+                          {content}
+                        </span>
+                      );
+                    }
+                    return (
+                      <Link
+                        key={l.id}
+                        href={`/courses/${courseSlug}/lessons/${l.id}`}
+                        className={className}
+                      >
+                        {content}
+                      </Link>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {tab === "map" && <CourseMap modules={mapModules} slug={courseSlug} />}
+
+      {tab === "notes" && (
+        <div className="notes-list">
+          <p style={{ color: "var(--ink-3)", padding: "24px 0" }}>
+            Nenhuma nota ainda. Adicione notas durante as aulas.
+          </p>
+        </div>
+      )}
+
+      {tab === "flashcards" && (
+        <div className="flash-grid">
+          <p style={{ color: "var(--ink-3)", padding: "24px 0" }}>
+            Nenhum flashcard ainda.
+          </p>
+        </div>
+      )}
+
+      {tab === "reviews" && (
+        <div className="reviews">
+          <p style={{ color: "var(--ink-3)", padding: "24px 0" }}>
+            Nenhuma avaliação ainda.
+          </p>
+        </div>
+      )}
+    </>
   );
 }

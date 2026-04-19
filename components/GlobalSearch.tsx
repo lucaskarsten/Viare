@@ -19,12 +19,16 @@ type Result = {
   title: string;
   subtitle: string;
   href: string;
+  color?: string;
+  letter?: string;
 };
 
 function score(query: string, item: { title: string; keywords?: string }): number {
   const q = query.toLowerCase();
   const hay = (item.title + " " + (item.keywords ?? "")).toLowerCase();
   if (hay.startsWith(q)) return 100;
+  if (item.title.toLowerCase().startsWith(q)) return 100;
+  if (item.title.toLowerCase().includes(q)) return 50;
   if (hay.includes(q)) return 50;
   const tokens = q.split(" ").filter(Boolean);
   if (tokens.every((t) => hay.includes(t))) return 10;
@@ -34,14 +38,17 @@ function score(query: string, item: { title: string; keywords?: string }): numbe
 const FILTER_TABS = ["Todos", "Cursos", "Aulas"] as const;
 type FilterTab = (typeof FILTER_TABS)[number];
 
+const COURSE_COLORS = ["#c97a4a", "#8a9a5b", "#6b7a8f", "#b8a06e", "#7a5a8f", "#5a8a8a", "#4f7cac", "#a04a3a"];
+
 export default function GlobalSearch({ courses }: { courses: SearchCourse[] }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState(0);
-  const [filter, setFilter] = useState<FilterTab>("Todos");
+  const [activeTab, setActiveTab] = useState<FilterTab>("Todos");
   const inputRef = useRef<HTMLInputElement>(null);
 
+  // Open via Cmd+K or document 'open-search' event
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
       if ((e.metaKey || e.ctrlKey) && e.key === "k") {
@@ -50,7 +57,7 @@ export default function GlobalSearch({ courses }: { courses: SearchCourse[] }) {
           if (!v) {
             setQuery("");
             setSelected(0);
-            setFilter("Todos");
+            setActiveTab("Todos");
             setTimeout(() => inputRef.current?.focus(), 0);
           }
           return !v;
@@ -58,18 +65,29 @@ export default function GlobalSearch({ courses }: { courses: SearchCourse[] }) {
       }
       if (e.key === "Escape") setOpen(false);
     }
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, []);
 
+    function onOpenSearch() {
+      setOpen(true);
+      setQuery("");
+      setSelected(0);
+      setActiveTab("Todos");
+      setTimeout(() => inputRef.current?.focus(), 30);
+    }
+
+    window.addEventListener("keydown", onKey);
+    document.addEventListener("open-search", onOpenSearch);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      document.removeEventListener("open-search", onOpenSearch);
+    };
+  }, []);
 
   const results: Result[] = (() => {
     if (!query.trim()) return [];
-
     const all: (Result & { _score: number })[] = [];
 
-    for (const course of courses) {
-      if (filter === "Aulas") continue;
+    for (const [i, course] of courses.entries()) {
+      if (activeTab === "Aulas") continue;
       const s = score(query, { title: course.title });
       if (s > 0) {
         all.push({
@@ -77,13 +95,15 @@ export default function GlobalSearch({ courses }: { courses: SearchCourse[] }) {
           title: course.title,
           subtitle: `${course.lessonCount} aulas`,
           href: `/courses/${course.slug}`,
+          color: COURSE_COLORS[i % COURSE_COLORS.length],
+          letter: course.title.slice(0, 2),
           _score: s,
         });
       }
     }
 
     for (const course of courses) {
-      if (filter === "Cursos") continue;
+      if (activeTab === "Cursos") continue;
       for (const lesson of course.lessons) {
         const s = score(query, { title: lesson.title, keywords: course.title + " " + lesson.moduleTitle });
         if (s > 0) {
@@ -110,58 +130,41 @@ export default function GlobalSearch({ courses }: { courses: SearchCourse[] }) {
       setSelected((v) => Math.max(v - 1, 0));
     } else if (e.key === "Enter" && results[selected]) {
       router.push(results[selected].href);
-      setOpen(false);
+      onClose();
     }
   }
 
-  function close() {
+  function onClose() {
     setOpen(false);
   }
 
   if (!open) return null;
 
   return (
-    <div
-      className="fixed inset-0 bg-foreground/20 backdrop-blur-sm z-50"
-      onClick={close}
-    >
-      <div
-        className="max-w-xl mx-auto mt-20 bg-background border border-border rounded-lg shadow-2xl overflow-hidden"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Input row */}
-        <div className="flex items-center gap-2 px-4 py-3 border-b border-border">
-          <span className="text-muted-foreground">⌕</span>
+    <div className="gs-overlay" onClick={onClose}>
+      <div className="gs" onClick={(e) => e.stopPropagation()}>
+        {/* Input */}
+        <div className="gs-input-wrap">
+          <span className="gs-icon">⌕</span>
           <input
             ref={inputRef}
-            className="flex-1 bg-transparent text-[15px] outline-none placeholder:text-muted-foreground"
-            placeholder="Buscar cursos, aulas…"
+            className="gs-input"
             value={query}
-            onChange={(e) => {
-              setQuery(e.target.value);
-              setSelected(0);
-            }}
+            onChange={(e) => { setQuery(e.target.value); setSelected(0); }}
             onKeyDown={handleKey}
+            placeholder="Buscar cursos, aulas, notas, flashcards…"
+            autoFocus
           />
-          <kbd className="text-[10px] text-muted-foreground border border-border rounded px-1.5 py-0.5">
-            esc
-          </kbd>
+          <span className="gs-kbd-esc" onClick={onClose} style={{ cursor: "pointer" }}>esc</span>
         </div>
 
-        {/* Filter tabs */}
-        <div className="flex gap-1 px-3 pt-2 pb-1 border-b border-border">
+        {/* Filters */}
+        <div className="gs-filters">
           {FILTER_TABS.map((tab) => (
             <button
               key={tab}
-              onClick={() => {
-                setFilter(tab);
-                setSelected(0);
-              }}
-              className={`text-[11px] px-2.5 py-1 rounded transition-colors ${
-                filter === tab
-                  ? "bg-accent/10 text-accent font-medium"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
+              className={`gs-filter${activeTab === tab ? " on" : ""}`}
+              onClick={() => { setActiveTab(tab); setSelected(0); }}
             >
               {tab}
             </button>
@@ -169,62 +172,54 @@ export default function GlobalSearch({ courses }: { courses: SearchCourse[] }) {
         </div>
 
         {/* Results */}
-        <div className="max-h-80 overflow-y-auto py-2">
-          {query && results.length === 0 && (
-            <div className="px-4 py-8 text-center text-muted-foreground text-sm">
-              Nenhum resultado para &ldquo;{query}&rdquo;
-              <br />
-              <button
-                onClick={() => {
-                  router.push("/courses/generate");
-                  close();
-                }}
-                className="mt-3 text-accent text-[13px]"
-              >
-                Gerar curso sobre &ldquo;{query}&rdquo; →
-              </button>
+        <div className="gs-results">
+          {!query && (
+            <div className="gs-empty">
+              <div className="gs-empty-title">Digite para buscar cursos e aulas</div>
             </div>
           )}
-          {!query && (
-            <div className="px-4 py-6 text-center text-sm text-muted-foreground">
-              Digite para buscar cursos e aulas
+          {query && results.length === 0 && (
+            <div className="gs-empty">
+              <div className="gs-empty-title">Nenhum resultado para &ldquo;<span>{query}</span>&rdquo;</div>
+              <div className="gs-empty-sub">Tente menos palavras, ou gere um novo curso sobre isso.</div>
+              <button
+                className="gs-empty-cta"
+                onClick={() => { router.push("/courses/generate"); onClose(); }}
+              >
+                Gerar curso: &ldquo;<span>{query}</span>&rdquo; →
+              </button>
             </div>
           )}
           {results.map((r, i) => (
             <button
-              key={r.href}
-              onClick={() => {
-                router.push(r.href);
-                close();
-              }}
-              className={`w-full flex items-start gap-3 px-4 py-2.5 text-left text-sm hover:bg-muted/50 transition-colors ${
-                i === selected ? "bg-muted/50" : ""
-              }`}
+              key={r.href + i}
+              className={`gs-item${i === selected ? " sel" : ""} kind-${r.type}`}
+              onMouseEnter={() => setSelected(i)}
+              onClick={() => { router.push(r.href); onClose(); }}
             >
-              <span className="text-[10px] font-mono uppercase text-muted-foreground mt-0.5 w-12 shrink-0">
-                {r.type}
+              <span
+                className="gs-item-icon"
+                style={r.color ? { color: r.color } : undefined}
+              >
+                {r.type === "curso" ? "▣" : "▸"}
               </span>
-              <div>
-                <div className="text-[14px]">{r.title}</div>
-                <div className="text-[12px] text-muted-foreground">{r.subtitle}</div>
-              </div>
+              <span className="gs-item-main">
+                <span className="gs-item-title">{r.title}</span>
+                {r.subtitle && <span className="gs-item-sub">{r.subtitle}</span>}
+              </span>
+              {i === selected && <span className="gs-item-enter">↵</span>}
             </button>
           ))}
         </div>
 
         {/* Footer */}
-        <div className="flex gap-4 px-4 py-2 border-t border-border text-[11px] text-muted-foreground">
-          <span>
-            <kbd>↑</kbd>
-            <kbd>↓</kbd> navegar
-          </span>
-          <span>
-            <kbd>↵</kbd> abrir
-          </span>
-          <span>
-            <kbd>esc</kbd> fechar
-          </span>
-        </div>
+        <footer className="gs-foot">
+          <span><kbd>↑</kbd><kbd>↓</kbd> navegar</span>
+          <span><kbd>↵</kbd> abrir</span>
+          <span><kbd>esc</kbd> fechar</span>
+          <span className="gs-foot-spacer" />
+          <span className="gs-foot-hint">Dica: digite pra filtrar ou comece com /course, /note</span>
+        </footer>
       </div>
     </div>
   );

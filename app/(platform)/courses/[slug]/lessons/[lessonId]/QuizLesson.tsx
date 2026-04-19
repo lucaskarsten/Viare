@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { ChevronRight } from "lucide-react";
 
 type Question = {
   id: string;
@@ -21,13 +20,12 @@ type Props = {
 export default function QuizLesson({ lessonId, questions, isCompleted }: Props) {
   const router = useRouter();
   const [current, setCurrent] = useState(0);
-  const [, setSelected] = useState<number | null>(null);
   const [answers, setAnswers] = useState<(number | null)[]>(Array(questions.length).fill(null));
   const [submitted, setSubmitted] = useState(isCompleted);
-  const [score, setScore] = useState<number | null>(isCompleted ? null : null);
+  const [score, setScore] = useState<number | null>(null);
 
   if (questions.length === 0) {
-    return <p className="text-muted-foreground text-sm">Nenhuma questão encontrada.</p>;
+    return <p style={{ color: "var(--ink-3)" }}>Nenhuma questão encontrada.</p>;
   }
 
   const question = questions[current];
@@ -36,18 +34,15 @@ export default function QuizLesson({ lessonId, questions, isCompleted }: Props) 
 
   function selectOption(index: number) {
     if (answered || submitted) return;
-    const newAnswers = [...answers];
-    newAnswers[current] = index;
-    setAnswers(newAnswers);
-    setSelected(index);
+    const next = [...answers];
+    next[current] = index;
+    setAnswers(next);
   }
 
   async function finish() {
     const correct = answers.filter((a, i) => a === questions[i].correctIndex).length;
-    const finalScore = Math.round((correct / questions.length) * 100);
-    setScore(finalScore);
+    setScore(Math.round((correct / questions.length) * 100));
     setSubmitted(true);
-
     await fetch("/api/courses/progress", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -57,29 +52,24 @@ export default function QuizLesson({ lessonId, questions, isCompleted }: Props) 
   }
 
   if (submitted && score !== null) {
+    const correctCount = answers.filter((a, i) => a === questions[i].correctIndex).length;
     return (
-      <div className="space-y-6 text-center py-8">
-        <div className="text-5xl font-medium text-accent tabular-nums">
-          {score}
-          <span className="text-2xl text-muted-foreground">%</span>
+      <div className="quiz">
+        <div style={{ textAlign: "center", padding: "1.5rem 0" }}>
+          <div style={{ fontSize: "3.5rem", fontWeight: 500, color: "var(--vr-accent)", fontVariantNumeric: "tabular-nums" }}>
+            {score}<span style={{ fontSize: "1.5rem", color: "var(--ink-3)" }}>%</span>
+          </div>
+          <p style={{ color: "var(--ink-3)", marginTop: "0.25rem" }}>
+            {correctCount} de {questions.length} corretas
+          </p>
         </div>
-        <p className="text-muted-foreground">
-          {answers.filter((a, i) => a === questions[i].correctIndex).length} de {questions.length} corretas
-        </p>
-        <div className="grid gap-3 text-left max-w-lg mx-auto">
+        <div style={{ display: "grid", gap: "0.5rem", marginTop: "1rem" }}>
           {questions.map((q, i) => {
             const correct = answers[i] === q.correctIndex;
             return (
-              <div key={q.id} className={`rounded-lg border p-3 text-sm ${correct ? "border-green-200 bg-green-50" : "border-red-200 bg-red-50"}`}>
-                <div className="flex items-start gap-2">
-                  <span className={`text-base leading-none mt-0.5 shrink-0 ${correct ? "text-green-600" : "text-red-600"}`}>
-                    {correct ? "✓" : "✗"}
-                  </span>
-                  <div>
-                    <p className="font-medium">{q.question}</p>
-                    <p className="text-muted-foreground text-xs mt-1">{q.explanation}</p>
-                  </div>
-                </div>
+              <div key={q.id} className={`quiz-feedback ${correct ? "ok" : "no"}`}>
+                <strong>{correct ? "✓" : "✗"} {q.question}</strong>
+                <p style={{ margin: "0.25rem 0 0", fontSize: "0.85em", opacity: 0.85 }}>{q.explanation}</p>
               </div>
             );
           })}
@@ -90,97 +80,56 @@ export default function QuizLesson({ lessonId, questions, isCompleted }: Props) 
 
   if (submitted) {
     return (
-      <div className="text-center py-8">
-        <div className="text-5xl font-medium text-accent tabular-nums mb-3">✓</div>
-        <p className="font-semibold">Quiz já concluído!</p>
+      <div className="quiz" style={{ textAlign: "center", padding: "2rem 0" }}>
+        <div style={{ fontSize: "3rem", color: "var(--ok)" }}>✓</div>
+        <p>Quiz já concluído!</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between text-sm text-muted-foreground">
-        <span>Questão {current + 1} de {questions.length}</span>
-        <div className="flex gap-1">
-          {questions.map((_, i) => (
-            <span
-              key={i}
-              className={`w-4 h-[3px] rounded-[1px] ${answers[i] !== null ? "bg-accent" : i === current ? "bg-accent opacity-60" : "bg-border"}`}
-            />
-          ))}
-        </div>
+    <div className="quiz">
+      <div className="quiz-label">
+        Questão {current + 1} de {questions.length}
       </div>
-
-      <p className="font-medium text-base">{question.question}</p>
-
-      <div className="space-y-2">
+      <div className="quiz-q">{question.question}</div>
+      <div className="quiz-options">
         {question.options.map((option, i) => {
           const isSelected = answers[current] === i;
           const isCorrect = answered && i === question.correctIndex;
           const isWrong = answered && isSelected && !isCorrect;
-
-          const stateClasses = isCorrect
-            ? "border-green-500/50 bg-green-500/8 text-green-800 dark:text-green-300"
-            : isWrong
-            ? "border-red-500/50 bg-red-500/8 text-red-800 dark:text-red-300"
-            : isSelected
-            ? "border-accent bg-accent/5"
-            : "border-border bg-background hover:border-muted-foreground/40";
-
-          const letterClasses = isCorrect
-            ? "border-green-500 bg-green-500 text-white"
-            : isWrong
-            ? "border-red-500 bg-red-500 text-white"
-            : isSelected
-            ? "border-accent text-accent bg-accent/10"
-            : "border-border text-muted-foreground";
-
+          const stateClass = isCorrect ? "correct" : isWrong ? "wrong" : isSelected ? "selected" : "";
           return (
             <button
               key={i}
+              className={`quiz-opt${stateClass ? ` ${stateClass}` : ""}`}
               onClick={() => selectOption(i)}
               disabled={answered}
-              className={`w-full grid grid-cols-[28px_1fr_20px] items-center gap-3 border rounded px-3 py-3 text-left text-[14px] transition-colors disabled:cursor-default ${stateClasses}`}
             >
-              <span className={`w-7 h-7 rounded-full border flex items-center justify-center text-[11px] font-medium font-mono ${letterClasses}`}>
-                {String.fromCharCode(65 + i)}
-              </span>
-              <span>{option}</span>
-              <span className="text-center text-base">
-                {isCorrect ? "✓" : isWrong ? "✗" : ""}
-              </span>
+              <span className="qk">{String.fromCharCode(97 + i)}</span>
+              <span className="qt">{option}</span>
+              {isCorrect && <span className="qmark">✓</span>}
+              {isWrong && <span className="qmark">✗</span>}
             </button>
           );
         })}
       </div>
-
-      {answered && (
-        <div className={`rounded-lg p-3 text-sm ${answers[current] === question.correctIndex ? "bg-green-50 text-green-800" : "bg-red-50 text-red-800"}`}>
-          {question.explanation}
-        </div>
-      )}
-
-      {answered && (
-        <div className="flex justify-end">
-          {isLast ? (
-            <button
-              onClick={finish}
-              className="flex items-center gap-2 rounded-md bg-primary text-primary-foreground px-5 py-2 text-sm font-medium hover:bg-primary/90 transition-colors"
-            >
-              Ver resultado
-              <ChevronRight className="h-4 w-4" />
-            </button>
+      <div className="quiz-actions">
+        {answered && (
+          <div className={`quiz-feedback ${answers[current] === question.correctIndex ? "ok" : "no"}`}>
+            {question.explanation}
+          </div>
+        )}
+        {answered && (
+          isLast ? (
+            <button className="primary" onClick={finish}>Ver resultado</button>
           ) : (
-            <button
-              onClick={() => { setCurrent(current + 1); setSelected(null); }}
-              className="flex items-center gap-2 rounded-md border px-5 py-2 text-sm font-medium hover:bg-muted transition-colors"
-            >
-              Próxima
-              <ChevronRight className="h-4 w-4" />
+            <button className="ghost" onClick={() => setCurrent(current + 1)}>
+              Próxima →
             </button>
-          )}
-        </div>
-      )}
+          )
+        )}
+      </div>
     </div>
   );
 }

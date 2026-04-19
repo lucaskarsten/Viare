@@ -1,24 +1,25 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
+/**
+ * Lightweight focus-mode toggle.
+ * Note: The dedicated `LessonClient` manages its own focus state for the lesson page.
+ * This component remains available as a standalone toggle for other contexts.
+ */
 export default function FocusModeToggle() {
   const [active, setActive] = useState(false);
 
   const toggle = () => {
-    setActive(prev => {
+    setActive((prev) => {
       const next = !prev;
-      if (next) {
-        document.documentElement.setAttribute("data-focus-mode", "true");
-      } else {
-        document.documentElement.removeAttribute("data-focus-mode");
-      }
+      document.body.dataset.focus = next ? "on" : "off";
       return next;
     });
   };
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
-      const tag = (e.target as HTMLElement).tagName;
+      const tag = (document.activeElement as HTMLElement | null)?.tagName;
       if (tag === "INPUT" || tag === "TEXTAREA") return;
       if (e.key === "f" || e.key === "F") {
         e.preventDefault();
@@ -33,9 +34,9 @@ export default function FocusModeToggle() {
     <button
       onClick={toggle}
       title="Modo foco (F)"
-      className={`text-[11px] font-mono px-2 py-1 rounded border transition-colors ${active ? "border-accent text-accent bg-accent/10" : "border-border text-muted-foreground hover:text-foreground hover:border-muted-foreground/40"}`}
+      className={`ghost small focus-toggle${active ? " on" : ""}`}
     >
-      F
+      <span className="focus-icon">◐</span> Foco
     </button>
   );
 }
