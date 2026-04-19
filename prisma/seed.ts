@@ -11,6 +11,7 @@ import {
   ProgressStatus,
   Role,
 } from "@prisma/client";
+import { LESSON_CONTENT } from "./lesson-content";
 
 const db = new PrismaClient();
 
@@ -788,15 +789,18 @@ async function main() {
       });
 
       for (const l of m.lessons) {
+        const contentKey = `${courseSlug}/${m.slug}/${l.slug}`;
+        const content = LESSON_CONTENT[contentKey] ?? null;
         await db.lesson.upsert({
           where: { moduleId_slug: { moduleId: mod.id, slug: l.slug } },
-          update: { title: l.title, type: l.type, order: l.order },
+          update: { title: l.title, type: l.type, order: l.order, content },
           create: {
             moduleId: mod.id,
             slug: l.slug,
             title: l.title,
             type: l.type,
             order: l.order,
+            content,
           },
         });
       }
