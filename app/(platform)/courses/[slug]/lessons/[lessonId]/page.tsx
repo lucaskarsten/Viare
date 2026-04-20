@@ -1,6 +1,7 @@
 import { notFound, redirect } from "next/navigation";
 import { auth } from "@/lib/dev-auth";
 import { db } from "@/lib/db";
+import { getLabForUser } from "@/lib/lab";
 import LessonClient from "@/components/LessonClient";
 import QuizLesson from "./QuizLesson";
 import type { QuizBlockQuestion } from "@/components/QuizBlock";
@@ -42,6 +43,7 @@ export default async function LessonPage({ params }: { params: Params }) {
     where: { id: lessonId },
     include: {
       quizQuestions: { orderBy: { order: "asc" } },
+      lab: { select: { id: true } },
       module: {
         include: {
           course: { select: { id: true, slug: true, title: true, status: true } },
@@ -89,6 +91,11 @@ export default async function LessonPage({ params }: { params: Params }) {
     : `/courses/${slug}`;
 
   const isCompleted = progress?.status === "COMPLETED";
+
+  const labData =
+    lesson.type === "LAB" && lesson.lab
+      ? await getLabForUser(lesson.lab.id, session.user.id)
+      : null;
 
   // QUIZ-type lessons still use the dedicated QuizLesson UI (kept for backward compat).
   if (lesson.type === "QUIZ") {
@@ -161,6 +168,7 @@ export default async function LessonPage({ params }: { params: Params }) {
       quizQuestions={quizQuestions}
       flashcards={[]}
       summaryPoints={summaryPoints}
+      lab={labData}
     />
   );
 }
