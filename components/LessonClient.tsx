@@ -14,6 +14,7 @@ import QuizBlock, { type QuizBlockQuestion } from "@/components/QuizBlock";
 import FlashcardPlayer, { type FlashCard } from "@/components/FlashcardPlayer";
 import MarkCompleteButton from "@/app/(platform)/courses/[slug]/lessons/[lessonId]/MarkCompleteButton";
 import LabBlock from "@/components/LabBlock";
+import DemoBlock from "@/components/DemoBlock";
 import type { LabData } from "@/lib/lab";
 
 type TutorMessage = { role: "user" | "tutor"; text: string };
@@ -112,10 +113,12 @@ const lessonMarkdownComponents: Components = {
   div({ children, node: _node, ...props }) {
     const block = (props as Record<string, unknown>)["data-block"] as string | undefined;
     const dtype = (props as Record<string, unknown>)["data-type"] as string | undefined;
+    const did = (props as Record<string, unknown>)["data-id"] as string | undefined;
     if (block === "callout")
       return <CalloutBlock type={(dtype ?? "note") as CalloutType}>{children}</CalloutBlock>;
     if (block === "cards") return <div className="block-cards">{children}</div>;
     if (block === "steps") return <div className="block-steps">{children}</div>;
+    if (block === "demo") return <DemoBlock id={did ?? ""} />;
     return <div {...props}>{children}</div>;
   },
 };
