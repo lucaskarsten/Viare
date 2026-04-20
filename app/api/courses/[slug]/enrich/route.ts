@@ -102,7 +102,7 @@ export async function POST(_req: Request, { params }: { params: Params }) {
         });
 
         if (lesson.type === "THEORY") {
-          const content = await generateTheoryLesson({
+          const { text: content } = await generateTheoryLesson({
             language,
             topic: courseTopic,
             moduleTitle: mod.title,

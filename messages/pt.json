@@ -272,7 +272,18 @@
     "enrichButton": "Enriquecer com pesquisa da web",
     "enriching": "Buscando fontes na web…",
     "enrichDone": "✓ Módulos adicionados",
-    "enrichError": "Erro ao enriquecer"
+    "enrichError": "Erro ao enriquecer",
+    "mature": {
+      "toggle": "Conteúdo maduro (18+)",
+      "hint": "Permite tópicos como sexualidade, práticas espirituais adultas e substâncias — tratados com rigor educacional/antropológico.",
+      "modalTitle": "Confirmar maioridade",
+      "modalBody": "Este tipo de conteúdo é gerado com enquadramento educacional. Nenhum conteúdo gráfico ou explícito é produzido. Para prosseguir, confirme que você tem 18+ anos.",
+      "birthDateLabel": "Data de nascimento",
+      "confirmButton": "Confirmar e ativar",
+      "cancelButton": "Cancelar",
+      "errorAge": "Você precisa ter pelo menos 18 anos para acessar este conteúdo.",
+      "errorGeneric": "Erro ao confirmar idade. Tente novamente."
+    }
   },
   "onboarding": {
     "step": "PASSO {current} DE {total}",
@@ -419,6 +430,31 @@
     "legalNote": "Curso livre nos termos do Art. 42 da LDB (Lei 9.394/96) e Decreto 5.154/2004.",
     "verifiedBy": "Verificado por Viare",
     "uuid": "ID: {uuid}"
+  },
+  "practice": {
+    "title": "Exercício prático",
+    "completeButton": "Completei o exercício",
+    "completedLabel": "Exercício concluído",
+    "completed": "Completei o exercício",
+    "alreadyDone": "Concluído",
+    "saving": "Salvando...",
+    "error": "Erro ao salvar progresso"
+  },
+  "caseStudy": {
+    "continueButton": "Continuar",
+    "completedLabel": "Concluído",
+    "saving": "Salvando...",
+    "error": "Erro ao salvar"
+  },
+  "reflection": {
+    "placeholder": "Escreva sua reflexão aqui...",
+    "saveButton": "Salvar reflexão",
+    "saving": "Salvando...",
+    "continueButton": "Continuar",
+    "completedLabel": "Reflexão salva",
+    "minCharsHint": "Escreva pelo menos 50 caracteres para salvar",
+    "supportTitle": "Pontos de apoio",
+    "error": "Erro ao salvar reflexão"
   },
   "lab": {
     "scenario": "CENÁRIO",

@@ -25,7 +25,7 @@ export type DomainContext = z.infer<typeof DomainClassifierSchema>;
 
 export const LessonShellSchema = z.object({
   title: z.string().min(1),
-  type: z.enum(["THEORY", "QUIZ"]),
+  type: z.enum(["THEORY", "QUIZ", "CASE_STUDY", "REFLECTION", "PRACTICE"]),
 });
 
 export const ModuleShellSchema = z.object({
@@ -40,6 +40,8 @@ export const CourseOutlineSchema = z.object({
   description: z.string().min(1),
   estimatedHours: z.number().int().min(1).max(60),
   difficulty: z.enum(["EASY", "MEDIUM", "HARD"]),
+  // RULE: CONTENT-06 — AI classifies maturity; GENERAL is safe default
+  maturityRating: z.enum(["GENERAL", "MATURE"]).default("GENERAL"),
   tags: z.array(z.string()).min(1).max(10),
   modules: z.array(ModuleShellSchema).min(1).max(10),
 });

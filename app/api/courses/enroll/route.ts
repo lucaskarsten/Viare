@@ -12,9 +12,23 @@ export async function POST(request: Request) {
 
   const course = await db.course.findUnique({
     where: { id: courseId, status: "PUBLISHED" },
-    select: { id: true },
+    select: { id: true, maturityRating: true },
   });
   if (!course) return new Response("Course not found", { status: 404 });
+
+  // RULE: CONTENT-07 — mature courses require age confirmation before enrollment
+  if (course.maturityRating === "MATURE") {
+    const user = await db.user.findUnique({
+      where: { id: session.user.id },
+      select: { ageConfirmedAt: true },
+    });
+    if (!user?.ageConfirmedAt) {
+      return Response.json(
+        { error: "É necessário confirmar idade (18+) antes de gerar conteúdo adulto." },
+        { status: 403 }
+      );
+    }
+  }
 
   const existing = await db.enrollment.findUnique({
     where: { userId_courseId: { userId: session.user.id, courseId } },

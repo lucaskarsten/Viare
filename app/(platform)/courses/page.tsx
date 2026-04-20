@@ -4,7 +4,7 @@ import CatalogClient from "./CatalogClient";
 
 export default async function CoursesPage() {
   const raw = await db.course.findMany({
-    where: { status: "PUBLISHED" },
+    where: { status: "PUBLISHED", maturityRating: "GENERAL" },
     orderBy: [{ avgRating: "desc" }, { totalEnrollments: "desc" }],
     take: 100,
     select: {

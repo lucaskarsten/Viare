@@ -71,6 +71,11 @@ const btnGhost =
 const btnPrimary =
   "bg-foreground text-background px-4 py-2.5 rounded text-[13px] font-medium cursor-pointer border-0 font-[inherit] transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed";
 
+// Max birthdate for 18+ confirmation — computed once at module load (changes ~once/day)
+const MAX_BIRTH_DATE = new Date(Date.now() - 18 * 365.25 * 24 * 60 * 60 * 1000)
+  .toISOString()
+  .slice(0, 10);
+
 export default function GeneratePage() {
   const t = useTranslations("generate");
   const router = useRouter();
@@ -86,6 +91,12 @@ export default function GeneratePage() {
   const [urlInput, setUrlInput] = useState("");
   const [ytInput, setYtInput] = useState("");
   const [textInput, setTextInput] = useState("");
+  const [isMature, setIsMature] = useState(false);
+  const [showAgeModal, setShowAgeModal] = useState(false);
+  const [birthDate, setBirthDate] = useState("");
+  const [ageConfirming, setAgeConfirming] = useState(false);
+  const [ageConfirmed, setAgeConfirmed] = useState(false);
+  const [ageError, setAgeError] = useState<string | null>(null);
   const abortRef = useRef<AbortController | null>(null);
   const elapsedRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -119,6 +130,48 @@ export default function GeneratePage() {
     setSources((s) => s.filter((_, idx) => idx !== i));
   }
 
+  function handleMatureToggle() {
+    if (isMature) {
+      setIsMature(false);
+      return;
+    }
+    if (ageConfirmed) {
+      setIsMature(true);
+    } else {
+      setAgeError(null);
+      setBirthDate("");
+      setShowAgeModal(true);
+    }
+  }
+
+  async function handleConfirmAge() {
+    if (!birthDate) return;
+    setAgeConfirming(true);
+    setAgeError(null);
+    try {
+      const res = await fetch("/api/user/confirm-age", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ birthDate }),
+      });
+      if (res.status === 403) {
+        setAgeError(t("mature.errorAge"));
+        return;
+      }
+      if (!res.ok) {
+        setAgeError(t("mature.errorGeneric"));
+        return;
+      }
+      setAgeConfirmed(true);
+      setIsMature(true);
+      setShowAgeModal(false);
+    } catch {
+      setAgeError(t("mature.errorGeneric"));
+    } finally {
+      setAgeConfirming(false);
+    }
+  }
+
   async function handleGenerate() {
     if (!canGenerate) return;
     setElapsed(0);
@@ -145,6 +198,7 @@ export default function GeneratePage() {
           topic: topic.trim(),
           language,
           scope: scope.toUpperCase(),
+          mature: isMature,
           ...(sources.length > 0 ? { sources } : {}),
         }),
         signal: abortRef.current.signal,
@@ -511,6 +565,31 @@ export default function GeneratePage() {
           <p className="mt-2 text-[11px] text-muted-foreground italic">{t("familyHint")}</p>
         </div>
 
+        <div className="mt-8 pt-6 border-t border-border">
+          <button
+            type="button"
+            onClick={handleMatureToggle}
+            disabled={isRunning}
+            className="flex items-center gap-3 cursor-pointer bg-transparent border-0 p-0 font-[inherit] w-full text-left group"
+          >
+            <span
+              className={`w-9 h-5 rounded-full transition-colors flex-shrink-0 flex items-center px-0.5 ${
+                isMature ? "bg-accent" : "bg-border"
+              }`}
+            >
+              <span
+                className={`w-4 h-4 rounded-full bg-background shadow-sm transition-transform ${
+                  isMature ? "translate-x-4" : "translate-x-0"
+                }`}
+              />
+            </span>
+            <span className="text-[13px] font-medium text-foreground">{t("mature.toggle")}</span>
+          </button>
+          {isMature && (
+            <p className="text-[11px] text-muted-foreground mt-1.5 ml-12">{t("mature.hint")}</p>
+          )}
+        </div>
+
         <div className="flex justify-between items-center mt-7">
           <div className="text-[12px] text-muted-foreground flex items-center gap-2">
             <div className="w-1.5 h-1.5 bg-accent rounded-full" />
@@ -521,6 +600,7 @@ export default function GeneratePage() {
             className={btnPrimary}
             disabled={!canGenerate}
             onClick={handleGenerate}
+            suppressHydrationWarning
           >
             {isRunning ? t("generating") : t("generateButton")}
           </button>
@@ -644,6 +724,48 @@ export default function GeneratePage() {
           >
             {t("retry")}
           </button>
+        </div>
+      )}
+
+      {showAgeModal && (
+        <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-card border border-border rounded-[var(--radius-lg)] p-8 max-w-md w-full shadow-lg">
+            <h2 className="font-medium text-[20px] tracking-[-0.02em] text-foreground mb-2">
+              {t("mature.modalTitle")}
+            </h2>
+            <p className="text-[14px] text-muted-foreground leading-[1.6] mb-6">
+              {t("mature.modalBody")}
+            </p>
+            <label className="block mb-1.5 text-[12px] font-mono tracking-[0.06em] uppercase text-muted-foreground">
+              {t("mature.birthDateLabel")}
+            </label>
+            <input
+              type="date"
+              value={birthDate}
+              onChange={(e) => setBirthDate(e.target.value)}
+              max={MAX_BIRTH_DATE}
+              className="w-full bg-transparent border border-border rounded px-3 py-2 text-[14px] text-foreground mb-4 outline-none focus:border-accent"
+            />
+            {ageError && <p className="text-[13px] text-destructive mb-3">{ageError}</p>}
+            <div className="flex gap-2 justify-end">
+              <button
+                type="button"
+                className={btnGhost}
+                onClick={() => setShowAgeModal(false)}
+                disabled={ageConfirming}
+              >
+                {t("mature.cancelButton")}
+              </button>
+              <button
+                type="button"
+                className={btnPrimary}
+                onClick={handleConfirmAge}
+                disabled={!birthDate || ageConfirming}
+              >
+                {ageConfirming ? "…" : t("mature.confirmButton")}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

@@ -272,7 +272,18 @@
     "enrichButton": "Enrich with web research",
     "enriching": "Searching the web…",
     "enrichDone": "✓ Modules added",
-    "enrichError": "Error enriching course"
+    "enrichError": "Error enriching course",
+    "mature": {
+      "toggle": "Mature content (18+)",
+      "hint": "Enables topics like sexuality, adult spiritual practices and substances — handled with educational/anthropological rigor.",
+      "modalTitle": "Confirm age",
+      "modalBody": "This content type is generated with an educational framing. No graphic or explicit content is produced. To continue, confirm that you are 18 or older.",
+      "birthDateLabel": "Date of birth",
+      "confirmButton": "Confirm and enable",
+      "cancelButton": "Cancel",
+      "errorAge": "You must be at least 18 years old to access this content.",
+      "errorGeneric": "Error confirming age. Please try again."
+    }
   },
   "onboarding": {
     "step": "STEP {current} OF {total}",
@@ -419,6 +430,31 @@
     "legalNote": "Free course under Art. 42 of Brazilian Education Law (LDB 9.394/96) and Decree 5.154/2004.",
     "verifiedBy": "Verified by Viare",
     "uuid": "ID: {uuid}"
+  },
+  "practice": {
+    "title": "Practice exercise",
+    "completeButton": "I completed the exercise",
+    "completedLabel": "Exercise completed",
+    "completed": "Completed the exercise",
+    "alreadyDone": "Done",
+    "saving": "Saving...",
+    "error": "Failed to save progress"
+  },
+  "caseStudy": {
+    "continueButton": "Continue",
+    "completedLabel": "Completed",
+    "saving": "Saving...",
+    "error": "Failed to save"
+  },
+  "reflection": {
+    "placeholder": "Write your reflection here...",
+    "saveButton": "Save reflection",
+    "saving": "Saving...",
+    "continueButton": "Continue",
+    "completedLabel": "Reflection saved",
+    "minCharsHint": "Write at least 50 characters to save",
+    "supportTitle": "Support points",
+    "error": "Failed to save reflection"
   },
   "lab": {
     "scenario": "SCENARIO",

@@ -87,13 +87,13 @@ Independente do contexto, nunca publicar conteúdo que:
 
 Permitidas com contexto educacional claro, bloqueadas se operacionais:
 
-| Categoria              | Permitido ✅                                                            | Bloqueado ❌                                                |
-| ---------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------- |
-| **Segurança ofensiva** | "Como funciona um SQL injection e como prevenir"                        | "Exploit funcional para CVE-2024-XXXX em produção"          |
-| **Drogas**             | "Farmacologia de analgésicos opioides"                                  | "Como fabricar metanfetamina passo a passo"                 |
-| **Armas**              | "Mecânica de funcionamento de armas de fogo"                            | "Como converter arma semi-auto para automática ilegalmente" |
-| **Hacking**            | "Pentest de aplicação web com OWASP"                                    | "Script para credential stuffing em sites específicos"      |
-| **Conteúdo adulto**    | (não suportado atualmente — reservado para futura feature com age gate) | Todo conteúdo sexual explícito                              |
+| Categoria              | Permitido ✅                                                                  | Bloqueado ❌                                                |
+| ---------------------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------- |
+| **Segurança ofensiva** | "Como funciona um SQL injection e como prevenir"                              | "Exploit funcional para CVE-2024-XXXX em produção"          |
+| **Drogas**             | "Farmacologia de analgésicos opioides"                                        | "Como fabricar metanfetamina passo a passo"                 |
+| **Armas**              | "Mecânica de funcionamento de armas de fogo"                                  | "Como converter arma semi-auto para automática ilegalmente" |
+| **Hacking**            | "Pentest de aplicação web com OWASP"                                          | "Script para credential stuffing em sites específicos"      |
+| **Conteúdo adulto**    | "Tantra — práticas e filosofia" com `mature: true` + age gate (CONTENT-06/07) | Pornografia, instruções sexuais explícitas passo-a-passo    |
 
 ### Sinais de alerta no conteúdo gerado
 

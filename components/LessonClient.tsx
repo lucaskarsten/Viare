@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { Children } from "react";
+import { Children, cloneElement, isValidElement, type ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
 import type { Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -16,6 +16,8 @@ import MarkCompleteButton from "@/app/(platform)/courses/[slug]/lessons/[lessonI
 import LabBlock from "@/components/LabBlock";
 import DemoBlock from "@/components/DemoBlock";
 import SandpackBlock from "@/components/blocks/SandpackBlock";
+import PracticeBlock from "@/components/blocks/PracticeBlock";
+import CaseStudyBlock from "@/components/blocks/CaseStudyBlock";
 import type { LabData } from "@/lib/lab";
 
 type TutorMessage = { role: "user" | "tutor"; text: string };
@@ -37,6 +39,7 @@ export type LessonClientProps = {
     moduleOrder: number;
     lessonNumber: number;
     courseId: string;
+    type: string; // LessonType — kept as string to avoid Prisma client import in this file
   };
   course: {
     slug: string;
@@ -78,6 +81,29 @@ function safeSet(key: string, value: string): void {
   }
 }
 
+const ALERT_MARKER_RE = /^\s*\[!(NOTE|TIP|WARNING|IMPORTANT|CAUTION)\]\s*/i;
+
+// Strip the leading `[!TYPE]` marker from a blockquote's first paragraph
+// so it doesn't render inside the callout body.
+function stripFirstAlertMarker(children: ReactNode): ReactNode {
+  const arr = Children.toArray(children);
+  const idx = arr.findIndex((c) => isValidElement(c) && c.type === "p");
+  if (idx === -1) return arr;
+  const para = arr[idx] as React.ReactElement<{ children?: ReactNode }>;
+  const inner = Children.toArray(para.props.children);
+  const first = inner[0];
+  if (typeof first === "string") {
+    const stripped = first.replace(ALERT_MARKER_RE, "");
+    const newInner = stripped ? [stripped, ...inner.slice(1)] : inner.slice(1);
+    if (newInner.length === 0) {
+      return [...arr.slice(0, idx), ...arr.slice(idx + 1)];
+    }
+    const cloned = cloneElement(para, undefined, newInner);
+    return [...arr.slice(0, idx), cloned, ...arr.slice(idx + 1)];
+  }
+  return arr;
+}
+
 const lessonMarkdownComponents: Components = {
   blockquote({ children, node }) {
     // Detect GFM alert syntax: > [!TYPE] — remark-gfm v4 sets dataGithubAlert property
@@ -86,7 +112,7 @@ const lessonMarkdownComponents: Components = {
     if (ghAlert) {
       return <CalloutBlock type={ghAlert.toLowerCase() as CalloutType}>{children}</CalloutBlock>;
     }
-    // Fallback: parse first-child text for [!TYPE] marker
+    // Fallback: parse first-child text for [!TYPE] marker (with or without trailing content)
     const firstPara = (
       node as {
         children?: Array<{
@@ -99,17 +125,34 @@ const lessonMarkdownComponents: Components = {
     if (firstPara?.type === "element" && firstPara.tagName === "p") {
       const firstText = firstPara.children?.[0];
       if (firstText?.type === "text") {
-        const m = firstText.value?.trim().match(/^\[!(NOTE|TIP|WARNING|IMPORTANT|CAUTION)\]$/i);
+        const raw = firstText.value ?? "";
+        const m = raw.match(ALERT_MARKER_RE);
         if (m) {
-          return (
-            <CalloutBlock type={m[1].toLowerCase() as CalloutType}>
-              {Children.toArray(children).slice(1)}
-            </CalloutBlock>
-          );
+          const type = m[1].toLowerCase() as CalloutType;
+          return <CalloutBlock type={type}>{stripFirstAlertMarker(children)}</CalloutBlock>;
         }
       }
     }
     return <blockquote>{children}</blockquote>;
+  },
+  // Catch bare `[!TYPE] ...` paragraphs (model omitted the `>` blockquote prefix entirely)
+  p({ children }) {
+    const arr = Children.toArray(children);
+    const first = arr[0];
+    if (typeof first === "string") {
+      const m = first.match(ALERT_MARKER_RE);
+      if (m) {
+        const type = m[1].toLowerCase() as CalloutType;
+        const rest = first.replace(ALERT_MARKER_RE, "");
+        const remainder = rest ? [rest, ...arr.slice(1)] : arr.slice(1);
+        return (
+          <CalloutBlock type={type}>
+            <p>{remainder}</p>
+          </CalloutBlock>
+        );
+      }
+    }
+    return <p>{children}</p>;
   },
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   div({ children, node: _node, ...props }) {
@@ -342,21 +385,59 @@ export default function LessonClient({
               )}
 
               {lesson.content ? (
-                <div className="md-body">
-                  <ReactMarkdown
-                    remarkPlugins={[remarkGfm, remarkDirective, remarkBlocks]}
-                    components={lessonMarkdownComponents}
+                lesson.type === "PRACTICE" ? (
+                  <PracticeBlock
+                    lessonId={lesson.id}
+                    courseId={lesson.courseId}
+                    isCompleted={lesson.completed}
+                    nextLessonHref={nextLessonHref}
                   >
-                    {lesson.content}
-                  </ReactMarkdown>
-                </div>
+                    <div className="md-body">
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm, remarkDirective, remarkBlocks]}
+                        components={lessonMarkdownComponents}
+                      >
+                        {lesson.content}
+                      </ReactMarkdown>
+                    </div>
+                  </PracticeBlock>
+                ) : lesson.type === "CASE_STUDY" ? (
+                  <CaseStudyBlock
+                    lessonId={lesson.id}
+                    courseId={lesson.courseId}
+                    isCompleted={lesson.completed}
+                    nextLessonHref={nextLessonHref}
+                  >
+                    <div className="md-body">
+                      <ReactMarkdown
+                        remarkPlugins={[remarkGfm, remarkDirective, remarkBlocks]}
+                        components={lessonMarkdownComponents}
+                      >
+                        {lesson.content}
+                      </ReactMarkdown>
+                    </div>
+                  </CaseStudyBlock>
+                ) : (
+                  <div className="md-body">
+                    <ReactMarkdown
+                      remarkPlugins={[remarkGfm, remarkDirective, remarkBlocks]}
+                      components={lessonMarkdownComponents}
+                    >
+                      {lesson.content}
+                    </ReactMarkdown>
+                  </div>
+                )
               ) : (
                 <p style={{ color: "var(--ink-3)" }}>{t("contentUnavailable")}</p>
               )}
 
-              {quizQuestions.length > 0 && <QuizBlock questions={quizQuestions} />}
+              {lesson.type !== "PRACTICE" &&
+                lesson.type !== "CASE_STUDY" &&
+                quizQuestions.length > 0 && <QuizBlock questions={quizQuestions} />}
 
-              {flashcards.length > 0 && <FlashcardPlayer cards={flashcards} />}
+              {lesson.type !== "PRACTICE" &&
+                lesson.type !== "CASE_STUDY" &&
+                flashcards.length > 0 && <FlashcardPlayer cards={flashcards} />}
             </>
           )}
 

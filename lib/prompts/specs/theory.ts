@@ -1,7 +1,15 @@
 import type Anthropic from "@anthropic-ai/sdk";
 import { callAnthropicText } from "@/lib/prompts/runner";
 import { buildLanguageInstruction } from "@/lib/prompts/language";
-import { antiInjection, exemplos, formato, persona, regras, userData } from "@/lib/prompts/tags";
+import {
+  antiInjection,
+  exemplos,
+  formato,
+  matureContentFrame,
+  persona,
+  regras,
+  userData,
+} from "@/lib/prompts/tags";
 
 export interface TheoryLessonInput {
   language: string;
@@ -11,6 +19,8 @@ export interface TheoryLessonInput {
   sandboxTemplate: string | null;
   relevantDemos: string[];
   tone: "technical" | "practical" | "conceptual";
+  maturityRating?: "GENERAL" | "MATURE";
+  retryWithStrongerFrame?: boolean;
 }
 
 // System prompt is intentionally static so Anthropic's prompt cache can reuse
@@ -42,8 +52,12 @@ function buildSystemBlocks(): Anthropic.TextBlockParam[] {
       [
         "Interactive blocks available:",
         "",
-        "1) Callouts — `> [!NOTE]`, `> [!TIP]`, `> [!WARNING]`.",
-        "   Use for a short remark that stands out.",
+        '1) Callouts — `:::callout{type="note"}` (also `tip`, `warning`, `important`, `caution`).',
+        "   Use for a short remark that stands out. Place content between the fences, not on the opening line.",
+        "   Syntax:",
+        '   :::callout{type="tip"}',
+        "   Short standalone remark — one or two sentences max.",
+        "   :::",
         "",
         "2) Concept cards — `:::cards` with a bullet list.",
         "   Use for 3-6 related terms/concepts presented together.",
@@ -89,8 +103,9 @@ function buildSystemBlocks(): Anthropic.TextBlockParam[] {
         "- **String** — A sequence of characters. Immutable in most modern languages.",
         ":::",
         "",
-        "> [!TIP]",
-        "> Floats are approximations, not exact values. Prefer integers for money.",
+        ':::callout{type="tip"}',
+        "Floats are approximations, not exact values. Prefer integers for money.",
+        ":::",
         "",
         "-----",
         "",
@@ -107,8 +122,9 @@ function buildSystemBlocks(): Anthropic.TextBlockParam[] {
         "4. **Run the dev server** — `npm run dev` starts the hot-reloading bundler.",
         ":::",
         "",
-        "> [!NOTE]",
-        "> If step 2 fails, check your SSH keys — HTTPS clones also work for public repos.",
+        ':::callout{type="note"}',
+        "If step 2 fails, check your SSH keys — HTTPS clones also work for public repos.",
+        ":::",
       ].join("\n")
     ),
   ].join("\n\n");
@@ -152,10 +168,23 @@ function buildUserMessage(input: TheoryLessonInput): string {
     );
   }
 
+  // RULE: CONTENT-06 — inject mature frame in user message to preserve system block cache
+  if (input.maturityRating === "MATURE") {
+    parts.push("", matureContentFrame(input.retryWithStrongerFrame));
+  }
+
   return parts.join("\n");
 }
 
-export async function generateTheoryLesson(input: TheoryLessonInput): Promise<string> {
+// Builds the reframed user message for retry attempts after a refusal.
+// RULE: CONTENT-09 — retry uses stronger academic framing before failing.
+export function buildReframedUserMessage(input: TheoryLessonInput): string {
+  return buildUserMessage({ ...input, maturityRating: "MATURE", retryWithStrongerFrame: true });
+}
+
+export async function generateTheoryLesson(
+  input: TheoryLessonInput
+): Promise<{ text: string; stopReason: string | null }> {
   return callAnthropicText({
     specName: "theory-lesson",
     model: "claude-sonnet-4-6",

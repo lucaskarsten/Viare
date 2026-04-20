@@ -46,12 +46,9 @@ const userId = session?.user?.id;
 
 **AI-04** — O lifecycle de geração é: `status: GENERATING` ao criar o curso → gerar conteúdo lição a lição → `status: PUBLISHED` ao finalizar. Em caso de erro no meio: `status: DRAFT`.
 
-**AI-05** — Scope-to-prompt mapping: o campo `scope` do curso é injetado no user message do outline prompt como constraint de módulos/lições.
+**AI-05** — Scope controla CompositionConstraints (count-based): OVERVIEW=THEORY×2-3+QUIZ; COMPLETE=CASE_STUDY×1+THEORY×1-3+REFLECTION×1+QUIZ; DEEP=CASE_STUDY×0-1+PRACTICE×1-2+THEORY×1-3+REFLECTION×1+QUIZ. Feature flag ENABLE_MIXED_LESSONS ativa constraints novas.
 
-- `OVERVIEW` → 1-2 módulos, 2 lições THEORY cada
-- `COMPLETE` → 3-4 módulos, 2-3 lições THEORY cada (padrão)
-- `DEEP` → 4-5 módulos, 3-4 lições THEORY cada, exemplos elaborados e casos extremos
-- O `tone` (technical/practical/conceptual) continua sendo determinado pelo classificador de domínio, não pelo usuário.
+**AI-06** — Composição mista por scope: quando ENABLE_MIXED_LESSONS=true, cada módulo segue CompositionConstraints definidas em SCOPE_CONSTRAINTS de outline.ts. Validação pos-outline via validateComposition(). Max 2 retries com erro injetado no prompt. Fallback: THEORY+QUIZ se inválido após retries.
 
 ---
 
@@ -75,6 +72,8 @@ const userId = session?.user?.id;
 
 **PROG-03** — Streak usa datas em UTC. `lastActiveDate` é comparado com `new Date()` em UTC para evitar bugs de timezone.
 
+**PROG-04** — Progresso por tipo de aula: THEORY=botão marcar lida; QUIZ=tentativa registrada; LAB=flag correta; PROJECT=steps completos; CASE_STUDY=botão Continuar (auto-complete); PRACTICE=botão Completei (auto-declaração); REFLECTION=ReflectionResponse salva (min 50 chars).
+
 **ACH-01** — Achievements são idempotentes: usar `createOrSkip` pattern (`upsert` ou verificar existência antes). Nunca criar duplicatas.
 
 ---
@@ -95,11 +94,19 @@ const userId = session?.user?.id;
 
 **CONTENT-02** — As seguintes categorias são absolutamente bloqueadas e NUNCA chegam a `status: PUBLISHED`: CSAM, instruções de violência real, fabricação de armas/explosivos/agentes biológicos, malware funcional (código de ataque operacional), dados pessoais reais identificáveis.
 
-**CONTENT-03** — Categorias restritas (segurança ofensiva operacional, drogas, conteúdo adulto) devem manter `status: DRAFT` com `requiresReview: true` para revisão manual. O caráter educacional (conceitual) vs operacional (passo a passo funcional) é o critério de distinção.
+**CONTENT-03** — Categorias restritas (segurança ofensiva operacional, drogas, conteúdo adulto) devem manter `status: DRAFT` com `requiresReview: true` e `reviewReason: CONTENT_RESTRICTED` para revisão manual. O caráter educacional (conceitual) vs operacional (passo a passo funcional) é o critério de distinção. Cursos com geração incompleta (LLM refusal persistente) usam `reviewReason: GENERATION_INCOMPLETE` — ver CONTENT-09.
 
 **CONTENT-04** — Cursos forkados herdam a classificação de conteúdo do curso original. Fork não é reset de moderação. Conteúdo novo adicionado no fork é classificado independentemente.
 
 **CONTENT-05** — Mensagens de erro ao usuário sobre rejeição de conteúdo NÃO revelam os padrões de detecção utilizados. Sempre usar mensagens genéricas ("tópico não disponível", "revise o título").
+
+**CONTENT-06** — Cursos são classificados via `Course.maturityRating` (`GENERAL` | `MATURE`). Tópicos sensíveis (tantra, sexualidade, substâncias psicodélicas, BDSM, nudismo, etc. — ver `detectSensitiveTopic` em `lib/content-safety.ts`) só podem ser gerados com `mature: true` no request. Conteúdo explícito (pornografia, instruções sexuais passo-a-passo) permanece bloqueado via CONTENT-02.
+
+**CONTENT-07** — Cursos `MATURE` só são acessíveis a usuários com `ageConfirmedAt` preenchido (autodeclaração 18+ via `POST /api/user/confirm-age`). Verificação ocorre em: (a) geração (`app/api/courses/generate/route.ts`), (b) enrollment, (c) renderização de aula (`app/(platform)/courses/[slug]/lessons/[lessonId]/page.tsx`). Listagens públicas filtram `maturityRating: GENERAL` por padrão. Data de nascimento é armazenada (`User.birthDate`) e IP de confirmação é logado (`[AGE_CONFIRMED]`) para trilha de auditoria.
+
+**CONTENT-08** — (Forward-looking) Fork de curso herda `maturityRating` do curso original (consistente com CONTENT-04). Downgrade de MATURE para GENERAL em forks requer reclassificação via `classifyGeneratedContent` + ausência de `detectSensitiveTopic` positivo. Upgrade de GENERAL para MATURE é livre mas exige que o usuário tenha `ageConfirmedAt`.
+
+**CONTENT-09** — LLMs podem recusar-se a gerar conteúdo mesmo após framing acadêmico. Texto de recusa (detectado via `isRefusalText` em `lib/content-safety.ts` — sinais estruturais + prefixos multilíngues) NUNCA é persistido como `Lesson.content`. Pipeline em `lib/generation.ts` detecta recusa, retenta com reframing (`buildReframedUserMessage`), e se falhar novamente salva `content: null` + `Course.requiresReview: true` + `Course.reviewReason: GENERATION_INCOMPLETE`. Logs usam prefixos grepáveis `[REFUSAL_DETECTED]`, `[REFUSAL_RETRY]`, `[REFUSAL_RETRY_FAILED]`.
 
 ---
 

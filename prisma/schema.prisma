@@ -16,6 +16,8 @@ model User {
   emailVerified DateTime?
   image         String?
   role          Role      @default(STUDENT)
+  birthDate     DateTime?
+  ageConfirmedAt DateTime? // RULE: CONTENT-07 — age confirmation timestamp
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
@@ -33,6 +35,7 @@ model User {
   quizAttempts QuizAttempt[]
   reviewCards  ReviewCard[]
   certificates Certificate[]
+  reflections  ReflectionResponse[]
 }
 
 model Account {
@@ -95,6 +98,8 @@ model Course {
   language         String         @default("pt") // ISO 639-1 code used for generation prompts
   scope            CourseScope    @default(COMPLETE) // RULE: COURSE-06 — user-defined generation depth
   requiresReview   Boolean        @default(false) // RULE: CONTENT-03 — flagged for manual review
+  maturityRating   MaturityRating @default(GENERAL) // RULE: CONTENT-06 — maturity classification for age gate
+  reviewReason     ReviewReason?  // RULE: CONTENT-03/CONTENT-09 — reason requiresReview was flagged
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
 
@@ -129,10 +134,11 @@ model Lesson {
   title     String
   type      LessonType
   order     Int        @default(0)
-  content   String?    @db.Text // AI-generated markdown content
-  mdxPath   String? // path for manually-authored MDX lessons
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
+  content         String?  @db.Text // AI-generated markdown content
+  mdxPath         String? // path for manually-authored MDX lessons
+  generationFailed Boolean @default(false) // RULE: CONTENT-06 — set when model refused mature topic after retry
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
 
   module        Module         @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   progress      UserProgress[]
@@ -141,8 +147,23 @@ model Lesson {
   reviewCards   ReviewCard[]
   lab           Lab?
   projectSteps  ProjectStep[]
+  reflections   ReflectionResponse[]
 
   @@unique([moduleId, slug])
+}
+
+model ReflectionResponse {
+  id        String   @id @default(cuid())
+  lessonId  String
+  userId    String
+  content   String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, lessonId])
 }
 
 // ─── Lesson content types ──────────────────────────────────────────────────
@@ -440,6 +461,9 @@ enum LessonType {
   QUIZ
   LAB
   PROJECT
+  CASE_STUDY
+  REFLECTION
+  PRACTICE
 }
 
 enum EnrollmentStatus {
@@ -482,4 +506,14 @@ enum SubscriptionStatus {
   INACTIVE
   CANCELLED
   PAST_DUE
+}
+
+enum MaturityRating {
+  GENERAL
+  MATURE
+}
+
+enum ReviewReason {
+  CONTENT_RESTRICTED
+  GENERATION_INCOMPLETE
 }

@@ -9,7 +9,7 @@ export default async function PlatformLayout({ children }: { children: React.Rea
   if (!session?.user) redirect("/login");
 
   const searchCourses = await db.course.findMany({
-    where: { status: "PUBLISHED" },
+    where: { status: "PUBLISHED", maturityRating: "GENERAL" },
     select: {
       id: true,
       slug: true,

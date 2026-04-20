@@ -77,8 +77,13 @@ export async function callAnthropicJson<T>(args: JsonArgs<T>): Promise<T> {
   return args.schema.parse(toolBlock.input);
 }
 
+export interface TextResult {
+  text: string;
+  stopReason: string | null;
+}
+
 // Free-form text output (used for markdown lessons).
-export async function callAnthropicText(args: TextArgs): Promise<string> {
+export async function callAnthropicText(args: TextArgs): Promise<TextResult> {
   const client = getAnthropic();
   const start = performance.now();
   const response = await client.messages.create({
@@ -94,5 +99,5 @@ export async function callAnthropicText(args: TextArgs): Promise<string> {
   if (!textBlock) {
     throw new Error(`[${args.specName}] expected text block in response`);
   }
-  return textBlock.text;
+  return { text: textBlock.text, stopReason: response.stop_reason };
 }

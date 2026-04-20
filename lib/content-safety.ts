@@ -87,6 +87,69 @@ export function classifyGeneratedContent(content: string): ContentClassification
   return { verdict: "clean" };
 }
 
+// RULE: CONTENT-09 — refusal text detection (never persist)
+const REFUSAL_PREFIXES = [
+  "desculpe",
+  "não posso",
+  "nao posso",
+  "eu não posso",
+  "i can't",
+  "i cannot",
+  "i'm not able",
+  "i apologize",
+  "sorry,",
+  "lo siento",
+  "no puedo",
+  "désolé",
+  "je ne peux",
+  "entschuldigung",
+  "ich kann nicht",
+];
+
+const HAS_MARKDOWN_HEADER = /^#{2,3}\s/m;
+const HAS_INTERACTIVE_BLOCK = /^:::(callout|cards|steps|sandbox)/m;
+const HAS_CODE_FENCE = /```/;
+
+export function isRefusalText(text: string, stopReason?: string | null): boolean {
+  const len = text.length;
+
+  let primaryCount = 0;
+  if (len < 300) primaryCount++;
+  if (
+    !HAS_MARKDOWN_HEADER.test(text) &&
+    !HAS_INTERACTIVE_BLOCK.test(text) &&
+    !HAS_CODE_FENCE.test(text)
+  )
+    primaryCount++;
+  if (stopReason === "end_turn" && len < 500) primaryCount++;
+
+  if (primaryCount >= 2) return true;
+
+  if (primaryCount >= 1) {
+    const prefix = text.slice(0, 60).toLowerCase();
+    for (const p of REFUSAL_PREFIXES) {
+      if (prefix.includes(p)) return true;
+    }
+  }
+
+  return false;
+}
+
+// RULE: CONTENT-06 — sensitive topic suggestion/gating
+const SENSITIVE_TOPIC_PATTERNS = [
+  /\b(tantr[ao]|tantric|tantrica|kama\s*sutra|yab[\s-]?yum)\b/i,
+  /\b(sexualidade|educação\s+sexual|educacao\s+sexual|sex\s+education|sexual\s+practice)/i,
+  /\b(BDSM|fetiche|fetish|kink|pornografia|pornography|prostituição|prostituicao|prostitution)\b/i,
+  /\b(ayahuasca|LSD|psilocybin|psilocibina|DMT|MDMA|ecstasy|cannabis|maconha)\b/i,
+  /\b(drogas\s+psicoativas|substâncias\s+psicodélicas|substancias\s+psicodelicas|psychedelic|recreational\s+drug)/i,
+  /\b(nudismo|nudism|naturismo)\b/i,
+  /\b(violência\s+sexual|violencia\s+sexual|sexual\s+violence)/i,
+];
+
+export function detectSensitiveTopic(topic: string): boolean {
+  return SENSITIVE_TOPIC_PATTERNS.some((p) => p.test(topic));
+}
+
 // RULE: CONTENT-05 — error messages must not reveal detection patterns
 export const SAFETY_MESSAGES = {
   injection: "Não foi possível gerar o curso. Revise o título ou descrição e tente novamente.",

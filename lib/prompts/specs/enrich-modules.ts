@@ -35,7 +35,10 @@ const enrichModulesTool: Anthropic.Tool = {
                 type: "object",
                 properties: {
                   title: { type: "string" },
-                  type: { type: "string", enum: ["THEORY", "QUIZ"] },
+                  type: {
+                    type: "string",
+                    enum: ["THEORY", "QUIZ", "CASE_STUDY", "REFLECTION", "PRACTICE"],
+                  },
                 },
                 required: ["title", "type"],
               },
