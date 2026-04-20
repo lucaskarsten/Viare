@@ -20,6 +20,17 @@ import PracticeBlock from "@/components/blocks/PracticeBlock";
 import CaseStudyBlock from "@/components/blocks/CaseStudyBlock";
 import type { LabData } from "@/lib/lab";
 
+function renderInlineMd(text: string): React.ReactNode[] {
+  const parts = text.split(/(\*\*[^*]+\*\*|\*[^*]+\*)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith("**") && part.endsWith("**"))
+      return <strong key={i}>{part.slice(2, -2)}</strong>;
+    if (part.startsWith("*") && part.endsWith("*"))
+      return <em key={i}>{part.slice(1, -1)}</em>;
+    return part;
+  });
+}
+
 type TutorMessage = { role: "user" | "tutor"; text: string };
 
 type FocusWidth = "narrow" | "comfortable" | "wide";
@@ -378,7 +389,7 @@ export default function LessonClient({
                   <div className="summary-label">RESUMO</div>
                   <ul>
                     {summaryPoints.map((p, i) => (
-                      <li key={i}>{p}</li>
+                      <li key={i}>{renderInlineMd(p)}</li>
                     ))}
                   </ul>
                 </div>

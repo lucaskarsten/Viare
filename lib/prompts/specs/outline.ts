@@ -85,26 +85,6 @@ export function validateComposition(
   return errors.length === 0 ? { valid: true, errors: [] } : { valid: false, errors };
 }
 
-// Legacy constraints — only THEORY + QUIZ. Used when ENABLE_MIXED_LESSONS is off.
-const LEGACY_CONSTRAINTS: Record<string, CompositionConstraints> = {
-  overview: {
-    required: { THEORY: { min: 2, max: 3 }, QUIZ: { min: 1, max: 1 } },
-    totalLessons: { min: 3, max: 4 },
-    endsWithOneOf: ["QUIZ"],
-  },
-  complete: {
-    required: { THEORY: { min: 2, max: 4 }, QUIZ: { min: 1, max: 1 } },
-    totalLessons: { min: 3, max: 5 },
-    endsWithOneOf: ["QUIZ"],
-  },
-  deep: {
-    required: { THEORY: { min: 3, max: 4 }, QUIZ: { min: 1, max: 1 } },
-    totalLessons: { min: 4, max: 5 },
-    endsWithOneOf: ["QUIZ"],
-  },
-};
-
-// Mixed constraints — enable a richer pedagogical composition per scope.
 const MIXED_CONSTRAINTS: Record<string, CompositionConstraints> = {
   overview: {
     required: { THEORY: { min: 2, max: 3 }, QUIZ: { min: 1, max: 1 } },
@@ -137,13 +117,8 @@ const MIXED_CONSTRAINTS: Record<string, CompositionConstraints> = {
   },
 };
 
-function isMixedLessonsEnabled(): boolean {
-  return process.env.ENABLE_MIXED_LESSONS === "true";
-}
-
 function getCompositionConstraints(scopeKey: string): CompositionConstraints {
-  const set = isMixedLessonsEnabled() ? MIXED_CONSTRAINTS : LEGACY_CONSTRAINTS;
-  return set[scopeKey] ?? set.complete;
+  return MIXED_CONSTRAINTS[scopeKey] ?? MIXED_CONSTRAINTS.complete;
 }
 
 // Legacy hint table — kept for backward-compat user-message hints when mixed flag is off.
@@ -235,9 +210,8 @@ const outlineTool: Anthropic.Tool = {
 // below the model's minimum (2048 tokens for Sonnet), caching is silently
 // skipped and the call still works.
 function buildSystemBlocks(): Anthropic.TextBlockParam[] {
-  const mixedRule = isMixedLessonsEnabled()
-    ? "- Lessons may be of types THEORY, QUIZ, CASE_STUDY, REFLECTION, PRACTICE — pick the type that best serves the learning goal of each lesson."
-    : "- Each module ends with a single QUIZ lesson after 2-4 THEORY lessons.";
+  const mixedRule =
+    "- Lessons may be of types THEORY, QUIZ, CASE_STUDY, REFLECTION, PRACTICE — pick the type that best serves the learning goal of each lesson.";
 
   const text = [
     persona(
@@ -341,11 +315,7 @@ function buildUserMessage(
   parts.push("", "Composition constraints (counts apply to the course total, not per module):");
   parts.push(...describeConstraints(composition));
 
-  if (
-    isMixedLessonsEnabled() &&
-    input.suggestedEmphasis &&
-    input.suggestedEmphasis !== "balanced"
-  ) {
+  if (input.suggestedEmphasis && input.suggestedEmphasis !== "balanced") {
     if (input.suggestedEmphasis === "practice") {
       parts.push(
         "",
