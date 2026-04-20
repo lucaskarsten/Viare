@@ -1,7 +1,17 @@
 import { auth } from "@/auth";
 import { NextResponse } from "next/server";
 
-const protectedPaths = ["/dashboard", "/learn", "/profile", "/settings"];
+const protectedPaths = [
+  "/dashboard",
+  "/learn",
+  "/profile",
+  "/settings",
+  "/courses",
+  "/certificates",
+  "/discover",
+  "/goals",
+  "/review",
+];
 const adminPaths = ["/admin"];
 
 export default auth((req) => {
