@@ -2,11 +2,12 @@
 import { useState, useEffect, useCallback } from "react";
 import { useTranslations } from "next-intl";
 
-type Card = {
-  q: string;
-  a: string;
-  tag: string;
-  course: string;
+type ReviewCardData = {
+  id: string;
+  front: string;
+  back: string;
+  lessonId: string;
+  dueAt: string;
 };
 
 type Course = {
@@ -18,7 +19,7 @@ type Course = {
   new: number;
   learning: number;
   overdue: number;
-  cards: Card[];
+  cards?: unknown[];
 };
 
 type ScheduleDay = {
@@ -38,19 +39,13 @@ type Props = {
   message: string;
 };
 
-const SAMPLE_CARD_POOL: Card[] = [
-  { course: "__sample__", q: "What does nmap -sS do?", a: "A stealth (SYN) scan — never completes the TCP handshake, so it's harder to log.", tag: "lab" },
-  { course: "__sample__", q: "Vulnerabilidade vs. exploit?", a: "Vulnerabilidade é a falha. Exploit é a técnica que a abusa.", tag: "concept" },
-  { course: "__sample__", q: "O que é BATNA?", a: "Melhor Alternativa a um Acordo Negociado — seu plano B. BATNA forte = posição forte.", tag: "concept" },
-  { course: "__sample__", q: "What layer does ARP live at?", a: "Layer 2 (data link). It resolves IP → MAC on the local network.", tag: "concept" },
-  { course: "__sample__", q: "Ancoragem, em uma frase.", a: "O primeiro número mencionado numa negociação molda o intervalo de todas as contra-propostas.", tag: "concept" },
-  { course: "__sample__", q: "Metasploit: payload vs. exploit?", a: "Exploit delivers the payload. Payload is what runs after delivery (e.g. a reverse shell).", tag: "lab" },
-];
+const RATING_MAP = { again: 0, hard: 1, good: 2, easy: 3 } as const;
 
 export default function ReviewClient({ courses, totalDue, totalOverdue, streak, schedule, message }: Props) {
   const t = useTranslations("review");
   const [mode, setMode] = useState<"dashboard" | "session" | "done">("dashboard");
-  const [sessionCards, setSessionCards] = useState<(Card & { courseMeta: Course })[]>([]);
+  const [realCards, setRealCards] = useState<ReviewCardData[]>([]);
+  const [sessionCards, setSessionCards] = useState<ReviewCardData[]>([]);
   const [idx, setIdx] = useState(0);
   const [revealed, setRevealed] = useState(false);
   const [results, setResults] = useState<Results>({ again: 0, hard: 0, good: 0, easy: 0 });
@@ -62,50 +57,43 @@ export default function ReviewClient({ courses, totalDue, totalOverdue, streak, 
     { key: "easy" as const, label: t("easy"), next: t("nextTime.easy"), kbd: "4", color: "var(--rating-easy)" },
   ];
 
-  const buildPool = useCallback(
-    (filter: "all" | "overdue" | string): (Card & { courseMeta: Course })[] => {
-      let pool: (Card & { courseMeta: Course })[] = [];
-      const targetCourses = filter === "all" || filter === "overdue" ? courses : courses.filter((c) => c.id === filter);
-      for (const course of targetCourses) {
-        const cards = course.cards.length > 0 ? course.cards : SAMPLE_CARD_POOL;
-        const limit = filter === "overdue" ? course.overdue : course.due;
-        const slice = cards.slice(0, Math.max(limit, 1));
-        pool = pool.concat(slice.map((card) => ({ ...card, courseMeta: course })));
-      }
-      if (pool.length === 0) {
-        pool = SAMPLE_CARD_POOL.map((card) => ({
-          ...card,
-          courseMeta: courses[0] ?? { id: "__sample__", name: "Revisão", color: "#c97a4a", due: 0, total: 0, new: 0, learning: 0, overdue: 0, cards: [] },
-        }));
-      }
-      return [...pool].sort(() => Math.random() - 0.5);
-    },
-    [courses]
-  );
+  useEffect(() => {
+    fetch("/api/review/cards")
+      .then((r) => (r.ok ? r.json() : { cards: [] }))
+      .then((data: { cards: ReviewCardData[] }) => setRealCards(data.cards ?? []))
+      .catch(() => {});
+  }, []);
 
-  const startSession = useCallback(
-    (filter: "all" | "overdue" | string) => {
-      setSessionCards(buildPool(filter));
-      setIdx(0);
-      setRevealed(false);
-      setResults({ again: 0, hard: 0, good: 0, easy: 0 });
-      setMode("session");
-    },
-    [buildPool]
-  );
+  const startSession = useCallback(() => {
+    const shuffled = [...realCards].sort(() => Math.random() - 0.5);
+    setSessionCards(shuffled);
+    setIdx(0);
+    setRevealed(false);
+    setResults({ again: 0, hard: 0, good: 0, easy: 0 });
+    setMode("session");
+  }, [realCards]);
 
   const rate = useCallback(
-    (rating: keyof Results) => {
-      setResults((r) => ({ ...r, [rating]: r[rating] + 1 }));
+    (ratingKey: keyof Results) => {
+      const card = sessionCards[idx];
+      if (!card) return;
+      fetch(`/api/review/cards/${card.id}/rate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ rating: RATING_MAP[ratingKey] }),
+      }).catch(() => {});
+      setResults((r) => ({ ...r, [ratingKey]: r[ratingKey] + 1 }));
       if (idx + 1 >= sessionCards.length) setMode("done");
-      else { setIdx((i) => i + 1); setRevealed(false); }
+      else {
+        setIdx((i) => i + 1);
+        setRevealed(false);
+      }
     },
-    [idx, sessionCards.length]
+    [idx, sessionCards]
   );
 
   const endSession = useCallback(() => setMode("dashboard"), []);
 
-  // Keyboard shortcuts — Space to reveal, 1-4 to rate
   useEffect(() => {
     if (mode !== "session") return;
     const handler = (e: KeyboardEvent) => {
@@ -120,6 +108,7 @@ export default function ReviewClient({ courses, totalDue, totalOverdue, streak, 
 
   // ——— DASHBOARD ———
   if (mode === "dashboard") {
+    const hasDue = realCards.length > 0;
     const maxN = Math.max(...schedule.map((x) => x.count), 1);
 
     return (
@@ -141,15 +130,15 @@ export default function ReviewClient({ courses, totalDue, totalOverdue, streak, 
             <div className="flex gap-2 flex-wrap mt-6">
               <button
                 className="bg-foreground text-background px-6 py-3.5 rounded-[var(--radius)] text-[15px] font-medium cursor-pointer border-0 font-[inherit] transition-opacity hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
-                onClick={() => startSession("all")}
-                disabled={totalDue === 0}
+                onClick={startSession}
+                disabled={!hasDue}
               >
-                {t("reviewAll", { minutes: Math.ceil(totalDue * 0.5) })}
+                {t("reviewAll", { minutes: Math.ceil((realCards.length || totalDue) * 0.5) })}
               </button>
               {totalOverdue > 0 && (
                 <button
                   className="bg-transparent text-foreground/80 px-5 py-3.5 rounded-[var(--radius)] text-[14px] border-0 cursor-pointer font-[inherit] transition-colors hover:bg-card hover:text-foreground"
-                  onClick={() => startSession("overdue")}
+                  onClick={startSession}
                 >
                   {t("overdueOnly", { count: totalOverdue })}
                 </button>
@@ -251,8 +240,9 @@ export default function ReviewClient({ courses, totalDue, totalOverdue, streak, 
                   {/* Go button */}
                   {c.due > 0 && (
                     <button
-                      className="bg-foreground text-background px-4 py-2.5 text-[13px] font-medium rounded-[var(--radius)] cursor-pointer border-0 font-[inherit] hover:opacity-90 transition-opacity mr-5"
-                      onClick={() => startSession(c.id)}
+                      className="bg-foreground text-background px-4 py-2.5 text-[13px] font-medium rounded-[var(--radius)] cursor-pointer border-0 font-[inherit] hover:opacity-90 transition-opacity mr-5 disabled:opacity-40 disabled:cursor-not-allowed"
+                      onClick={startSession}
+                      disabled={!hasDue}
                     >
                       {t("reviewCourse")}
                     </button>
@@ -298,7 +288,6 @@ export default function ReviewClient({ courses, totalDue, totalOverdue, streak, 
   if (mode === "session") {
     const card = sessionCards[idx];
     if (!card) return null;
-    const { courseMeta } = card;
     const total = sessionCards.length;
     const progress = ((idx + (revealed ? 0.5 : 0)) / total) * 100;
 
@@ -336,29 +325,15 @@ export default function ReviewClient({ courses, totalDue, totalOverdue, streak, 
         </header>
 
         <main className="flex flex-col items-center justify-center gap-8 p-12 overflow-y-auto">
-          {/* Card meta */}
-          <div className="flex items-center gap-3.5 font-mono text-[11px] tracking-[0.04em]">
-            <span
-              className="flex items-center gap-1.5 font-semibold uppercase text-[10px] tracking-[0.1em]"
-              style={{ color: courseMeta.color }}
-            >
-              <span className="w-2 h-2 rounded-full inline-block" style={{ background: courseMeta.color }} />
-              {courseMeta.name}
-            </span>
-            <span className="text-muted-foreground uppercase text-[10px] tracking-[0.1em] px-2 py-[3px] bg-card rounded-[3px]">
-              {card.tag}
-            </span>
-          </div>
-
           {/* Card */}
           <div className="w-full max-w-[680px] p-12 bg-card rounded-[var(--radius-lg)] border border-border animate-[rsIn_0.25s_ease-out]">
             <div className="font-mono text-[10px] tracking-[0.1em] uppercase text-muted-foreground mb-3.5">{t("question")}</div>
-            <div className="text-[28px] leading-[1.3] tracking-[-0.015em] font-medium text-balance text-foreground">{card.q}</div>
+            <div className="text-[28px] leading-[1.3] tracking-[-0.015em] font-medium text-balance text-foreground">{card.front}</div>
             {revealed && (
               <>
                 <div className="h-px bg-border my-8" />
                 <div className="font-mono text-[10px] tracking-[0.1em] uppercase text-muted-foreground mb-3.5">{t("answer")}</div>
-                <div className="text-[18px] leading-[1.55] text-foreground/80 text-balance animate-[rsAnswerIn_0.3s_ease-out]">{card.a}</div>
+                <div className="text-[18px] leading-[1.55] text-foreground/80 text-balance animate-[rsAnswerIn_0.3s_ease-out]">{card.back}</div>
               </>
             )}
           </div>
@@ -457,7 +432,7 @@ export default function ReviewClient({ courses, totalDue, totalOverdue, streak, 
           </button>
           <button
             className="bg-transparent text-foreground/80 px-5 py-3 rounded-[var(--radius)] text-[14px] border-0 cursor-pointer font-[inherit] transition-colors hover:bg-card hover:text-foreground"
-            onClick={() => startSession("all")}
+            onClick={startSession}
           >
             {t("reviewMore")}
           </button>
