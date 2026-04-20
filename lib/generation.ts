@@ -309,7 +309,23 @@ INTERACTIVE BLOCKS — use these when appropriate to make the lesson more engagi
    3. **Third step title** — Final action
    :::
 
-Use at least one interactive block per lesson. Prefer :::cards for concept sets and :::steps for sequential processes.`,
+4. Interactive code sandbox (use :::sandbox — ONLY for programming lessons where the student should edit and run code):
+   :::sandbox{template="react"}
+   :::
+
+   Available templates: react, react-ts, vanilla, vanilla-ts, vue, node, static.
+   Choose the template that matches the lesson language/framework.
+   Use :::sandbox at most once per lesson, near the end as a practice exercise.
+   Do NOT use for non-programming topics (history, science, business, etc.).
+
+5. Algorithm/concept visualizer demos (use ::demo — for specific visual concepts):
+   ::demo{id="bubble-sort"}
+   ::demo{id="binary-search"}
+   ::demo{id="css-flexbox"}
+
+   Only use a demo id if it directly matches the lesson topic.
+
+Use at least one interactive block per lesson. Prefer :::cards for concept sets and :::steps for sequential processes. Add :::sandbox when teaching programming.`,
               },
             ],
           });
