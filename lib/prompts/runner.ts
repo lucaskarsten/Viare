@@ -53,14 +53,27 @@ function logUsage(specName: string, model: string, latencyMs: number, usage: Cac
 export async function callAnthropicJson<T>(args: JsonArgs<T>): Promise<T> {
   const client = getAnthropic();
   const start = performance.now();
-  const response = await client.messages.create({
-    model: args.model,
-    max_tokens: args.maxTokens,
-    ...(args.system ? { system: args.system } : {}),
-    tools: [args.tool],
-    tool_choice: { type: "tool", name: args.tool.name },
-    messages: [{ role: "user", content: args.userMessage }],
-  });
+  let response: Awaited<ReturnType<typeof client.messages.create>>;
+  try {
+    response = await client.messages.create({
+      model: args.model,
+      max_tokens: args.maxTokens,
+      ...(args.system ? { system: args.system } : {}),
+      tools: [args.tool],
+      tool_choice: { type: "tool", name: args.tool.name },
+      messages: [{ role: "user", content: args.userMessage }],
+    });
+  } catch (err) {
+    console.error(
+      "[API_ERROR]",
+      JSON.stringify({
+        spec: args.specName,
+        model: args.model,
+        error: err instanceof Error ? err.message : String(err),
+      })
+    );
+    throw err;
+  }
   const latency = Math.round(performance.now() - start);
   logUsage(args.specName, args.model, latency, response.usage);
 

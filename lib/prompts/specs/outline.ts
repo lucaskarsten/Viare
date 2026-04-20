@@ -110,16 +110,14 @@ const MIXED_CONSTRAINTS: Record<string, CompositionConstraints> = {
   },
   deep: {
     required: {
-      CASE_STUDY: { min: 0, max: 1 },
-      PRACTICE: { min: 1, max: 2 },
-      THEORY: { min: 1, max: 3 },
-      REFLECTION: { min: 1, max: 1 },
-      QUIZ: { min: 1, max: 1 },
-      // RULE: CA-C6 — LAB occupies one slot within the existing 5-7 total;
-      // no bump needed because LAB replaces (not adds to) another lesson slot.
-      LAB: { min: 0, max: 1 },
+      CASE_STUDY: { min: 0, max: 3 },
+      PRACTICE: { min: 1, max: 6 },
+      THEORY: { min: 8, max: 28 },
+      REFLECTION: { min: 1, max: 4 },
+      QUIZ: { min: 3, max: 10 },
+      LAB: { min: 0, max: 2 },
     },
-    totalLessons: { min: 5, max: 7 },
+    totalLessons: { min: 18, max: 40 },
     startsWithOneOf: ["CASE_STUDY", "THEORY"],
     endsWithOneOf: ["QUIZ"],
   },
@@ -145,7 +143,8 @@ const SCOPE_CONSTRAINTS: Record<string, { modules: string; lessons: string; hour
   },
   deep: {
     modules: "6 to 10 modules",
-    lessons: "3 to 4 THEORY lessons each — elaborate examples, edge cases, advanced sub-topics",
+    lessons:
+      "2 to 4 mixed-type lessons per module (THEORY, PRACTICE, CASE_STUDY, REFLECTION, QUIZ, LAB)",
     hours: "estimatedHours should be between 20 and 60",
   },
 };
@@ -359,7 +358,7 @@ function buildUserMessage(
 const OUTLINE_MAX_TOKENS: Record<string, number> = {
   overview: 1500,
   complete: 2500,
-  deep: 4000,
+  deep: 6000,
 };
 
 function flattenLessons(outline: CourseOutline): Array<{ type: string }> {

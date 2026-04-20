@@ -414,6 +414,7 @@ export async function generateCourse(
     emit({ type: "done", courseSlug: course.slug, courseId: course.id });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Generation failed";
+    console.error("[GENERATION_FAILED]", JSON.stringify({ topic, courseId, message }));
 
     // RULE: COURSE-05 — revert to DRAFT on error, never leave stuck in GENERATING
     if (courseId) {
