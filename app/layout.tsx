@@ -20,9 +20,12 @@ const ibmPlexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Viare — Aprenda Kali Linux & Cybersecurity",
+  title: {
+    default: "Viare",
+    template: "%s · Viare",
+  },
   description:
-    "Plataforma interativa para aprender Kali Linux e Cybersecurity com labs CTF, projetos guiados e gamificação.",
+    "Gestão e retenção do conhecimento pessoal. Transforme material disperso em trilhas com módulos, quizzes e revisão espaçada.",
 };
 
 export default async function RootLayout({

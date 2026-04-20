@@ -491,5 +491,106 @@
     "insertBefore": "Insert before this lesson",
     "insertAfter": "Insert after this lesson",
     "lessonType": "Lesson type"
+  },
+  "landing": {
+    "meta": {
+      "title": "Viare — Personal knowledge management",
+      "description": "Turn scattered articles, videos and topics into structured paths with modules, quizzes and spaced repetition. You bring the material. Viare organizes it."
+    },
+    "header": {
+      "catalog": "Catalog",
+      "signIn": "Sign in",
+      "getStarted": "Get started free"
+    },
+    "hero": {
+      "eyebrow": "PERSONAL KNOWLEDGE MANAGEMENT",
+      "titleA": "Your knowledge,",
+      "titleB": "organized.",
+      "subhead": "You saved ten articles, bookmarked fifteen videos, and none of it became real learning. Viare turns scattered material into paths with modules, quizzes and spaced repetition.",
+      "ctaPrimary": "Get started free",
+      "ctaSecondary": "Browse catalog"
+    },
+    "trust": {
+      "label": "Six areas, one flow",
+      "items": "Library · Review · Goals · Discover · Catalog · AI Generation"
+    },
+    "how": {
+      "eyebrow": "HOW IT WORKS",
+      "title": "Three steps between material and mastery.",
+      "step1": {
+        "num": "01",
+        "title": "Bring the material",
+        "desc": "A URL, a YouTube video, pasted text or just a topic. Anything you already wanted to study."
+      },
+      "step2": {
+        "num": "02",
+        "title": "Viare structures it",
+        "desc": "AI turns it into a course: chained modules, lessons, quizzes and labs. You edit, fork and share."
+      },
+      "step3": {
+        "num": "03",
+        "title": "Make it stick",
+        "desc": "Flashcards with spaced repetition (SM-2), weekly goals and streaks keep learning alive."
+      }
+    },
+    "features": {
+      "eyebrow": "WHAT YOU GET",
+      "title": "Everything missing between saving and learning.",
+      "library": {
+        "title": "Library",
+        "desc": "Resume the last course, see active ones side by side, archive the paused. Your path on one screen."
+      },
+      "review": {
+        "title": "Review",
+        "desc": "Daily flashcard queue with again / hard / good / easy ratings. The algorithm schedules the next session for you."
+      },
+      "goals": {
+        "title": "Goals",
+        "desc": "Weekly lesson target, last-90-days heatmap and per-course breakdown. Consistency made visible."
+      },
+      "discover": {
+        "title": "Discover",
+        "desc": "Social feed of shared courses, topic cloud by relevance, and remixes from other learners."
+      },
+      "catalog": {
+        "title": "Catalog",
+        "desc": "Public search by category, difficulty and language. Fork existing courses to start fast."
+      },
+      "generate": {
+        "title": "AI Generation",
+        "desc": "From URL, YouTube, pasted text or a free topic: outline and lessons streamed in, validated with Zod."
+      }
+    },
+    "differentiator": {
+      "eyebrow": "WHAT SETS US APART",
+      "quote": "We don't generate content from scratch. We extract structure from the material that already exists.",
+      "detail": "The thesis is simple: learning doesn't fail for lack of material, it fails for lack of organization and continuity. Viare sells management, not courses."
+    },
+    "openModel": {
+      "eyebrow": "OPEN MODEL",
+      "title": "GitHub for knowledge.",
+      "desc": "Create private courses, share when ready, fork someone else's and adapt. Each course is yours to modify, remix and publish.",
+      "itemCreate": "Create from scratch or from a source",
+      "itemFork": "Fork and remix",
+      "itemShare": "Share with the world"
+    },
+    "finalCta": {
+      "title": "Start turning material into mastery.",
+      "subhead": "Free to start. No credit card required.",
+      "ctaPrimary": "Get started free",
+      "ctaSecondary": "Browse public catalog"
+    },
+    "footer": {
+      "tagline": "learn whatever you want, however you want",
+      "product": "Product",
+      "catalog": "Catalog",
+      "login": "Sign in",
+      "signup": "Create account",
+      "legal": "Legal",
+      "terms": "Terms",
+      "privacy": "Privacy",
+      "language": "Language",
+      "copyright": "© {year} Viare"
+    }
   }
 }
