@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.4.0](https://github.com/lucaskarsten/Viare/compare/kali-platform-v0.3.0...kali-platform-v0.4.0) (2026-04-20)
+
+
+### Features
+
+* certificates — PDF generation, verify page, sidebar link ([0c00e5e](https://github.com/lucaskarsten/Viare/commit/0c00e5ea87a330096de3750d8259669541c50c23))
+* pedagogical overhaul — PRACTICE, CASE_STUDY, REFLECTION lesson types ([#21](https://github.com/lucaskarsten/Viare/issues/21)) ([a8f3fdb](https://github.com/lucaskarsten/Viare/commit/a8f3fdb48691b251e47ec2ec55defda1ac208101))
+* phase 3 polish — lesson type badges, kind labels, emphasis hints ([#23](https://github.com/lucaskarsten/Viare/issues/23)) ([bd7e5fc](https://github.com/lucaskarsten/Viare/commit/bd7e5fc12e271e7c05bb6ec582237b1ef46271d4))
+* scope control — replace decorative depth/pace/format with wired scope picker ([6205277](https://github.com/lucaskarsten/Viare/commit/62052770e3e4631e793b426abc8fd699dc93508a))
+
+
+### Bug Fixes
+
+* scope picker — remove time hints, calibrate course hour ranges per scope ([1c7fe0d](https://github.com/lucaskarsten/Viare/commit/1c7fe0ded29f03aa3acc8366fa04178789664249))
+
 ## [0.3.0](https://github.com/lucaskarsten/Viare/compare/kali-platform-v0.2.0...kali-platform-v0.3.0) (2026-04-20)
 
 
