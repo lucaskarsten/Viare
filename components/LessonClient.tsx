@@ -15,6 +15,7 @@ import FlashcardPlayer, { type FlashCard } from "@/components/FlashcardPlayer";
 import MarkCompleteButton from "@/app/(platform)/courses/[slug]/lessons/[lessonId]/MarkCompleteButton";
 import LabBlock from "@/components/LabBlock";
 import DemoBlock from "@/components/DemoBlock";
+import SandpackBlock from "@/components/blocks/SandpackBlock";
 import type { LabData } from "@/lib/lab";
 
 type TutorMessage = { role: "user" | "tutor"; text: string };
@@ -119,6 +120,10 @@ const lessonMarkdownComponents: Components = {
     if (block === "cards") return <div className="block-cards">{children}</div>;
     if (block === "steps") return <div className="block-steps">{children}</div>;
     if (block === "demo") return <DemoBlock id={did ?? ""} />;
+    if (block === "sandbox") {
+      const tmpl = (props as Record<string, unknown>)["data-template"] as string | undefined;
+      return <SandpackBlock template={tmpl} />;
+    }
     return <div {...props}>{children}</div>;
   },
 };

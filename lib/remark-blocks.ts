@@ -14,6 +14,7 @@ export function remarkBlocks() {
         "data-block": n.name as string,
         ...(attrs.type ? { "data-type": attrs.type } : {}),
         ...(attrs.id ? { "data-id": attrs.id } : {}),
+        ...(attrs.template ? { "data-template": attrs.template } : {}),
       };
     });
   };
