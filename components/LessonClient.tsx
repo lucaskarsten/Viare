@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { Children, cloneElement, isValidElement, type ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
 import type { Components } from "react-markdown";
+import rehypeRaw from "rehype-raw";
 import remarkGfm from "remark-gfm";
 import remarkDirective from "remark-directive";
 import { remarkBlocks } from "@/lib/remark-blocks";
@@ -590,6 +591,7 @@ export default function LessonClient({
                     <div className="md-body">
                       <ReactMarkdown
                         remarkPlugins={[remarkGfm, remarkDirective, remarkBlocks]}
+                        rehypePlugins={[rehypeRaw]}
                         components={lessonMarkdownComponents}
                       >
                         {lesson.content}
@@ -606,6 +608,7 @@ export default function LessonClient({
                     <div className="md-body">
                       <ReactMarkdown
                         remarkPlugins={[remarkGfm, remarkDirective, remarkBlocks]}
+                        rehypePlugins={[rehypeRaw]}
                         components={lessonMarkdownComponents}
                       >
                         {lesson.content}

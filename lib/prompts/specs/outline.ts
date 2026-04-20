@@ -87,7 +87,11 @@ export function validateComposition(
 
 const MIXED_CONSTRAINTS: Record<string, CompositionConstraints> = {
   overview: {
-    required: { THEORY: { min: 2, max: 3 }, QUIZ: { min: 1, max: 1 } },
+    required: {
+      THEORY: { min: 2, max: 3 },
+      QUIZ: { min: 1, max: 1 },
+      LAB: { min: 0, max: 1 },
+    },
     totalLessons: { min: 3, max: 4 },
     endsWithOneOf: ["QUIZ"],
   },
@@ -97,6 +101,7 @@ const MIXED_CONSTRAINTS: Record<string, CompositionConstraints> = {
       THEORY: { min: 1, max: 3 },
       REFLECTION: { min: 1, max: 1 },
       QUIZ: { min: 1, max: 1 },
+      LAB: { min: 0, max: 1 },
     },
     totalLessons: { min: 4, max: 6 },
     startsWithOneOf: ["CASE_STUDY", "THEORY"],
@@ -222,7 +227,7 @@ const outlineTool: Anthropic.Tool = {
 // skipped and the call still works.
 function buildSystemBlocks(): Anthropic.TextBlockParam[] {
   const mixedRule =
-    "- Lessons may be of types THEORY, QUIZ, CASE_STUDY, REFLECTION, PRACTICE, LAB — pick the type that best serves the learning goal of each lesson. Use LAB only in deep-scope courses (0-1 per course); LAB lessons require a labVariant of CTF or INTERACTIVE.";
+    "- Lessons may be of types THEORY, QUIZ, CASE_STUDY, REFLECTION, PRACTICE, LAB — pick the type that best serves the learning goal of each lesson. LAB is available in all scopes (0-1 per course) — use it when a hands-on challenge or CTF exercise would reinforce the learning goals; LAB lessons require a labVariant of CTF or INTERACTIVE.";
 
   const text = [
     persona(
