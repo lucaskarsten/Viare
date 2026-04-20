@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.5.0](https://github.com/lucaskarsten/Viare/compare/kali-platform-v0.4.0...kali-platform-v0.5.0) (2026-04-20)
+
+
+### Features
+
+* add test infrastructure — unit, integration, security, e2e ([#26](https://github.com/lucaskarsten/Viare/issues/26)) ([1c529ab](https://github.com/lucaskarsten/Viare/commit/1c529abd2ca5bf8360210e244478f11cc3005251))
+* labs duais (CTF + INTERACTIVE) + enrich contextual ([#27](https://github.com/lucaskarsten/Viare/issues/27)) ([49551a4](https://github.com/lucaskarsten/Viare/commit/49551a4ee867be26ddbc46f74a9ecc5f3b913fbf))
+
+
+### Bug Fixes
+
+* **auth:** protect /courses and sibling (platform) routes in proxy ([#28](https://github.com/lucaskarsten/Viare/issues/28)) ([49fd7d2](https://github.com/lucaskarsten/Viare/commit/49fd7d28f3091bed82e9a5f86a01692771c7bb5b))
+* summary bold rendering, title spacing; remove ENABLE_MIXED_LESSONS flag ([#24](https://github.com/lucaskarsten/Viare/issues/24)) ([fd20739](https://github.com/lucaskarsten/Viare/commit/fd207392b7be1b10cf02a716174ee74bf68403ff))
+
 ## [0.4.0](https://github.com/lucaskarsten/Viare/compare/kali-platform-v0.3.0...kali-platform-v0.4.0) (2026-04-20)
 
 
