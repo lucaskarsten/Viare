@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, type CSSProperties } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import type { GenerationEvent } from "@/lib/generation";
@@ -70,6 +70,64 @@ const btnGhost =
   "bg-transparent text-foreground px-4 py-2.5 rounded text-[13px] border border-border cursor-pointer font-[inherit] transition-colors hover:bg-card";
 const btnPrimary =
   "bg-foreground text-background px-4 py-2.5 rounded text-[13px] font-medium cursor-pointer border-0 font-[inherit] transition-opacity hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed";
+
+function lessonTypeIcon(type: string) {
+  const base = "text-[10px] font-mono uppercase tracking-[0.06em] px-1.5 py-[2px] rounded shrink-0";
+  const map: Record<string, { label: string; style: CSSProperties }> = {
+    THEORY: {
+      label: "leitura",
+      style: {
+        background: "color-mix(in oklch, var(--muted-foreground), transparent 85%)",
+        color: "var(--muted-foreground)",
+      },
+    },
+    QUIZ: {
+      label: "quiz",
+      style: { background: "color-mix(in oklch, var(--ok), transparent 88%)", color: "var(--ok)" },
+    },
+    CASE_STUDY: {
+      label: "cenário",
+      style: {
+        background: "color-mix(in oklch, var(--accent), transparent 85%)",
+        color: "var(--accent)",
+      },
+    },
+    REFLECTION: {
+      label: "reflexão",
+      style: {
+        background: "color-mix(in oklch, oklch(65% 0.2 280), transparent 85%)",
+        color: "oklch(55% 0.2 280)",
+      },
+    },
+    PRACTICE: {
+      label: "prática",
+      style: {
+        background: "color-mix(in oklch, oklch(65% 0.2 150), transparent 85%)",
+        color: "oklch(50% 0.2 150)",
+      },
+    },
+    LAB: {
+      label: "lab",
+      style: {
+        background: "color-mix(in oklch, var(--accent), transparent 80%)",
+        color: "var(--accent)",
+      },
+    },
+    PROJECT: {
+      label: "projeto",
+      style: {
+        background: "color-mix(in oklch, oklch(65% 0.2 60), transparent 85%)",
+        color: "oklch(50% 0.2 60)",
+      },
+    },
+  };
+  const t = map[type] ?? { label: type.toLowerCase(), style: {} };
+  return (
+    <span className={base} style={t.style}>
+      {t.label}
+    </span>
+  );
+}
 
 export default function GeneratePage() {
   const t = useTranslations("generate");
@@ -589,7 +647,7 @@ export default function GeneratePage() {
                                 className="flex items-center gap-2.5 text-[14px]"
                                 style={{ color: done ? "var(--primary)" : undefined }}
                               >
-                                <span className="w-1 h-1 rounded-full bg-muted-foreground shrink-0" />
+                                {lessonTypeIcon(lesson.type)}
                                 {lesson.title}
                                 {done && " ✓"}
                               </li>

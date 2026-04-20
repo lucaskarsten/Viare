@@ -19,6 +19,7 @@ export const DomainClassifierSchema = z.object({
     .nullable(),
   relevantDemos: z.array(z.string()),
   tone: z.enum(["technical", "practical", "conceptual"]),
+  suggestedEmphasis: z.enum(["practice", "case_study", "balanced"]).default("balanced"),
 });
 
 export type DomainContext = z.infer<typeof DomainClassifierSchema>;

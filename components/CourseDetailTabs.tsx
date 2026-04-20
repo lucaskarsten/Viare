@@ -48,6 +48,30 @@ function kindStyle(kind: string): { className: string; style?: React.CSSProperti
         color: "var(--accent)",
       },
     };
+  if (kind === "cenário")
+    return {
+      className: base,
+      style: {
+        background: "color-mix(in oklch, var(--accent), transparent 85%)",
+        color: "var(--accent)",
+      },
+    };
+  if (kind === "reflexão")
+    return {
+      className: base,
+      style: {
+        background: "color-mix(in oklch, oklch(65% 0.2 280), transparent 85%)",
+        color: "oklch(55% 0.2 280)",
+      },
+    };
+  if (kind === "prática")
+    return {
+      className: base,
+      style: {
+        background: "color-mix(in oklch, oklch(65% 0.2 150), transparent 85%)",
+        color: "oklch(50% 0.2 150)",
+      },
+    };
   return { className: `${base} bg-muted text-muted-foreground` };
 }
 

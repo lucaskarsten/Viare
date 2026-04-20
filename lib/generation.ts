@@ -223,6 +223,7 @@ export async function generateCourse(
       customContext,
       sourcesContext,
       researchContext,
+      suggestedEmphasis: domainContext.suggestedEmphasis,
     });
 
     // RULE: CONTENT-06 — AI classifies maturity; pattern-match is a safety upgrade

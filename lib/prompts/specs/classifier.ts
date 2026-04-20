@@ -45,8 +45,14 @@ const classifierTool: Anthropic.Tool = {
         type: "string",
         enum: ["technical", "practical", "conceptual"],
       },
+      suggestedEmphasis: {
+        type: "string",
+        enum: ["practice", "case_study", "balanced"],
+        description:
+          "Hint for lesson composition emphasis. Use 'practice' for procedural/technical topics with clear execution steps (e.g. programming, cooking, instrumental music). Use 'case_study' for historical, social, philosophical, or narrative topics. Use 'balanced' for everything else.",
+      },
     },
-    required: ["domain", "sandboxTemplate", "relevantDemos", "tone"],
+    required: ["domain", "sandboxTemplate", "relevantDemos", "tone", "suggestedEmphasis"],
   },
 };
 
@@ -61,6 +67,7 @@ function buildUserMessage(input: ClassifierInput): string {
     "Rules:",
     "- sandboxTemplate must be null unless domain is 'programming'.",
     "- relevantDemos must be a subset of the allowed enum values; empty array if none apply.",
+    "- suggestedEmphasis: set to 'practice' if the topic is procedural/technical (programming, cooking, instrument playing, sports technique); 'case_study' if historical, social, philosophical, or narrative; 'balanced' otherwise.",
   ].join("\n");
 }
 

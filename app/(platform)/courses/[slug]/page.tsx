@@ -21,6 +21,12 @@ function lessonKindLabel(type: string): string {
       return "lab";
     case "PROJECT":
       return "projeto";
+    case "CASE_STUDY":
+      return "cenário";
+    case "REFLECTION":
+      return "reflexão";
+    case "PRACTICE":
+      return "prática";
     default:
       return "leitura";
   }

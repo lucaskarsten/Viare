@@ -12,6 +12,7 @@ export interface OutlineInput {
   customContext?: string;
   sourcesContext?: string;
   researchContext?: string;
+  suggestedEmphasis?: "practice" | "case_study" | "balanced";
 }
 
 // RULE: AI-06 — composição mista por scope com count-based constraints
@@ -339,6 +340,24 @@ function buildUserMessage(
 
   parts.push("", "Composition constraints (counts apply to the course total, not per module):");
   parts.push(...describeConstraints(composition));
+
+  if (
+    isMixedLessonsEnabled() &&
+    input.suggestedEmphasis &&
+    input.suggestedEmphasis !== "balanced"
+  ) {
+    if (input.suggestedEmphasis === "practice") {
+      parts.push(
+        "",
+        "Emphasis hint: This topic is procedural — prefer PRACTICE over CASE_STUDY in the middle lessons when possible within the constraints."
+      );
+    } else if (input.suggestedEmphasis === "case_study") {
+      parts.push(
+        "",
+        "Emphasis hint: This topic is narrative/historical — CASE_STUDY works well as the opening lesson."
+      );
+    }
+  }
 
   if (retryHint) {
     parts.push(

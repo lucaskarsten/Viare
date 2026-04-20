@@ -158,7 +158,10 @@
       "THEORY": "Reading",
       "QUIZ": "Quiz",
       "LAB": "Lab",
-      "PROJECT": "Project"
+      "PROJECT": "Project",
+      "CASE_STUDY": "Case Study",
+      "REFLECTION": "Reflection",
+      "PRACTICE": "Practice"
     }
   },
   "lesson": {
