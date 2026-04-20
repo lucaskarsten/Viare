@@ -4,11 +4,7 @@ import { extractSourceContent, type IngestSource } from "@/lib/ingest";
 import { z } from "zod";
 import { db } from "@/lib/db";
 import { Difficulty } from "@prisma/client";
-import {
-  checkInputSafety,
-  classifyGeneratedContent,
-  SAFETY_MESSAGES,
-} from "@/lib/content-safety";
+import { checkInputSafety, classifyGeneratedContent, SAFETY_MESSAGES } from "@/lib/content-safety";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
@@ -207,7 +203,7 @@ ${hasSources ? "- IMPORTANT: Base the course ONLY on the provided source materia
         estimatedHours: outline.estimatedHours,
         status: "GENERATING",
         sourceType: "AI_GENERATED",
-        generationPrompt: `${topic}${customContext ? `\n${customContext}` : ""}${sources?.length ? `\nsources: ${sources.map((s) => s.type === "text" ? "[text paste]" : s.url).join(", ")}` : ""}`,
+        generationPrompt: `${topic}${customContext ? `\n${customContext}` : ""}${sources?.length ? `\nsources: ${sources.map((s) => (s.type === "text" ? "[text paste]" : s.url)).join(", ")}` : ""}`,
         createdById: userId,
       },
     });
@@ -286,7 +282,34 @@ Requirements:
 - Use headers, bullet points, and code blocks where relevant
 - 400 to 800 words
 - Educational and informational tone only
-- No introductory meta-text, just the lesson content`,
+- No introductory meta-text, just the lesson content
+
+INTERACTIVE BLOCKS — use these when appropriate to make the lesson more engaging:
+
+1. Callout blocks (use > [!TYPE] syntax):
+   > [!NOTE]
+   > Important information to highlight.
+
+   > [!TIP]
+   > A helpful tip or shortcut.
+
+   > [!WARNING]
+   > Something the reader should be careful about.
+
+2. Concept card grid (use :::cards with a bullet list — great for 3-6 key concepts):
+   :::cards
+   - **Term or concept** — Brief definition or explanation
+   - **Another term** — Its explanation
+   :::
+
+3. Step-by-step flow (use :::steps with an ordered list — great for processes and tutorials):
+   :::steps
+   1. **First step title** — What to do and why
+   2. **Second step title** — Next action
+   3. **Third step title** — Final action
+   :::
+
+Use at least one interactive block per lesson. Prefer :::cards for concept sets and :::steps for sequential processes.`,
               },
             ],
           });

@@ -396,5 +396,20 @@
     "sinceStart": "desde o início · Jan 2026",
     "fulfilled": "cumprida",
     "failed": "falhou"
+  },
+  "lab": {
+    "scenario": "CENÁRIO",
+    "objectives": "OBJETIVOS",
+    "hints": "DICAS",
+    "hintN": "Dica {n}",
+    "revealHint": "Revelar dica",
+    "submitFlag": "SUBMETER FLAG",
+    "flagPlaceholder": "FLAG{...}",
+    "correct": "Flag correta! Avançando...",
+    "incorrect": "Flag incorreta. Tente novamente.",
+    "attemptsUsed": "{count} tentativas",
+    "difficultyEasy": "Fácil",
+    "difficultyMedium": "Médio",
+    "difficultyHard": "Difícil"
   }
 }

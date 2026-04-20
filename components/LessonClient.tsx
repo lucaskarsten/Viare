@@ -3,11 +3,18 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { Children } from "react";
 import ReactMarkdown from "react-markdown";
+import type { Components } from "react-markdown";
 import remarkGfm from "remark-gfm";
+import remarkDirective from "remark-directive";
+import { remarkBlocks } from "@/lib/remark-blocks";
+import CalloutBlock, { type CalloutType } from "@/components/blocks/CalloutBlock";
 import QuizBlock, { type QuizBlockQuestion } from "@/components/QuizBlock";
 import FlashcardPlayer, { type FlashCard } from "@/components/FlashcardPlayer";
 import MarkCompleteButton from "@/app/(platform)/courses/[slug]/lessons/[lessonId]/MarkCompleteButton";
+import LabBlock from "@/components/LabBlock";
+import type { LabData } from "@/lib/lab";
 
 type TutorMessage = { role: "user" | "tutor"; text: string };
 
@@ -40,6 +47,7 @@ export type LessonClientProps = {
   quizQuestions: QuizBlockQuestion[];
   flashcards: FlashCard[];
   summaryPoints: string[];
+  lab?: LabData | null;
 };
 
 const STORAGE = {
@@ -68,6 +76,49 @@ function safeSet(key: string, value: string): void {
   }
 }
 
+const lessonMarkdownComponents: Components = {
+  blockquote({ children, node }) {
+    // Detect GFM alert syntax: > [!TYPE] — remark-gfm v4 sets dataGithubAlert property
+    const props = (node as { properties?: Record<string, unknown> })?.properties ?? {};
+    const ghAlert = (props.dataGithubAlert ?? props["data-github-alert"]) as string | undefined;
+    if (ghAlert) {
+      return <CalloutBlock type={ghAlert.toLowerCase() as CalloutType}>{children}</CalloutBlock>;
+    }
+    // Fallback: parse first-child text for [!TYPE] marker
+    const firstPara = (
+      node as {
+        children?: Array<{
+          type: string;
+          tagName?: string;
+          children?: Array<{ type: string; value?: string }>;
+        }>;
+      }
+    )?.children?.[0];
+    if (firstPara?.type === "element" && firstPara.tagName === "p") {
+      const firstText = firstPara.children?.[0];
+      if (firstText?.type === "text") {
+        const m = firstText.value?.trim().match(/^\[!(NOTE|TIP|WARNING|IMPORTANT|CAUTION)\]$/i);
+        if (m) {
+          return (
+            <CalloutBlock type={m[1].toLowerCase() as CalloutType}>
+              {Children.toArray(children).slice(1)}
+            </CalloutBlock>
+          );
+        }
+      }
+    }
+    return <blockquote>{children}</blockquote>;
+  },
+  div({ children, node: _node, ...props }) {
+    const block = (props as Record<string, unknown>)["data-block"] as string | undefined;
+    const dtype = (props as Record<string, unknown>)["data-type"] as string | undefined;
+    if (block === "callout")
+      return <CalloutBlock type={(dtype ?? "note") as CalloutType}>{children}</CalloutBlock>;
+    if (block === "cards") return <div className="block-cards">{children}</div>;
+    if (block === "steps") return <div className="block-steps">{children}</div>;
+    return <div {...props}>{children}</div>;
+  },
+};
 
 export default function LessonClient({
   lesson,
@@ -79,6 +130,7 @@ export default function LessonClient({
   quizQuestions,
   flashcards,
   summaryPoints,
+  lab = null,
 }: LessonClientProps) {
   const t = useTranslations("lesson");
   const [showTutor, setShowTutor] = useState(false);
@@ -88,9 +140,7 @@ export default function LessonClient({
   ]);
 
   // Focus mode state
-  const [focusMode, setFocusMode] = useState<boolean>(
-    () => safeGet(STORAGE.mode) === "1",
-  );
+  const [focusMode, setFocusMode] = useState<boolean>(() => safeGet(STORAGE.mode) === "1");
   const [focusWidth, setFocusWidth] = useState<FocusWidth>(() => {
     const w = safeGet(STORAGE.width);
     return w === "narrow" || w === "wide" ? w : "comfortable";
@@ -106,20 +156,28 @@ export default function LessonClient({
   });
   const [focusBg, setFocusBg] = useState<FocusBg>(() => {
     const bg = safeGet(STORAGE.bg);
-    return bg === "cream" || bg === "sepia" || bg === "dim" || bg === "dark"
-      ? bg
-      : "paper";
+    return bg === "cream" || bg === "sepia" || bg === "dim" || bg === "dark" ? bg : "paper";
   });
   const [focusSettingsOpen, setFocusSettingsOpen] = useState(false);
   const [readProgress, setReadProgress] = useState(0);
   const articleRef = useRef<HTMLElement | null>(null);
 
   // Persist changes
-  useEffect(() => { safeSet(STORAGE.mode, focusMode ? "1" : "0"); }, [focusMode]);
-  useEffect(() => { safeSet(STORAGE.width, focusWidth); }, [focusWidth]);
-  useEffect(() => { safeSet(STORAGE.font, focusFont); }, [focusFont]);
-  useEffect(() => { safeSet(STORAGE.size, String(focusSize)); }, [focusSize]);
-  useEffect(() => { safeSet(STORAGE.bg, focusBg); }, [focusBg]);
+  useEffect(() => {
+    safeSet(STORAGE.mode, focusMode ? "1" : "0");
+  }, [focusMode]);
+  useEffect(() => {
+    safeSet(STORAGE.width, focusWidth);
+  }, [focusWidth]);
+  useEffect(() => {
+    safeSet(STORAGE.font, focusFont);
+  }, [focusFont]);
+  useEffect(() => {
+    safeSet(STORAGE.size, String(focusSize));
+  }, [focusSize]);
+  useEffect(() => {
+    safeSet(STORAGE.bg, focusBg);
+  }, [focusBg]);
 
   // Tag body so shell can react
   useEffect(() => {
@@ -194,10 +252,7 @@ export default function LessonClient({
       data-focus={focusMode ? "on" : "off"}
     >
       {focusMode && (
-        <div
-          className="focus-progress"
-          style={{ transform: `scaleX(${readProgress})` }}
-        />
+        <div className="focus-progress" style={{ transform: `scaleX(${readProgress})` }} />
       )}
 
       <header className="lesson-chrome">
@@ -212,24 +267,21 @@ export default function LessonClient({
             {Array.from({ length: totalLessons }).map((_, i) => (
               <div
                 key={i}
-                className={`lpm-tick${
-                  i < lessonIdx ? " done" : i === lessonIdx ? " current" : ""
-                }`}
+                className={`lpm-tick${i < lessonIdx ? " done" : i === lessonIdx ? " current" : ""}`}
               />
             ))}
           </div>
         </div>
         <div className="lesson-chrome-right">
-          <MarkCompleteButton
-            lessonId={lesson.id}
-            courseId={lesson.courseId}
-            isCompleted={lesson.completed}
-            nextLessonHref={nextLessonHref}
-          />
-          <button
-            className="ghost small"
-            onClick={() => setShowTutor((o) => !o)}
-          >
+          {!lab && (
+            <MarkCompleteButton
+              lessonId={lesson.id}
+              courseId={lesson.courseId}
+              isCompleted={lesson.completed}
+              nextLessonHref={nextLessonHref}
+            />
+          )}
+          <button className="ghost small" onClick={() => setShowTutor((o) => !o)}>
             {t("tutorTitle")}
           </button>
         </div>
@@ -257,34 +309,47 @@ export default function LessonClient({
             {lesson.moduleName} · {lesson.category}
           </div>
           <h1 className="lesson-title">{lesson.title}</h1>
-          {lesson.description && (
-            <p className="lesson-dek">{lesson.description}</p>
-          )}
+          {lesson.description && <p className="lesson-dek">{lesson.description}</p>}
 
-          {summaryPoints.length > 0 && (
-            <div className="summary-box">
-              <div className="summary-label">RESUMO</div>
-              <ul>
-                {summaryPoints.map((p, i) => (
-                  <li key={i}>{p}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {lesson.content ? (
-            <div className="md-body">
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                {lesson.content}
-              </ReactMarkdown>
-            </div>
+          {lab ? (
+            <LabBlock
+              labData={lab}
+              lessonId={lesson.id}
+              courseId={lesson.courseId}
+              nextLessonHref={nextLessonHref}
+              isCompleted={lesson.completed}
+            />
           ) : (
-            <p style={{ color: "var(--ink-3)" }}>{t("contentUnavailable")}</p>
+            <>
+              {summaryPoints.length > 0 && (
+                <div className="summary-box">
+                  <div className="summary-label">RESUMO</div>
+                  <ul>
+                    {summaryPoints.map((p, i) => (
+                      <li key={i}>{p}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {lesson.content ? (
+                <div className="md-body">
+                  <ReactMarkdown
+                    remarkPlugins={[remarkGfm, remarkDirective, remarkBlocks]}
+                    components={lessonMarkdownComponents}
+                  >
+                    {lesson.content}
+                  </ReactMarkdown>
+                </div>
+              ) : (
+                <p style={{ color: "var(--ink-3)" }}>{t("contentUnavailable")}</p>
+              )}
+
+              {quizQuestions.length > 0 && <QuizBlock questions={quizQuestions} />}
+
+              {flashcards.length > 0 && <FlashcardPlayer cards={flashcards} />}
+            </>
           )}
-
-          {quizQuestions.length > 0 && <QuizBlock questions={quizQuestions} />}
-
-          {flashcards.length > 0 && <FlashcardPlayer cards={flashcards} />}
 
           <div className="lesson-foot">
             {prevLessonHref ? (
@@ -315,24 +380,15 @@ export default function LessonClient({
             </div>
             <div className="tutor-msgs">
               {tutorMessages.map((m, i) => (
-                <div
-                  key={i}
-                  className={`tutor-msg${m.role === "user" ? " user" : ""}`}
-                >
-                  {m.role === "tutor" && (
-                    <div className="tutor-avatar">AI</div>
-                  )}
+                <div key={i} className={`tutor-msg${m.role === "user" ? " user" : ""}`}>
+                  {m.role === "tutor" && <div className="tutor-avatar">AI</div>}
                   <div className="tutor-bubble">{m.text}</div>
                 </div>
               ))}
             </div>
             <div className="tutor-suggest">
               {tutorSuggestions.map((s, i) => (
-                <button
-                  key={i}
-                  className="suggest-chip small"
-                  onClick={() => sendMsg(s)}
-                >
+                <button key={i} className="suggest-chip small" onClick={() => sendMsg(s)}>
                   {s}
                 </button>
               ))}
@@ -408,11 +464,7 @@ function FocusControls({
         <button className="fc-btn fc-exit" onClick={onExit} title="Sair do foco · Esc">
           <span>×</span> Sair do foco <span className="fc-kbd">Esc</span>
         </button>
-        <button
-          className="fc-btn"
-          onClick={() => setOpen(!open)}
-          title="Configurações de leitura"
-        >
+        <button className="fc-btn" onClick={() => setOpen(!open)} title="Configurações de leitura">
           <span className="fc-icon">Aa</span>
         </button>
       </div>
@@ -449,17 +501,11 @@ function FocusControls({
           <div className="fs-group">
             <div className="fs-label">Tamanho</div>
             <div className="fs-row">
-              <button
-                className="fs-step"
-                onClick={() => setSize(Math.max(14, size - 1))}
-              >
+              <button className="fs-step" onClick={() => setSize(Math.max(14, size - 1))}>
                 −
               </button>
               <span className="fs-size-val">{size}px</span>
-              <button
-                className="fs-step"
-                onClick={() => setSize(Math.min(28, size + 1))}
-              >
+              <button className="fs-step" onClick={() => setSize(Math.min(28, size + 1))}>
                 +
               </button>
             </div>
@@ -479,9 +525,7 @@ function FocusControls({
               ))}
             </div>
           </div>
-          <div className="fs-hint">
-            Pressione F em qualquer lugar para alternar o modo foco.
-          </div>
+          <div className="fs-hint">Pressione F em qualquer lugar para alternar o modo foco.</div>
         </div>
       )}
     </>
