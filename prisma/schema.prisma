@@ -19,14 +19,19 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  accounts     Account[]
-  sessions     Session[]
-  progress     UserProgress[]
-  achievements UserAchievement[]
-  streak       UserStreak?
-  subscription Subscription?
-  enrollments  Enrollment[]
-  courses      Course[]          @relation("CourseAuthor")
+  accounts      Account[]
+  sessions      Session[]
+  progress      UserProgress[]
+  achievements  UserAchievement[]
+  streak        UserStreak?
+  subscription  Subscription?
+  enrollments   Enrollment[]
+  courses       Course[]          @relation("CourseAuthor")
+  labAttempts   LabAttempt[]
+  hintReveals   HintReveal[]
+  xp            UserXP?
+  quizAttempts  QuizAttempt[]
+  reviewCards   ReviewCard[]
 }
 
 model Account {
@@ -128,6 +133,8 @@ model Lesson {
   module        Module         @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   progress      UserProgress[]
   quizQuestions QuizQuestion[]
+  quizAttempts  QuizAttempt[]
+  reviewCards   ReviewCard[]
   lab           Lab?
   projectSteps  ProjectStep[]
 
@@ -162,7 +169,42 @@ model Lab {
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 
-  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  lesson      Lesson       @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  attempts    LabAttempt[]
+  hintReveals HintReveal[]
+}
+
+model LabAttempt {
+  id          String   @id @default(cuid())
+  userId      String
+  labId       String
+  isCorrect   Boolean
+  attemptedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lab  Lab  @relation(fields: [labId], references: [id], onDelete: Cascade)
+
+  @@index([userId, labId])
+}
+
+model HintReveal {
+  id         String   @id @default(cuid())
+  userId     String
+  labId      String
+  hintIndex  Int
+  revealedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lab  Lab  @relation(fields: [labId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, labId, hintIndex])
+}
+
+model UserXP {
+  userId String @id
+  points Int    @default(0)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model ProjectStep {
@@ -285,6 +327,56 @@ model Subscription {
   updatedAt        DateTime           @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// ─── Quiz attempts & spaced repetition ────────────────────────────────────
+
+model QuizAttempt {
+  id        String   @id @default(cuid())
+  userId    String
+  lessonId  String
+  score     Int
+  total     Int
+  answers   Json     // [{ questionId, selectedIndex, correct }]
+  createdAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@index([userId, lessonId])
+}
+
+model ReviewCard {
+  id          String   @id @default(cuid())
+  userId      String
+  lessonId    String
+  front       String   @db.Text
+  back        String   @db.Text
+  easeFactor  Float    @default(2.5)
+  interval    Int      @default(1)
+  repetitions Int      @default(0)
+  dueAt       DateTime @default(now())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user    User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson  Lesson       @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  reviews CardReview[]
+
+  @@unique([userId, lessonId, front])
+  @@index([userId, dueAt])
+}
+
+model CardReview {
+  id        String     @id @default(cuid())
+  cardId    String
+  userId    String
+  rating    Int
+  createdAt DateTime   @default(now())
+
+  card ReviewCard @relation(fields: [cardId], references: [id], onDelete: Cascade)
+
+  @@index([cardId])
 }
 
 // ─── Enums ─────────────────────────────────────────────────────────────────
