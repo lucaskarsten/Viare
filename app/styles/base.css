@@ -1,0 +1,78 @@
+
+/* --- Main content --- */
+.vr-main { padding: 48px 64px 96px; max-width: 1200px; }
+.page { display: flex; flex-direction: column; gap: 56px; }
+
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-4);
+  margin-bottom: 12px;
+}
+.h1 {
+  font-weight: 500;
+  font-size: 36px;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  margin: 0;
+  text-wrap: balance;
+  color: var(--ink);
+}
+.h1 em { color: var(--ink-3); font-weight: 400; font-style: normal; }
+.lede {
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--ink-3);
+  margin-top: 14px;
+  max-width: 62ch;
+  text-wrap: pretty;
+  letter-spacing: 0;
+}
+.page-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 48px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--rule);
+}
+.page-head.compact { padding-bottom: 0; border-bottom: 0; }
+
+.section-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 20px; }
+.section-head h2 { font-weight: 500; font-size: 20px; margin: 0; letter-spacing: -0.02em; color: var(--ink); }
+
+.ghost {
+  color: var(--ink-3); font-size: 13px; padding: 6px 10px;
+  border-radius: var(--vr-radius); transition: color .12s, background .12s;
+  background: none; border: 0; cursor: pointer; font-family: var(--sans);
+  text-decoration: none; display: inline-flex; align-items: center;
+}
+.ghost:hover { color: var(--ink); background: var(--paper-2); }
+.ghost.small { font-size: 12px; padding: 4px 8px; }
+.ghost.big { font-size: 15px; padding: 12px 18px; }
+
+.primary {
+  background: var(--ink); color: var(--paper);
+  padding: 10px 16px; border-radius: var(--vr-radius);
+  font-size: 13px; font-weight: 500;
+  transition: opacity .15s;
+  border: 0; cursor: pointer; font-family: var(--sans);
+  display: inline-flex; align-items: center;
+  text-decoration: none;
+}
+.primary:hover { opacity: .9; }
+.primary:disabled { opacity: .5; cursor: not-allowed; }
+.primary.big { font-size: 15px; padding: 14px 22px; }
+.icon { width: 32px; height: 32px; display: grid; place-items: center; border-radius: var(--vr-radius); color: var(--ink-3); background: none; border: 0; cursor: pointer; }
+.icon:hover { background: var(--paper-2); color: var(--ink); }
+.icon.small { width: 24px; height: 24px; font-size: 16px; }
+
+
+.placeholder-stripes {
+  background-image: repeating-linear-gradient(135deg, rgba(255,255,255,0.08) 0, rgba(255,255,255,0.08) 1px, transparent 1px, transparent 8px);
+  position: absolute; inset: 0;
+}
+

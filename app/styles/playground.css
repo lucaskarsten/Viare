@@ -1,0 +1,49 @@
+/* === from styles-1.css === */
+.main { padding: 48px 64px 96px; max-width: 1200px; }
+
+/* === from styles-2.css === */
+.drop { margin-top: 32px; }
+
+.ef-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.ef-score { background: var(--ok); color: white; font-family: var(--mono); font-size: 12px; padding: 3px 10px; border-radius: 99px; font-weight: 600; }
+.ef-head > span:last-child { font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-4); }
+
+.tutor-suggest { display: flex; flex-wrap: wrap; gap: 4px; padding: 8px 16px; }
+
+/* Playground */
+.pg-head { display: flex; align-items: center; gap: 6px; padding: 10px 16px; background: rgba(255,255,255,0.04); border-bottom: 1px solid rgba(255,255,255,0.08); }
+.pg-dot { width: 10px; height: 10px; border-radius: 50%; background: #5a5450; }
+.pg-dot.amber { background: #c97a4a; }
+.pg-dot.green { background: #8a9a5b; }
+.pg-title { font-family: var(--mono); font-size: 11px; color: rgba(255,255,255,0.5); margin-left: 8px; }
+.pg-body { margin: 0; padding: 20px; font-family: var(--mono); font-size: 13px; line-height: 1.65; }
+.pg-cursor { animation: blink 1s infinite; color: #c97a4a; }
+@keyframes blink { 0%,50% { opacity: 1; } 51%,100% { opacity: 0; } }
+.pg-tasks { padding: 16px 20px; background: rgba(255,255,255,0.03); border-top: 1px solid rgba(255,255,255,0.08); font-family: var(--mono); font-size: 12px; }
+.pg-task { padding: 3px 0; color: rgba(255,255,255,0.4); }
+.pg-task.done { color: #8a9a5b; }
+.pg-task.current { color: #c97a4a; }
+
+/* Tweaks panel */
+.tweaks {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 280px;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 16px 40px rgba(0,0,0,0.12);
+  z-index: 100;
+  padding: 16px;
+}
+.tweaks-head { display: flex; justify-content: space-between; align-items: center; font-size: 13px; font-weight: 500; letter-spacing: -0.01em; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--rule); }
+.tweaks-head button { font-size: 20px; color: var(--ink-4); }
+.tweak-group { margin-bottom: 14px; }
+.tweak-label { font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink-4); margin-bottom: 6px; }
+.tweak-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.tweak-row .chip { text-transform: capitalize; }
+.swatch { display: flex; align-items: center; gap: 6px; font-size: 11px; padding: 4px 8px; border: 1px solid var(--rule); border-radius: var(--radius); color: var(--ink-2); text-transform: capitalize; }
+.swatch span { width: 14px; height: 14px; border-radius: 2px; }
+.swatch.on { border-color: var(--ink); background: var(--paper-2); }
+.tweaks-note { font-size: 11px; color: var(--ink-4); padding-top: 10px; border-top: 1px solid var(--rule); font-family: var(--mono); letter-spacing: 0.02em; }
