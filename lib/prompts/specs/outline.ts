@@ -110,6 +110,9 @@ const MIXED_CONSTRAINTS: Record<string, CompositionConstraints> = {
       THEORY: { min: 1, max: 3 },
       REFLECTION: { min: 1, max: 1 },
       QUIZ: { min: 1, max: 1 },
+      // RULE: CA-C6 — LAB occupies one slot within the existing 5-7 total;
+      // no bump needed because LAB replaces (not adds to) another lesson slot.
+      LAB: { min: 0, max: 1 },
     },
     totalLessons: { min: 5, max: 7 },
     startsWithOneOf: ["CASE_STUDY", "THEORY"],
@@ -142,7 +145,9 @@ const SCOPE_CONSTRAINTS: Record<string, { modules: string; lessons: string; hour
   },
 };
 
-const LESSON_TYPE_ENUM = ["THEORY", "QUIZ", "CASE_STUDY", "REFLECTION", "PRACTICE"] as const;
+// RULE: CA-C5 — LAB added to outline enum; with ENABLE_LAB_GENERATION=false,
+// buildLegacyFallback strips LAB → THEORY so existing pipeline is unaffected.
+const LESSON_TYPE_ENUM = ["THEORY", "QUIZ", "CASE_STUDY", "REFLECTION", "PRACTICE", "LAB"] as const;
 
 const outlineTool: Anthropic.Tool = {
   name: "create_course_outline",
@@ -184,6 +189,12 @@ const outlineTool: Anthropic.Tool = {
                 properties: {
                   title: { type: "string" },
                   type: { type: "string", enum: [...LESSON_TYPE_ENUM] },
+                  labVariant: {
+                    type: "string",
+                    enum: ["CTF", "INTERACTIVE"],
+                    description:
+                      "Required when type is LAB. CTF = flag-based challenge; INTERACTIVE = self-declared completion.",
+                  },
                 },
                 required: ["title", "type"],
               },
@@ -211,7 +222,7 @@ const outlineTool: Anthropic.Tool = {
 // skipped and the call still works.
 function buildSystemBlocks(): Anthropic.TextBlockParam[] {
   const mixedRule =
-    "- Lessons may be of types THEORY, QUIZ, CASE_STUDY, REFLECTION, PRACTICE — pick the type that best serves the learning goal of each lesson.";
+    "- Lessons may be of types THEORY, QUIZ, CASE_STUDY, REFLECTION, PRACTICE, LAB — pick the type that best serves the learning goal of each lesson. Use LAB only in deep-scope courses (0-1 per course); LAB lessons require a labVariant of CTF or INTERACTIVE.";
 
   const text = [
     persona(
@@ -352,6 +363,8 @@ function flattenLessons(outline: CourseOutline): Array<{ type: string }> {
 
 function buildLegacyFallback(outline: CourseOutline): CourseOutline {
   // Fallback: collapse to a safe THEORY+QUIZ composition while preserving titles/metadata.
+  // LAB lessons are stripped to THEORY here — the LAB generator gate (ENABLE_LAB_GENERATION)
+  // is checked downstream; fallback is also used when composition retries exhaust.
   const modules = outline.modules.map((mod) => {
     const theoryLessons = mod.lessons
       .filter((l) => l.type !== "QUIZ")

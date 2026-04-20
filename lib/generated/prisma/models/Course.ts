@@ -30,6 +30,7 @@ export type CourseAvgAggregateOutputType = {
   avgRating: number | null;
   totalRatings: number | null;
   totalEnrollments: number | null;
+  enrichCount: number | null;
 };
 
 export type CourseSumAggregateOutputType = {
@@ -37,6 +38,7 @@ export type CourseSumAggregateOutputType = {
   avgRating: number | null;
   totalRatings: number | null;
   totalEnrollments: number | null;
+  enrichCount: number | null;
 };
 
 export type CourseMinAggregateOutputType = {
@@ -56,6 +58,7 @@ export type CourseMinAggregateOutputType = {
   avgRating: number | null;
   totalRatings: number | null;
   totalEnrollments: number | null;
+  enrichCount: number | null;
   generationPrompt: string | null;
   language: string | null;
   scope: $Enums.CourseScope | null;
@@ -83,6 +86,7 @@ export type CourseMaxAggregateOutputType = {
   avgRating: number | null;
   totalRatings: number | null;
   totalEnrollments: number | null;
+  enrichCount: number | null;
   generationPrompt: string | null;
   language: string | null;
   scope: $Enums.CourseScope | null;
@@ -111,6 +115,7 @@ export type CourseCountAggregateOutputType = {
   avgRating: number;
   totalRatings: number;
   totalEnrollments: number;
+  enrichCount: number;
   generationPrompt: number;
   language: number;
   scope: number;
@@ -127,6 +132,7 @@ export type CourseAvgAggregateInputType = {
   avgRating?: true;
   totalRatings?: true;
   totalEnrollments?: true;
+  enrichCount?: true;
 };
 
 export type CourseSumAggregateInputType = {
@@ -134,6 +140,7 @@ export type CourseSumAggregateInputType = {
   avgRating?: true;
   totalRatings?: true;
   totalEnrollments?: true;
+  enrichCount?: true;
 };
 
 export type CourseMinAggregateInputType = {
@@ -153,6 +160,7 @@ export type CourseMinAggregateInputType = {
   avgRating?: true;
   totalRatings?: true;
   totalEnrollments?: true;
+  enrichCount?: true;
   generationPrompt?: true;
   language?: true;
   scope?: true;
@@ -180,6 +188,7 @@ export type CourseMaxAggregateInputType = {
   avgRating?: true;
   totalRatings?: true;
   totalEnrollments?: true;
+  enrichCount?: true;
   generationPrompt?: true;
   language?: true;
   scope?: true;
@@ -208,6 +217,7 @@ export type CourseCountAggregateInputType = {
   avgRating?: true;
   totalRatings?: true;
   totalEnrollments?: true;
+  enrichCount?: true;
   generationPrompt?: true;
   language?: true;
   scope?: true;
@@ -324,6 +334,7 @@ export type CourseGroupByOutputType = {
   avgRating: number;
   totalRatings: number;
   totalEnrollments: number;
+  enrichCount: number;
   generationPrompt: string | null;
   language: string;
   scope: $Enums.CourseScope;
@@ -372,6 +383,7 @@ export type CourseWhereInput = {
   avgRating?: Prisma.FloatFilter<"Course"> | number;
   totalRatings?: Prisma.IntFilter<"Course"> | number;
   totalEnrollments?: Prisma.IntFilter<"Course"> | number;
+  enrichCount?: Prisma.IntFilter<"Course"> | number;
   generationPrompt?: Prisma.StringNullableFilter<"Course"> | string | null;
   language?: Prisma.StringFilter<"Course"> | string;
   scope?: Prisma.EnumCourseScopeFilter<"Course"> | $Enums.CourseScope;
@@ -409,6 +421,7 @@ export type CourseOrderByWithRelationInput = {
   avgRating?: Prisma.SortOrder;
   totalRatings?: Prisma.SortOrder;
   totalEnrollments?: Prisma.SortOrder;
+  enrichCount?: Prisma.SortOrder;
   generationPrompt?: Prisma.SortOrderInput | Prisma.SortOrder;
   language?: Prisma.SortOrder;
   scope?: Prisma.SortOrder;
@@ -447,6 +460,7 @@ export type CourseWhereUniqueInput = Prisma.AtLeast<
     avgRating?: Prisma.FloatFilter<"Course"> | number;
     totalRatings?: Prisma.IntFilter<"Course"> | number;
     totalEnrollments?: Prisma.IntFilter<"Course"> | number;
+    enrichCount?: Prisma.IntFilter<"Course"> | number;
     generationPrompt?: Prisma.StringNullableFilter<"Course"> | string | null;
     language?: Prisma.StringFilter<"Course"> | string;
     scope?: Prisma.EnumCourseScopeFilter<"Course"> | $Enums.CourseScope;
@@ -486,6 +500,7 @@ export type CourseOrderByWithAggregationInput = {
   avgRating?: Prisma.SortOrder;
   totalRatings?: Prisma.SortOrder;
   totalEnrollments?: Prisma.SortOrder;
+  enrichCount?: Prisma.SortOrder;
   generationPrompt?: Prisma.SortOrderInput | Prisma.SortOrder;
   language?: Prisma.SortOrder;
   scope?: Prisma.SortOrder;
@@ -522,6 +537,7 @@ export type CourseScalarWhereWithAggregatesInput = {
   avgRating?: Prisma.FloatWithAggregatesFilter<"Course"> | number;
   totalRatings?: Prisma.IntWithAggregatesFilter<"Course"> | number;
   totalEnrollments?: Prisma.IntWithAggregatesFilter<"Course"> | number;
+  enrichCount?: Prisma.IntWithAggregatesFilter<"Course"> | number;
   generationPrompt?: Prisma.StringNullableWithAggregatesFilter<"Course"> | string | null;
   language?: Prisma.StringWithAggregatesFilter<"Course"> | string;
   scope?: Prisma.EnumCourseScopeWithAggregatesFilter<"Course"> | $Enums.CourseScope;
@@ -551,6 +567,7 @@ export type CourseCreateInput = {
   avgRating?: number;
   totalRatings?: number;
   totalEnrollments?: number;
+  enrichCount?: number;
   generationPrompt?: string | null;
   language?: string;
   scope?: $Enums.CourseScope;
@@ -585,6 +602,7 @@ export type CourseUncheckedCreateInput = {
   avgRating?: number;
   totalRatings?: number;
   totalEnrollments?: number;
+  enrichCount?: number;
   generationPrompt?: string | null;
   language?: string;
   scope?: $Enums.CourseScope;
@@ -615,6 +633,7 @@ export type CourseUpdateInput = {
   avgRating?: Prisma.FloatFieldUpdateOperationsInput | number;
   totalRatings?: Prisma.IntFieldUpdateOperationsInput | number;
   totalEnrollments?: Prisma.IntFieldUpdateOperationsInput | number;
+  enrichCount?: Prisma.IntFieldUpdateOperationsInput | number;
   generationPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   language?: Prisma.StringFieldUpdateOperationsInput | string;
   scope?: Prisma.EnumCourseScopeFieldUpdateOperationsInput | $Enums.CourseScope;
@@ -652,6 +671,7 @@ export type CourseUncheckedUpdateInput = {
   avgRating?: Prisma.FloatFieldUpdateOperationsInput | number;
   totalRatings?: Prisma.IntFieldUpdateOperationsInput | number;
   totalEnrollments?: Prisma.IntFieldUpdateOperationsInput | number;
+  enrichCount?: Prisma.IntFieldUpdateOperationsInput | number;
   generationPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   language?: Prisma.StringFieldUpdateOperationsInput | string;
   scope?: Prisma.EnumCourseScopeFieldUpdateOperationsInput | $Enums.CourseScope;
@@ -687,6 +707,7 @@ export type CourseCreateManyInput = {
   avgRating?: number;
   totalRatings?: number;
   totalEnrollments?: number;
+  enrichCount?: number;
   generationPrompt?: string | null;
   language?: string;
   scope?: $Enums.CourseScope;
@@ -713,6 +734,7 @@ export type CourseUpdateManyMutationInput = {
   avgRating?: Prisma.FloatFieldUpdateOperationsInput | number;
   totalRatings?: Prisma.IntFieldUpdateOperationsInput | number;
   totalEnrollments?: Prisma.IntFieldUpdateOperationsInput | number;
+  enrichCount?: Prisma.IntFieldUpdateOperationsInput | number;
   generationPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   language?: Prisma.StringFieldUpdateOperationsInput | string;
   scope?: Prisma.EnumCourseScopeFieldUpdateOperationsInput | $Enums.CourseScope;
@@ -744,6 +766,7 @@ export type CourseUncheckedUpdateManyInput = {
   avgRating?: Prisma.FloatFieldUpdateOperationsInput | number;
   totalRatings?: Prisma.IntFieldUpdateOperationsInput | number;
   totalEnrollments?: Prisma.IntFieldUpdateOperationsInput | number;
+  enrichCount?: Prisma.IntFieldUpdateOperationsInput | number;
   generationPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   language?: Prisma.StringFieldUpdateOperationsInput | string;
   scope?: Prisma.EnumCourseScopeFieldUpdateOperationsInput | $Enums.CourseScope;
@@ -798,6 +821,7 @@ export type CourseCountOrderByAggregateInput = {
   avgRating?: Prisma.SortOrder;
   totalRatings?: Prisma.SortOrder;
   totalEnrollments?: Prisma.SortOrder;
+  enrichCount?: Prisma.SortOrder;
   generationPrompt?: Prisma.SortOrder;
   language?: Prisma.SortOrder;
   scope?: Prisma.SortOrder;
@@ -813,6 +837,7 @@ export type CourseAvgOrderByAggregateInput = {
   avgRating?: Prisma.SortOrder;
   totalRatings?: Prisma.SortOrder;
   totalEnrollments?: Prisma.SortOrder;
+  enrichCount?: Prisma.SortOrder;
 };
 
 export type CourseMaxOrderByAggregateInput = {
@@ -832,6 +857,7 @@ export type CourseMaxOrderByAggregateInput = {
   avgRating?: Prisma.SortOrder;
   totalRatings?: Prisma.SortOrder;
   totalEnrollments?: Prisma.SortOrder;
+  enrichCount?: Prisma.SortOrder;
   generationPrompt?: Prisma.SortOrder;
   language?: Prisma.SortOrder;
   scope?: Prisma.SortOrder;
@@ -859,6 +885,7 @@ export type CourseMinOrderByAggregateInput = {
   avgRating?: Prisma.SortOrder;
   totalRatings?: Prisma.SortOrder;
   totalEnrollments?: Prisma.SortOrder;
+  enrichCount?: Prisma.SortOrder;
   generationPrompt?: Prisma.SortOrder;
   language?: Prisma.SortOrder;
   scope?: Prisma.SortOrder;
@@ -874,6 +901,7 @@ export type CourseSumOrderByAggregateInput = {
   avgRating?: Prisma.SortOrder;
   totalRatings?: Prisma.SortOrder;
   totalEnrollments?: Prisma.SortOrder;
+  enrichCount?: Prisma.SortOrder;
 };
 
 export type CourseScalarRelationFilter = {
@@ -1232,6 +1260,7 @@ export type CourseCreateWithoutCreatedByInput = {
   avgRating?: number;
   totalRatings?: number;
   totalEnrollments?: number;
+  enrichCount?: number;
   generationPrompt?: string | null;
   language?: string;
   scope?: $Enums.CourseScope;
@@ -1264,6 +1293,7 @@ export type CourseUncheckedCreateWithoutCreatedByInput = {
   avgRating?: number;
   totalRatings?: number;
   totalEnrollments?: number;
+  enrichCount?: number;
   generationPrompt?: string | null;
   language?: string;
   scope?: $Enums.CourseScope;
@@ -1340,6 +1370,7 @@ export type CourseScalarWhereInput = {
   avgRating?: Prisma.FloatFilter<"Course"> | number;
   totalRatings?: Prisma.IntFilter<"Course"> | number;
   totalEnrollments?: Prisma.IntFilter<"Course"> | number;
+  enrichCount?: Prisma.IntFilter<"Course"> | number;
   generationPrompt?: Prisma.StringNullableFilter<"Course"> | string | null;
   language?: Prisma.StringFilter<"Course"> | string;
   scope?: Prisma.EnumCourseScopeFilter<"Course"> | $Enums.CourseScope;
@@ -1366,6 +1397,7 @@ export type CourseCreateWithoutForksInput = {
   avgRating?: number;
   totalRatings?: number;
   totalEnrollments?: number;
+  enrichCount?: number;
   generationPrompt?: string | null;
   language?: string;
   scope?: $Enums.CourseScope;
@@ -1399,6 +1431,7 @@ export type CourseUncheckedCreateWithoutForksInput = {
   avgRating?: number;
   totalRatings?: number;
   totalEnrollments?: number;
+  enrichCount?: number;
   generationPrompt?: string | null;
   language?: string;
   scope?: $Enums.CourseScope;
@@ -1436,6 +1469,7 @@ export type CourseCreateWithoutParentCourseInput = {
   avgRating?: number;
   totalRatings?: number;
   totalEnrollments?: number;
+  enrichCount?: number;
   generationPrompt?: string | null;
   language?: string;
   scope?: $Enums.CourseScope;
@@ -1468,6 +1502,7 @@ export type CourseUncheckedCreateWithoutParentCourseInput = {
   avgRating?: number;
   totalRatings?: number;
   totalEnrollments?: number;
+  enrichCount?: number;
   generationPrompt?: string | null;
   language?: string;
   scope?: $Enums.CourseScope;
@@ -1531,6 +1566,7 @@ export type CourseUpdateWithoutForksInput = {
   avgRating?: Prisma.FloatFieldUpdateOperationsInput | number;
   totalRatings?: Prisma.IntFieldUpdateOperationsInput | number;
   totalEnrollments?: Prisma.IntFieldUpdateOperationsInput | number;
+  enrichCount?: Prisma.IntFieldUpdateOperationsInput | number;
   generationPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   language?: Prisma.StringFieldUpdateOperationsInput | string;
   scope?: Prisma.EnumCourseScopeFieldUpdateOperationsInput | $Enums.CourseScope;
@@ -1567,6 +1603,7 @@ export type CourseUncheckedUpdateWithoutForksInput = {
   avgRating?: Prisma.FloatFieldUpdateOperationsInput | number;
   totalRatings?: Prisma.IntFieldUpdateOperationsInput | number;
   totalEnrollments?: Prisma.IntFieldUpdateOperationsInput | number;
+  enrichCount?: Prisma.IntFieldUpdateOperationsInput | number;
   generationPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   language?: Prisma.StringFieldUpdateOperationsInput | string;
   scope?: Prisma.EnumCourseScopeFieldUpdateOperationsInput | $Enums.CourseScope;
@@ -1627,6 +1664,7 @@ export type CourseCreateWithoutModulesInput = {
   avgRating?: number;
   totalRatings?: number;
   totalEnrollments?: number;
+  enrichCount?: number;
   generationPrompt?: string | null;
   language?: string;
   scope?: $Enums.CourseScope;
@@ -1660,6 +1698,7 @@ export type CourseUncheckedCreateWithoutModulesInput = {
   avgRating?: number;
   totalRatings?: number;
   totalEnrollments?: number;
+  enrichCount?: number;
   generationPrompt?: string | null;
   language?: string;
   scope?: $Enums.CourseScope;
@@ -1717,6 +1756,7 @@ export type CourseUpdateWithoutModulesInput = {
   avgRating?: Prisma.FloatFieldUpdateOperationsInput | number;
   totalRatings?: Prisma.IntFieldUpdateOperationsInput | number;
   totalEnrollments?: Prisma.IntFieldUpdateOperationsInput | number;
+  enrichCount?: Prisma.IntFieldUpdateOperationsInput | number;
   generationPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   language?: Prisma.StringFieldUpdateOperationsInput | string;
   scope?: Prisma.EnumCourseScopeFieldUpdateOperationsInput | $Enums.CourseScope;
@@ -1753,6 +1793,7 @@ export type CourseUncheckedUpdateWithoutModulesInput = {
   avgRating?: Prisma.FloatFieldUpdateOperationsInput | number;
   totalRatings?: Prisma.IntFieldUpdateOperationsInput | number;
   totalEnrollments?: Prisma.IntFieldUpdateOperationsInput | number;
+  enrichCount?: Prisma.IntFieldUpdateOperationsInput | number;
   generationPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   language?: Prisma.StringFieldUpdateOperationsInput | string;
   scope?: Prisma.EnumCourseScopeFieldUpdateOperationsInput | $Enums.CourseScope;
@@ -1785,6 +1826,7 @@ export type CourseCreateWithoutEnrollmentsInput = {
   avgRating?: number;
   totalRatings?: number;
   totalEnrollments?: number;
+  enrichCount?: number;
   generationPrompt?: string | null;
   language?: string;
   scope?: $Enums.CourseScope;
@@ -1818,6 +1860,7 @@ export type CourseUncheckedCreateWithoutEnrollmentsInput = {
   avgRating?: number;
   totalRatings?: number;
   totalEnrollments?: number;
+  enrichCount?: number;
   generationPrompt?: string | null;
   language?: string;
   scope?: $Enums.CourseScope;
@@ -1875,6 +1918,7 @@ export type CourseUpdateWithoutEnrollmentsInput = {
   avgRating?: Prisma.FloatFieldUpdateOperationsInput | number;
   totalRatings?: Prisma.IntFieldUpdateOperationsInput | number;
   totalEnrollments?: Prisma.IntFieldUpdateOperationsInput | number;
+  enrichCount?: Prisma.IntFieldUpdateOperationsInput | number;
   generationPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   language?: Prisma.StringFieldUpdateOperationsInput | string;
   scope?: Prisma.EnumCourseScopeFieldUpdateOperationsInput | $Enums.CourseScope;
@@ -1911,6 +1955,7 @@ export type CourseUncheckedUpdateWithoutEnrollmentsInput = {
   avgRating?: Prisma.FloatFieldUpdateOperationsInput | number;
   totalRatings?: Prisma.IntFieldUpdateOperationsInput | number;
   totalEnrollments?: Prisma.IntFieldUpdateOperationsInput | number;
+  enrichCount?: Prisma.IntFieldUpdateOperationsInput | number;
   generationPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   language?: Prisma.StringFieldUpdateOperationsInput | string;
   scope?: Prisma.EnumCourseScopeFieldUpdateOperationsInput | $Enums.CourseScope;
@@ -1943,6 +1988,7 @@ export type CourseCreateWithoutCertificatesInput = {
   avgRating?: number;
   totalRatings?: number;
   totalEnrollments?: number;
+  enrichCount?: number;
   generationPrompt?: string | null;
   language?: string;
   scope?: $Enums.CourseScope;
@@ -1976,6 +2022,7 @@ export type CourseUncheckedCreateWithoutCertificatesInput = {
   avgRating?: number;
   totalRatings?: number;
   totalEnrollments?: number;
+  enrichCount?: number;
   generationPrompt?: string | null;
   language?: string;
   scope?: $Enums.CourseScope;
@@ -2033,6 +2080,7 @@ export type CourseUpdateWithoutCertificatesInput = {
   avgRating?: Prisma.FloatFieldUpdateOperationsInput | number;
   totalRatings?: Prisma.IntFieldUpdateOperationsInput | number;
   totalEnrollments?: Prisma.IntFieldUpdateOperationsInput | number;
+  enrichCount?: Prisma.IntFieldUpdateOperationsInput | number;
   generationPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   language?: Prisma.StringFieldUpdateOperationsInput | string;
   scope?: Prisma.EnumCourseScopeFieldUpdateOperationsInput | $Enums.CourseScope;
@@ -2069,6 +2117,7 @@ export type CourseUncheckedUpdateWithoutCertificatesInput = {
   avgRating?: Prisma.FloatFieldUpdateOperationsInput | number;
   totalRatings?: Prisma.IntFieldUpdateOperationsInput | number;
   totalEnrollments?: Prisma.IntFieldUpdateOperationsInput | number;
+  enrichCount?: Prisma.IntFieldUpdateOperationsInput | number;
   generationPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   language?: Prisma.StringFieldUpdateOperationsInput | string;
   scope?: Prisma.EnumCourseScopeFieldUpdateOperationsInput | $Enums.CourseScope;
@@ -2102,6 +2151,7 @@ export type CourseCreateManyCreatedByInput = {
   avgRating?: number;
   totalRatings?: number;
   totalEnrollments?: number;
+  enrichCount?: number;
   generationPrompt?: string | null;
   language?: string;
   scope?: $Enums.CourseScope;
@@ -2128,6 +2178,7 @@ export type CourseUpdateWithoutCreatedByInput = {
   avgRating?: Prisma.FloatFieldUpdateOperationsInput | number;
   totalRatings?: Prisma.IntFieldUpdateOperationsInput | number;
   totalEnrollments?: Prisma.IntFieldUpdateOperationsInput | number;
+  enrichCount?: Prisma.IntFieldUpdateOperationsInput | number;
   generationPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   language?: Prisma.StringFieldUpdateOperationsInput | string;
   scope?: Prisma.EnumCourseScopeFieldUpdateOperationsInput | $Enums.CourseScope;
@@ -2163,6 +2214,7 @@ export type CourseUncheckedUpdateWithoutCreatedByInput = {
   avgRating?: Prisma.FloatFieldUpdateOperationsInput | number;
   totalRatings?: Prisma.IntFieldUpdateOperationsInput | number;
   totalEnrollments?: Prisma.IntFieldUpdateOperationsInput | number;
+  enrichCount?: Prisma.IntFieldUpdateOperationsInput | number;
   generationPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   language?: Prisma.StringFieldUpdateOperationsInput | string;
   scope?: Prisma.EnumCourseScopeFieldUpdateOperationsInput | $Enums.CourseScope;
@@ -2197,6 +2249,7 @@ export type CourseUncheckedUpdateManyWithoutCreatedByInput = {
   avgRating?: Prisma.FloatFieldUpdateOperationsInput | number;
   totalRatings?: Prisma.IntFieldUpdateOperationsInput | number;
   totalEnrollments?: Prisma.IntFieldUpdateOperationsInput | number;
+  enrichCount?: Prisma.IntFieldUpdateOperationsInput | number;
   generationPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   language?: Prisma.StringFieldUpdateOperationsInput | string;
   scope?: Prisma.EnumCourseScopeFieldUpdateOperationsInput | $Enums.CourseScope;
@@ -2227,6 +2280,7 @@ export type CourseCreateManyParentCourseInput = {
   avgRating?: number;
   totalRatings?: number;
   totalEnrollments?: number;
+  enrichCount?: number;
   generationPrompt?: string | null;
   language?: string;
   scope?: $Enums.CourseScope;
@@ -2253,6 +2307,7 @@ export type CourseUpdateWithoutParentCourseInput = {
   avgRating?: Prisma.FloatFieldUpdateOperationsInput | number;
   totalRatings?: Prisma.IntFieldUpdateOperationsInput | number;
   totalEnrollments?: Prisma.IntFieldUpdateOperationsInput | number;
+  enrichCount?: Prisma.IntFieldUpdateOperationsInput | number;
   generationPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   language?: Prisma.StringFieldUpdateOperationsInput | string;
   scope?: Prisma.EnumCourseScopeFieldUpdateOperationsInput | $Enums.CourseScope;
@@ -2288,6 +2343,7 @@ export type CourseUncheckedUpdateWithoutParentCourseInput = {
   avgRating?: Prisma.FloatFieldUpdateOperationsInput | number;
   totalRatings?: Prisma.IntFieldUpdateOperationsInput | number;
   totalEnrollments?: Prisma.IntFieldUpdateOperationsInput | number;
+  enrichCount?: Prisma.IntFieldUpdateOperationsInput | number;
   generationPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   language?: Prisma.StringFieldUpdateOperationsInput | string;
   scope?: Prisma.EnumCourseScopeFieldUpdateOperationsInput | $Enums.CourseScope;
@@ -2322,6 +2378,7 @@ export type CourseUncheckedUpdateManyWithoutParentCourseInput = {
   avgRating?: Prisma.FloatFieldUpdateOperationsInput | number;
   totalRatings?: Prisma.IntFieldUpdateOperationsInput | number;
   totalEnrollments?: Prisma.IntFieldUpdateOperationsInput | number;
+  enrichCount?: Prisma.IntFieldUpdateOperationsInput | number;
   generationPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   language?: Prisma.StringFieldUpdateOperationsInput | string;
   scope?: Prisma.EnumCourseScopeFieldUpdateOperationsInput | $Enums.CourseScope;
@@ -2424,6 +2481,7 @@ export type CourseSelect<
     avgRating?: boolean;
     totalRatings?: boolean;
     totalEnrollments?: boolean;
+    enrichCount?: boolean;
     generationPrompt?: boolean;
     language?: boolean;
     scope?: boolean;
@@ -2464,6 +2522,7 @@ export type CourseSelectCreateManyAndReturn<
     avgRating?: boolean;
     totalRatings?: boolean;
     totalEnrollments?: boolean;
+    enrichCount?: boolean;
     generationPrompt?: boolean;
     language?: boolean;
     scope?: boolean;
@@ -2499,6 +2558,7 @@ export type CourseSelectUpdateManyAndReturn<
     avgRating?: boolean;
     totalRatings?: boolean;
     totalEnrollments?: boolean;
+    enrichCount?: boolean;
     generationPrompt?: boolean;
     language?: boolean;
     scope?: boolean;
@@ -2531,6 +2591,7 @@ export type CourseSelectScalar = {
   avgRating?: boolean;
   totalRatings?: boolean;
   totalEnrollments?: boolean;
+  enrichCount?: boolean;
   generationPrompt?: boolean;
   language?: boolean;
   scope?: boolean;
@@ -2561,6 +2622,7 @@ export type CourseOmit<
   | "avgRating"
   | "totalRatings"
   | "totalEnrollments"
+  | "enrichCount"
   | "generationPrompt"
   | "language"
   | "scope"
@@ -2626,6 +2688,7 @@ export type $CoursePayload<
       avgRating: number;
       totalRatings: number;
       totalEnrollments: number;
+      enrichCount: number;
       generationPrompt: string | null;
       language: string;
       scope: $Enums.CourseScope;
@@ -3263,6 +3326,7 @@ export interface CourseFieldRefs {
   readonly avgRating: Prisma.FieldRef<"Course", "Float">;
   readonly totalRatings: Prisma.FieldRef<"Course", "Int">;
   readonly totalEnrollments: Prisma.FieldRef<"Course", "Int">;
+  readonly enrichCount: Prisma.FieldRef<"Course", "Int">;
   readonly generationPrompt: Prisma.FieldRef<"Course", "String">;
   readonly language: Prisma.FieldRef<"Course", "String">;
   readonly scope: Prisma.FieldRef<"Course", "CourseScope">;

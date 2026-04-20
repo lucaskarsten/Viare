@@ -25,6 +25,10 @@ const BASE_LAB = {
   scenario: "Scenario text",
   objectives: ["obj1", "obj2"],
   difficulty: "EASY" as const,
+  type: "CTF" as const,
+  templateId: null,
+  templateVersion: null,
+  config: null,
   hints: [
     { text: "First hint", cost: 10 },
     { text: "Second hint", cost: 20 },
@@ -118,5 +122,12 @@ describe("validateFlag", () => {
     await validateFlag("  FLAG{abc}  ", "hash");
 
     expect(vi.mocked(bcrypt.compare)).toHaveBeenCalledWith("FLAG{abc}", "hash");
+  });
+
+  it("retorna false quando flagHash é null — LAB-04 INTERACTIVE lab", async () => {
+    const result = await validateFlag("FLAG{abc}", null);
+
+    expect(result).toBe(false);
+    expect(vi.mocked(bcrypt.compare)).not.toHaveBeenCalled();
   });
 });

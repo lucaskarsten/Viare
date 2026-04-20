@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { z } from "zod";
 import { generateFlashcards as generateFlashcardsSpec } from "@/lib/prompts/specs/flashcards";
 import { issueCertificate } from "@/lib/certificates";
+import { forwardOnlyPercent } from "@/lib/progress";
 
 const BodySchema = z.object({ lessonId: z.string() });
 
@@ -77,8 +78,9 @@ export async function POST(request: Request) {
     }),
   ]);
 
-  const progressPercent =
-    totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+  const newPercent = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+  // RULE: PROG-01 — forward-only progress
+  const progressPercent = forwardOnlyPercent(enrollment.progressPercent, newPercent);
   const status = progressPercent === 100 ? "COMPLETED" : "IN_PROGRESS";
 
   const updatedEnrollment = await db.enrollment.update({

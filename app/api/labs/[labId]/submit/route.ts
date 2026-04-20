@@ -2,6 +2,7 @@ import { z } from "zod";
 import { auth } from "@/lib/dev-auth";
 import { db } from "@/lib/db";
 import { validateFlag } from "@/lib/lab";
+import { forwardOnlyPercent } from "@/lib/progress";
 
 const SubmitSchema = z.object({
   flag: z.string().min(1),
@@ -24,8 +25,16 @@ export async function POST(req: Request, { params }: { params: Promise<{ labId: 
   const { flag, lessonId, courseId } = parsed.data;
 
   // RULE: LAB-01 — flagHash fetched server-side, never returned
-  const lab = await db.lab.findUnique({ where: { id: labId }, select: { flagHash: true } });
+  const lab = await db.lab.findUnique({
+    where: { id: labId },
+    select: { flagHash: true, type: true },
+  });
   if (!lab) return new Response("Lab not found", { status: 404 });
+
+  // RULE: LAB-04 — INTERACTIVE labs use /complete, not /submit
+  if (lab.type === "INTERACTIVE") {
+    return Response.json({ error: "Use /complete for interactive labs" }, { status: 400 });
+  }
 
   const enrollment = await db.enrollment.findUnique({
     where: { userId_courseId: { userId: session.user.id, courseId } },
@@ -57,8 +66,9 @@ export async function POST(req: Request, { params }: { params: Promise<{ labId: 
       }),
     ]);
 
-    const progressPercent =
-      totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+    const newPercent = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+    // RULE: PROG-01 — forward-only progress
+    const progressPercent = forwardOnlyPercent(enrollment.progressPercent, newPercent);
     const status = progressPercent === 100 ? "COMPLETED" : "IN_PROGRESS";
 
     await db.enrollment.update({

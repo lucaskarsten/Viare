@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { auth } from "@/lib/dev-auth";
 import { db } from "@/lib/db";
 import { getLabForUser } from "@/lib/lab";
+import { isPro } from "@/lib/subscription";
 import LessonClient from "@/components/LessonClient";
 import QuizLesson from "./QuizLesson";
 import ReflectionBlock from "@/components/blocks/ReflectionBlock";
@@ -91,11 +92,49 @@ export default async function LessonPage({ params }: { params: Params }) {
     where: { userId_lessonId: { userId: session.user.id, lessonId } },
   });
 
-  const allLessons = await db.lesson.findMany({
-    where: { module: { courseId: lesson.module.course.id } },
-    orderBy: [{ module: { order: "asc" } }, { order: "asc" }],
-    select: { id: true, title: true, moduleId: true },
-  });
+  const [allLessons, courseModules, navProgress] = await Promise.all([
+    db.lesson.findMany({
+      where: { module: { courseId: lesson.module.course.id } },
+      orderBy: [{ module: { order: "asc" } }, { order: "asc" }],
+      select: { id: true, title: true, moduleId: true },
+    }),
+    db.module.findMany({
+      where: { courseId: lesson.module.course.id },
+      orderBy: { order: "asc" },
+      select: {
+        id: true,
+        title: true,
+        order: true,
+        lessons: {
+          orderBy: { order: "asc" },
+          select: { id: true, title: true, type: true },
+        },
+      },
+    }),
+    db.userProgress.findMany({
+      where: {
+        userId: session.user.id,
+        lesson: { module: { courseId: lesson.module.course.id } },
+      },
+      select: { lessonId: true, status: true },
+    }),
+  ]);
+
+  const completedSet = new Set(
+    navProgress.filter((p) => p.status === "COMPLETED").map((p) => p.lessonId)
+  );
+  const courseNav = courseModules.map((m) => ({
+    id: m.id,
+    title: m.title,
+    order: m.order,
+    lessons: m.lessons.map((l) => ({
+      id: l.id,
+      title: l.title,
+      type: l.type,
+      completed: completedSet.has(l.id),
+    })),
+  }));
+
   const currentIndex = allLessons.findIndex((l) => l.id === lessonId);
   const prevLesson = currentIndex > 0 ? allLessons[currentIndex - 1] : null;
   const nextLesson = currentIndex < allLessons.length - 1 ? allLessons[currentIndex + 1] : null;
@@ -105,6 +144,9 @@ export default async function LessonPage({ params }: { params: Params }) {
     : `/courses/${slug}`;
 
   const isCompleted = progress?.status === "COMPLETED";
+
+  // RULE: SUB-03 — client-side isPro flag reflects server check
+  const userIsPro = await isPro(session.user.id);
 
   const labData =
     lesson.type === "LAB" && lesson.lab
@@ -237,6 +279,7 @@ export default async function LessonPage({ params }: { params: Params }) {
         moduleOrder: lesson.module.order + 1,
         lessonNumber: currentIndex + 1,
         courseId: lesson.module.course.id,
+        moduleId: lesson.moduleId,
         type: lesson.type,
       }}
       course={{
@@ -251,6 +294,8 @@ export default async function LessonPage({ params }: { params: Params }) {
       flashcards={[]}
       summaryPoints={summaryPoints}
       lab={labData}
+      isPro={userIsPro}
+      courseNav={courseNav}
     />
   );
 }

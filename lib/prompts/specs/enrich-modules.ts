@@ -37,7 +37,13 @@ const enrichModulesTool: Anthropic.Tool = {
                   title: { type: "string" },
                   type: {
                     type: "string",
-                    enum: ["THEORY", "QUIZ", "CASE_STUDY", "REFLECTION", "PRACTICE"],
+                    enum: ["THEORY", "QUIZ", "CASE_STUDY", "REFLECTION", "PRACTICE", "LAB"],
+                  },
+                  labVariant: {
+                    type: "string",
+                    enum: ["CTF", "INTERACTIVE"],
+                    description:
+                      "Required when type is LAB. CTF for programming/devops/security; INTERACTIVE for conceptual/visual topics.",
                   },
                 },
                 required: ["title", "type"],
@@ -66,6 +72,10 @@ function buildSystemBlocks(): Anthropic.TextBlockParam[] {
         "- 1 to 2 new modules.",
         "- Each module has 2-3 THEORY lessons followed by a single QUIZ lesson.",
         "- Stay on topic, do not pivot the course into a different subject.",
+        "- You MAY use type LAB for a hands-on exercise (gated by ENABLE_LAB_GENERATION at runtime).",
+        "  If type is LAB, you MUST also set labVariant:",
+        "  - CTF for programming/devops/security topics (student runs commands and submits a flag).",
+        "  - INTERACTIVE for conceptual/visual topics (student manipulates an inline component).",
       ].join("\n")
     ),
     antiInjection(),

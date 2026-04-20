@@ -50,6 +50,8 @@ const userId = session?.user?.id;
 
 **AI-06** — Composição mista por scope: quando ENABLE_MIXED_LESSONS=true, cada módulo segue CompositionConstraints definidas em SCOPE_CONSTRAINTS de outline.ts. Validação pos-outline via validateComposition(). Max 2 retries com erro injetado no prompt. Fallback: THEORY+QUIZ se inválido após retries.
 
+**AI-07** — `ENABLE_LAB_GENERATION=false` (default). Gate em `LESSON_GENERATORS[LAB]`. Quando off: LAB lessons no outline fallback para THEORY via `buildLegacyFallback` existente.
+
 ---
 
 ## SUB — Subscriptions & Billing
@@ -68,11 +70,17 @@ const userId = session?.user?.id;
 
 **PROG-01** — Progresso é forward-only. Nunca decrementar `progressPercent` de um enrollment.
 
+- Enrich de curso pode aumentar `totalLessons`; `progressPercent` nunca decrementa via `forwardOnlyPercent` em `lib/progress.ts` (usando `Math.max`).
+- `Enrollment.baseLessonCount=null` significa: enrollment criada antes de qualquer enrich OU pós-enrich sem necessidade de snapshot (aluno ciente do total atual).
+
 **PROG-02** — `progressPercent` é sempre derivado: `Math.round(completedLessons / totalLessons * 100)`. Nunca setar manualmente.
 
 **PROG-03** — Streak usa datas em UTC. `lastActiveDate` é comparado com `new Date()` em UTC para evitar bugs de timezone.
 
-**PROG-04** — Progresso por tipo de aula: THEORY=botão marcar lida; QUIZ=tentativa registrada; LAB=flag correta; PROJECT=steps completos; CASE_STUDY=botão Continuar (auto-complete); PRACTICE=botão Completei (auto-declaração); REFLECTION=ReflectionResponse salva (min 50 chars).
+**PROG-04** — Progresso por tipo de aula: THEORY=botão marcar lida; QUIZ=tentativa registrada; LAB=flag correta (CTF) ou auto-declaração (INTERACTIVE); PROJECT=steps completos; CASE_STUDY=botão Continuar (auto-complete); PRACTICE=botão Completei (auto-declaração); REFLECTION=ReflectionResponse salva (min 50 chars).
+
+- `CTF_LAB` = flag correta validada via bcrypt.
+- `INTERACTIVE_LAB` = botão "Marquei como concluído" (auto-declaração, espelha PRACTICE).
 
 **ACH-01** — Achievements são idempotentes: usar `createOrSkip` pattern (`upsert` ou verificar existência antes). Nunca criar duplicatas.
 
@@ -84,7 +92,11 @@ const userId = session?.user?.id;
 
 **LAB-02** — Hints são revelados de forma one-way: uma vez revelado, não pode ser "escondido". Débito de XP deve ser atômico com a revelação.
 
-**LAB-03** — Conclusão de lab requer validação da flag correta. Nunca marcar como concluído sem verificação.
+**LAB-03** — Conclusão de lab requer validação da flag correta (aplica-se apenas a Lab.type=CTF). Nunca marcar como concluído sem verificação.
+
+**LAB-04** — Lab.type INTERACTIVE é concluído via self-declaração (POST /api/labs/[id]/complete). Nunca tem flagHash (CHECK constraint `lab_interactive_no_flag`). Nunca chama validateFlag.
+
+**LAB-05** — Schema enforça via CHECK SQL: CTF requer `flagHash NOT NULL`; INTERACTIVE requer `flagHash NULL`. Violação = INSERT falha.
 
 ---
 

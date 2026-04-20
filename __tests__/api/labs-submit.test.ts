@@ -41,8 +41,11 @@ function makeRequest(body: unknown) {
 
 function setupBase(correct: boolean) {
   vi.mocked(auth).mockResolvedValue(MOCK_SESSION as never);
-  vi.mocked(db.lab.findUnique).mockResolvedValue({ flagHash: "hashed_flag" } as never);
-  vi.mocked(db.enrollment.findUnique).mockResolvedValue({ id: "enrollment-1" } as never);
+  vi.mocked(db.lab.findUnique).mockResolvedValue({ flagHash: "hashed_flag", type: "CTF" } as never);
+  vi.mocked(db.enrollment.findUnique).mockResolvedValue({
+    id: "enrollment-1",
+    progressPercent: 0,
+  } as never);
   vi.mocked(validateFlag).mockResolvedValue(correct);
   vi.mocked(db.labAttempt.create).mockResolvedValue({} as never);
   vi.mocked(db.labAttempt.count).mockResolvedValue(1);
@@ -92,12 +95,27 @@ describe("POST /api/labs/[labId]/submit", () => {
   // AUTH-03: enrollment verifica userId
   it("retorna 403 quando não matriculado no curso", async () => {
     vi.mocked(auth).mockResolvedValue(MOCK_SESSION as never);
-    vi.mocked(db.lab.findUnique).mockResolvedValue({ flagHash: "hash" } as never);
+    vi.mocked(db.lab.findUnique).mockResolvedValue({ flagHash: "hash", type: "CTF" } as never);
     vi.mocked(db.enrollment.findUnique).mockResolvedValue(null);
 
     const res = await POST(makeRequest(VALID_BODY), PARAMS);
 
     expect(res.status).toBe(403);
+  });
+
+  // LAB-04: INTERACTIVE labs rejeitados no /submit
+  it("retorna 400 para lab INTERACTIVE — LAB-04", async () => {
+    vi.mocked(auth).mockResolvedValue(MOCK_SESSION as never);
+    vi.mocked(db.lab.findUnique).mockResolvedValue({
+      flagHash: null,
+      type: "INTERACTIVE",
+    } as never);
+
+    const res = await POST(makeRequest(VALID_BODY), PARAMS);
+    const body = await res.json();
+
+    expect(res.status).toBe(400);
+    expect(body.error).toMatch(/complete/i);
   });
 
   it("flag errada: retorna { correct: false } e registra attempt", async () => {

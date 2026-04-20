@@ -19,8 +19,18 @@ export type LabModel = runtime.Types.Result.DefaultSelection<Prisma.$LabPayload>
 
 export type AggregateLab = {
   _count: LabCountAggregateOutputType | null;
+  _avg: LabAvgAggregateOutputType | null;
+  _sum: LabSumAggregateOutputType | null;
   _min: LabMinAggregateOutputType | null;
   _max: LabMaxAggregateOutputType | null;
+};
+
+export type LabAvgAggregateOutputType = {
+  templateVersion: number | null;
+};
+
+export type LabSumAggregateOutputType = {
+  templateVersion: number | null;
 };
 
 export type LabMinAggregateOutputType = {
@@ -29,7 +39,10 @@ export type LabMinAggregateOutputType = {
   title: string | null;
   description: string | null;
   scenario: string | null;
+  type: $Enums.LabType | null;
   flagHash: string | null;
+  templateId: string | null;
+  templateVersion: number | null;
   difficulty: $Enums.Difficulty | null;
   createdAt: Date | null;
   updatedAt: Date | null;
@@ -41,7 +54,10 @@ export type LabMaxAggregateOutputType = {
   title: string | null;
   description: string | null;
   scenario: string | null;
+  type: $Enums.LabType | null;
   flagHash: string | null;
+  templateId: string | null;
+  templateVersion: number | null;
   difficulty: $Enums.Difficulty | null;
   createdAt: Date | null;
   updatedAt: Date | null;
@@ -55,11 +71,23 @@ export type LabCountAggregateOutputType = {
   scenario: number;
   objectives: number;
   hints: number;
+  type: number;
   flagHash: number;
+  templateId: number;
+  templateVersion: number;
+  config: number;
   difficulty: number;
   createdAt: number;
   updatedAt: number;
   _all: number;
+};
+
+export type LabAvgAggregateInputType = {
+  templateVersion?: true;
+};
+
+export type LabSumAggregateInputType = {
+  templateVersion?: true;
 };
 
 export type LabMinAggregateInputType = {
@@ -68,7 +96,10 @@ export type LabMinAggregateInputType = {
   title?: true;
   description?: true;
   scenario?: true;
+  type?: true;
   flagHash?: true;
+  templateId?: true;
+  templateVersion?: true;
   difficulty?: true;
   createdAt?: true;
   updatedAt?: true;
@@ -80,7 +111,10 @@ export type LabMaxAggregateInputType = {
   title?: true;
   description?: true;
   scenario?: true;
+  type?: true;
   flagHash?: true;
+  templateId?: true;
+  templateVersion?: true;
   difficulty?: true;
   createdAt?: true;
   updatedAt?: true;
@@ -94,7 +128,11 @@ export type LabCountAggregateInputType = {
   scenario?: true;
   objectives?: true;
   hints?: true;
+  type?: true;
   flagHash?: true;
+  templateId?: true;
+  templateVersion?: true;
+  config?: true;
   difficulty?: true;
   createdAt?: true;
   updatedAt?: true;
@@ -141,6 +179,18 @@ export type LabAggregateArgs<
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    *
+   * Select which fields to average
+   **/
+  _avg?: LabAvgAggregateInputType;
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   *
+   * Select which fields to sum
+   **/
+  _sum?: LabSumAggregateInputType;
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   *
    * Select which fields to find the minimum value
    **/
   _min?: LabMinAggregateInputType;
@@ -170,6 +220,8 @@ export type LabGroupByArgs<
   take?: number;
   skip?: number;
   _count?: LabCountAggregateInputType | true;
+  _avg?: LabAvgAggregateInputType;
+  _sum?: LabSumAggregateInputType;
   _min?: LabMinAggregateInputType;
   _max?: LabMaxAggregateInputType;
 };
@@ -182,11 +234,17 @@ export type LabGroupByOutputType = {
   scenario: string;
   objectives: runtime.JsonValue;
   hints: runtime.JsonValue;
-  flagHash: string;
+  type: $Enums.LabType;
+  flagHash: string | null;
+  templateId: string | null;
+  templateVersion: number | null;
+  config: runtime.JsonValue | null;
   difficulty: $Enums.Difficulty;
   createdAt: Date;
   updatedAt: Date;
   _count: LabCountAggregateOutputType | null;
+  _avg: LabAvgAggregateOutputType | null;
+  _sum: LabSumAggregateOutputType | null;
   _min: LabMinAggregateOutputType | null;
   _max: LabMaxAggregateOutputType | null;
 };
@@ -214,7 +272,11 @@ export type LabWhereInput = {
   scenario?: Prisma.StringFilter<"Lab"> | string;
   objectives?: Prisma.JsonFilter<"Lab">;
   hints?: Prisma.JsonFilter<"Lab">;
-  flagHash?: Prisma.StringFilter<"Lab"> | string;
+  type?: Prisma.EnumLabTypeFilter<"Lab"> | $Enums.LabType;
+  flagHash?: Prisma.StringNullableFilter<"Lab"> | string | null;
+  templateId?: Prisma.StringNullableFilter<"Lab"> | string | null;
+  templateVersion?: Prisma.IntNullableFilter<"Lab"> | number | null;
+  config?: Prisma.JsonNullableFilter<"Lab">;
   difficulty?: Prisma.EnumDifficultyFilter<"Lab"> | $Enums.Difficulty;
   createdAt?: Prisma.DateTimeFilter<"Lab"> | Date | string;
   updatedAt?: Prisma.DateTimeFilter<"Lab"> | Date | string;
@@ -231,7 +293,11 @@ export type LabOrderByWithRelationInput = {
   scenario?: Prisma.SortOrder;
   objectives?: Prisma.SortOrder;
   hints?: Prisma.SortOrder;
-  flagHash?: Prisma.SortOrder;
+  type?: Prisma.SortOrder;
+  flagHash?: Prisma.SortOrderInput | Prisma.SortOrder;
+  templateId?: Prisma.SortOrderInput | Prisma.SortOrder;
+  templateVersion?: Prisma.SortOrderInput | Prisma.SortOrder;
+  config?: Prisma.SortOrderInput | Prisma.SortOrder;
   difficulty?: Prisma.SortOrder;
   createdAt?: Prisma.SortOrder;
   updatedAt?: Prisma.SortOrder;
@@ -252,7 +318,11 @@ export type LabWhereUniqueInput = Prisma.AtLeast<
     scenario?: Prisma.StringFilter<"Lab"> | string;
     objectives?: Prisma.JsonFilter<"Lab">;
     hints?: Prisma.JsonFilter<"Lab">;
-    flagHash?: Prisma.StringFilter<"Lab"> | string;
+    type?: Prisma.EnumLabTypeFilter<"Lab"> | $Enums.LabType;
+    flagHash?: Prisma.StringNullableFilter<"Lab"> | string | null;
+    templateId?: Prisma.StringNullableFilter<"Lab"> | string | null;
+    templateVersion?: Prisma.IntNullableFilter<"Lab"> | number | null;
+    config?: Prisma.JsonNullableFilter<"Lab">;
     difficulty?: Prisma.EnumDifficultyFilter<"Lab"> | $Enums.Difficulty;
     createdAt?: Prisma.DateTimeFilter<"Lab"> | Date | string;
     updatedAt?: Prisma.DateTimeFilter<"Lab"> | Date | string;
@@ -271,13 +341,19 @@ export type LabOrderByWithAggregationInput = {
   scenario?: Prisma.SortOrder;
   objectives?: Prisma.SortOrder;
   hints?: Prisma.SortOrder;
-  flagHash?: Prisma.SortOrder;
+  type?: Prisma.SortOrder;
+  flagHash?: Prisma.SortOrderInput | Prisma.SortOrder;
+  templateId?: Prisma.SortOrderInput | Prisma.SortOrder;
+  templateVersion?: Prisma.SortOrderInput | Prisma.SortOrder;
+  config?: Prisma.SortOrderInput | Prisma.SortOrder;
   difficulty?: Prisma.SortOrder;
   createdAt?: Prisma.SortOrder;
   updatedAt?: Prisma.SortOrder;
   _count?: Prisma.LabCountOrderByAggregateInput;
+  _avg?: Prisma.LabAvgOrderByAggregateInput;
   _max?: Prisma.LabMaxOrderByAggregateInput;
   _min?: Prisma.LabMinOrderByAggregateInput;
+  _sum?: Prisma.LabSumOrderByAggregateInput;
 };
 
 export type LabScalarWhereWithAggregatesInput = {
@@ -291,7 +367,11 @@ export type LabScalarWhereWithAggregatesInput = {
   scenario?: Prisma.StringWithAggregatesFilter<"Lab"> | string;
   objectives?: Prisma.JsonWithAggregatesFilter<"Lab">;
   hints?: Prisma.JsonWithAggregatesFilter<"Lab">;
-  flagHash?: Prisma.StringWithAggregatesFilter<"Lab"> | string;
+  type?: Prisma.EnumLabTypeWithAggregatesFilter<"Lab"> | $Enums.LabType;
+  flagHash?: Prisma.StringNullableWithAggregatesFilter<"Lab"> | string | null;
+  templateId?: Prisma.StringNullableWithAggregatesFilter<"Lab"> | string | null;
+  templateVersion?: Prisma.IntNullableWithAggregatesFilter<"Lab"> | number | null;
+  config?: Prisma.JsonNullableWithAggregatesFilter<"Lab">;
   difficulty?: Prisma.EnumDifficultyWithAggregatesFilter<"Lab"> | $Enums.Difficulty;
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Lab"> | Date | string;
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Lab"> | Date | string;
@@ -304,7 +384,11 @@ export type LabCreateInput = {
   scenario: string;
   objectives: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   hints: Prisma.JsonNullValueInput | runtime.InputJsonValue;
-  flagHash: string;
+  type?: $Enums.LabType;
+  flagHash?: string | null;
+  templateId?: string | null;
+  templateVersion?: number | null;
+  config?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
   difficulty?: $Enums.Difficulty;
   createdAt?: Date | string;
   updatedAt?: Date | string;
@@ -321,7 +405,11 @@ export type LabUncheckedCreateInput = {
   scenario: string;
   objectives: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   hints: Prisma.JsonNullValueInput | runtime.InputJsonValue;
-  flagHash: string;
+  type?: $Enums.LabType;
+  flagHash?: string | null;
+  templateId?: string | null;
+  templateVersion?: number | null;
+  config?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
   difficulty?: $Enums.Difficulty;
   createdAt?: Date | string;
   updatedAt?: Date | string;
@@ -336,7 +424,11 @@ export type LabUpdateInput = {
   scenario?: Prisma.StringFieldUpdateOperationsInput | string;
   objectives?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   hints?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
-  flagHash?: Prisma.StringFieldUpdateOperationsInput | string;
+  type?: Prisma.EnumLabTypeFieldUpdateOperationsInput | $Enums.LabType;
+  flagHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  templateId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  templateVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+  config?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
   difficulty?: Prisma.EnumDifficultyFieldUpdateOperationsInput | $Enums.Difficulty;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -353,7 +445,11 @@ export type LabUncheckedUpdateInput = {
   scenario?: Prisma.StringFieldUpdateOperationsInput | string;
   objectives?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   hints?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
-  flagHash?: Prisma.StringFieldUpdateOperationsInput | string;
+  type?: Prisma.EnumLabTypeFieldUpdateOperationsInput | $Enums.LabType;
+  flagHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  templateId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  templateVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+  config?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
   difficulty?: Prisma.EnumDifficultyFieldUpdateOperationsInput | $Enums.Difficulty;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -369,7 +465,11 @@ export type LabCreateManyInput = {
   scenario: string;
   objectives: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   hints: Prisma.JsonNullValueInput | runtime.InputJsonValue;
-  flagHash: string;
+  type?: $Enums.LabType;
+  flagHash?: string | null;
+  templateId?: string | null;
+  templateVersion?: number | null;
+  config?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
   difficulty?: $Enums.Difficulty;
   createdAt?: Date | string;
   updatedAt?: Date | string;
@@ -382,7 +482,11 @@ export type LabUpdateManyMutationInput = {
   scenario?: Prisma.StringFieldUpdateOperationsInput | string;
   objectives?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   hints?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
-  flagHash?: Prisma.StringFieldUpdateOperationsInput | string;
+  type?: Prisma.EnumLabTypeFieldUpdateOperationsInput | $Enums.LabType;
+  flagHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  templateId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  templateVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+  config?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
   difficulty?: Prisma.EnumDifficultyFieldUpdateOperationsInput | $Enums.Difficulty;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -396,7 +500,11 @@ export type LabUncheckedUpdateManyInput = {
   scenario?: Prisma.StringFieldUpdateOperationsInput | string;
   objectives?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   hints?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
-  flagHash?: Prisma.StringFieldUpdateOperationsInput | string;
+  type?: Prisma.EnumLabTypeFieldUpdateOperationsInput | $Enums.LabType;
+  flagHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  templateId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  templateVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+  config?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
   difficulty?: Prisma.EnumDifficultyFieldUpdateOperationsInput | $Enums.Difficulty;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -415,10 +523,18 @@ export type LabCountOrderByAggregateInput = {
   scenario?: Prisma.SortOrder;
   objectives?: Prisma.SortOrder;
   hints?: Prisma.SortOrder;
+  type?: Prisma.SortOrder;
   flagHash?: Prisma.SortOrder;
+  templateId?: Prisma.SortOrder;
+  templateVersion?: Prisma.SortOrder;
+  config?: Prisma.SortOrder;
   difficulty?: Prisma.SortOrder;
   createdAt?: Prisma.SortOrder;
   updatedAt?: Prisma.SortOrder;
+};
+
+export type LabAvgOrderByAggregateInput = {
+  templateVersion?: Prisma.SortOrder;
 };
 
 export type LabMaxOrderByAggregateInput = {
@@ -427,7 +543,10 @@ export type LabMaxOrderByAggregateInput = {
   title?: Prisma.SortOrder;
   description?: Prisma.SortOrder;
   scenario?: Prisma.SortOrder;
+  type?: Prisma.SortOrder;
   flagHash?: Prisma.SortOrder;
+  templateId?: Prisma.SortOrder;
+  templateVersion?: Prisma.SortOrder;
   difficulty?: Prisma.SortOrder;
   createdAt?: Prisma.SortOrder;
   updatedAt?: Prisma.SortOrder;
@@ -439,10 +558,17 @@ export type LabMinOrderByAggregateInput = {
   title?: Prisma.SortOrder;
   description?: Prisma.SortOrder;
   scenario?: Prisma.SortOrder;
+  type?: Prisma.SortOrder;
   flagHash?: Prisma.SortOrder;
+  templateId?: Prisma.SortOrder;
+  templateVersion?: Prisma.SortOrder;
   difficulty?: Prisma.SortOrder;
   createdAt?: Prisma.SortOrder;
   updatedAt?: Prisma.SortOrder;
+};
+
+export type LabSumOrderByAggregateInput = {
+  templateVersion?: Prisma.SortOrder;
 };
 
 export type LabScalarRelationFilter = {
@@ -506,6 +632,10 @@ export type LabUncheckedUpdateOneWithoutLessonNestedInput = {
   >;
 };
 
+export type EnumLabTypeFieldUpdateOperationsInput = {
+  set?: $Enums.LabType;
+};
+
 export type LabCreateNestedOneWithoutAttemptsInput = {
   create?: Prisma.XOR<
     Prisma.LabCreateWithoutAttemptsInput,
@@ -565,7 +695,11 @@ export type LabCreateWithoutLessonInput = {
   scenario: string;
   objectives: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   hints: Prisma.JsonNullValueInput | runtime.InputJsonValue;
-  flagHash: string;
+  type?: $Enums.LabType;
+  flagHash?: string | null;
+  templateId?: string | null;
+  templateVersion?: number | null;
+  config?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
   difficulty?: $Enums.Difficulty;
   createdAt?: Date | string;
   updatedAt?: Date | string;
@@ -580,7 +714,11 @@ export type LabUncheckedCreateWithoutLessonInput = {
   scenario: string;
   objectives: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   hints: Prisma.JsonNullValueInput | runtime.InputJsonValue;
-  flagHash: string;
+  type?: $Enums.LabType;
+  flagHash?: string | null;
+  templateId?: string | null;
+  templateVersion?: number | null;
+  config?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
   difficulty?: $Enums.Difficulty;
   createdAt?: Date | string;
   updatedAt?: Date | string;
@@ -620,7 +758,11 @@ export type LabUpdateWithoutLessonInput = {
   scenario?: Prisma.StringFieldUpdateOperationsInput | string;
   objectives?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   hints?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
-  flagHash?: Prisma.StringFieldUpdateOperationsInput | string;
+  type?: Prisma.EnumLabTypeFieldUpdateOperationsInput | $Enums.LabType;
+  flagHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  templateId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  templateVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+  config?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
   difficulty?: Prisma.EnumDifficultyFieldUpdateOperationsInput | $Enums.Difficulty;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -635,7 +777,11 @@ export type LabUncheckedUpdateWithoutLessonInput = {
   scenario?: Prisma.StringFieldUpdateOperationsInput | string;
   objectives?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   hints?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
-  flagHash?: Prisma.StringFieldUpdateOperationsInput | string;
+  type?: Prisma.EnumLabTypeFieldUpdateOperationsInput | $Enums.LabType;
+  flagHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  templateId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  templateVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+  config?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
   difficulty?: Prisma.EnumDifficultyFieldUpdateOperationsInput | $Enums.Difficulty;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -650,7 +796,11 @@ export type LabCreateWithoutAttemptsInput = {
   scenario: string;
   objectives: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   hints: Prisma.JsonNullValueInput | runtime.InputJsonValue;
-  flagHash: string;
+  type?: $Enums.LabType;
+  flagHash?: string | null;
+  templateId?: string | null;
+  templateVersion?: number | null;
+  config?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
   difficulty?: $Enums.Difficulty;
   createdAt?: Date | string;
   updatedAt?: Date | string;
@@ -666,7 +816,11 @@ export type LabUncheckedCreateWithoutAttemptsInput = {
   scenario: string;
   objectives: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   hints: Prisma.JsonNullValueInput | runtime.InputJsonValue;
-  flagHash: string;
+  type?: $Enums.LabType;
+  flagHash?: string | null;
+  templateId?: string | null;
+  templateVersion?: number | null;
+  config?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
   difficulty?: $Enums.Difficulty;
   createdAt?: Date | string;
   updatedAt?: Date | string;
@@ -708,7 +862,11 @@ export type LabUpdateWithoutAttemptsInput = {
   scenario?: Prisma.StringFieldUpdateOperationsInput | string;
   objectives?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   hints?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
-  flagHash?: Prisma.StringFieldUpdateOperationsInput | string;
+  type?: Prisma.EnumLabTypeFieldUpdateOperationsInput | $Enums.LabType;
+  flagHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  templateId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  templateVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+  config?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
   difficulty?: Prisma.EnumDifficultyFieldUpdateOperationsInput | $Enums.Difficulty;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -724,7 +882,11 @@ export type LabUncheckedUpdateWithoutAttemptsInput = {
   scenario?: Prisma.StringFieldUpdateOperationsInput | string;
   objectives?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   hints?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
-  flagHash?: Prisma.StringFieldUpdateOperationsInput | string;
+  type?: Prisma.EnumLabTypeFieldUpdateOperationsInput | $Enums.LabType;
+  flagHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  templateId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  templateVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+  config?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
   difficulty?: Prisma.EnumDifficultyFieldUpdateOperationsInput | $Enums.Difficulty;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -738,7 +900,11 @@ export type LabCreateWithoutHintRevealsInput = {
   scenario: string;
   objectives: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   hints: Prisma.JsonNullValueInput | runtime.InputJsonValue;
-  flagHash: string;
+  type?: $Enums.LabType;
+  flagHash?: string | null;
+  templateId?: string | null;
+  templateVersion?: number | null;
+  config?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
   difficulty?: $Enums.Difficulty;
   createdAt?: Date | string;
   updatedAt?: Date | string;
@@ -754,7 +920,11 @@ export type LabUncheckedCreateWithoutHintRevealsInput = {
   scenario: string;
   objectives: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   hints: Prisma.JsonNullValueInput | runtime.InputJsonValue;
-  flagHash: string;
+  type?: $Enums.LabType;
+  flagHash?: string | null;
+  templateId?: string | null;
+  templateVersion?: number | null;
+  config?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
   difficulty?: $Enums.Difficulty;
   createdAt?: Date | string;
   updatedAt?: Date | string;
@@ -796,7 +966,11 @@ export type LabUpdateWithoutHintRevealsInput = {
   scenario?: Prisma.StringFieldUpdateOperationsInput | string;
   objectives?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   hints?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
-  flagHash?: Prisma.StringFieldUpdateOperationsInput | string;
+  type?: Prisma.EnumLabTypeFieldUpdateOperationsInput | $Enums.LabType;
+  flagHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  templateId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  templateVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+  config?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
   difficulty?: Prisma.EnumDifficultyFieldUpdateOperationsInput | $Enums.Difficulty;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -812,7 +986,11 @@ export type LabUncheckedUpdateWithoutHintRevealsInput = {
   scenario?: Prisma.StringFieldUpdateOperationsInput | string;
   objectives?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
   hints?: Prisma.JsonNullValueInput | runtime.InputJsonValue;
-  flagHash?: Prisma.StringFieldUpdateOperationsInput | string;
+  type?: Prisma.EnumLabTypeFieldUpdateOperationsInput | $Enums.LabType;
+  flagHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  templateId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  templateVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
+  config?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
   difficulty?: Prisma.EnumDifficultyFieldUpdateOperationsInput | $Enums.Difficulty;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
@@ -876,7 +1054,11 @@ export type LabSelect<
     scenario?: boolean;
     objectives?: boolean;
     hints?: boolean;
+    type?: boolean;
     flagHash?: boolean;
+    templateId?: boolean;
+    templateVersion?: boolean;
+    config?: boolean;
     difficulty?: boolean;
     createdAt?: boolean;
     updatedAt?: boolean;
@@ -899,7 +1081,11 @@ export type LabSelectCreateManyAndReturn<
     scenario?: boolean;
     objectives?: boolean;
     hints?: boolean;
+    type?: boolean;
     flagHash?: boolean;
+    templateId?: boolean;
+    templateVersion?: boolean;
+    config?: boolean;
     difficulty?: boolean;
     createdAt?: boolean;
     updatedAt?: boolean;
@@ -919,7 +1105,11 @@ export type LabSelectUpdateManyAndReturn<
     scenario?: boolean;
     objectives?: boolean;
     hints?: boolean;
+    type?: boolean;
     flagHash?: boolean;
+    templateId?: boolean;
+    templateVersion?: boolean;
+    config?: boolean;
     difficulty?: boolean;
     createdAt?: boolean;
     updatedAt?: boolean;
@@ -936,7 +1126,11 @@ export type LabSelectScalar = {
   scenario?: boolean;
   objectives?: boolean;
   hints?: boolean;
+  type?: boolean;
   flagHash?: boolean;
+  templateId?: boolean;
+  templateVersion?: boolean;
+  config?: boolean;
   difficulty?: boolean;
   createdAt?: boolean;
   updatedAt?: boolean;
@@ -952,7 +1146,11 @@ export type LabOmit<
   | "scenario"
   | "objectives"
   | "hints"
+  | "type"
   | "flagHash"
+  | "templateId"
+  | "templateVersion"
+  | "config"
   | "difficulty"
   | "createdAt"
   | "updatedAt",
@@ -995,7 +1193,11 @@ export type $LabPayload<
       scenario: string;
       objectives: runtime.JsonValue;
       hints: runtime.JsonValue;
-      flagHash: string;
+      type: $Enums.LabType;
+      flagHash: string | null;
+      templateId: string | null;
+      templateVersion: number | null;
+      config: runtime.JsonValue | null;
       difficulty: $Enums.Difficulty;
       createdAt: Date;
       updatedAt: Date;
@@ -1583,7 +1785,11 @@ export interface LabFieldRefs {
   readonly scenario: Prisma.FieldRef<"Lab", "String">;
   readonly objectives: Prisma.FieldRef<"Lab", "Json">;
   readonly hints: Prisma.FieldRef<"Lab", "Json">;
+  readonly type: Prisma.FieldRef<"Lab", "LabType">;
   readonly flagHash: Prisma.FieldRef<"Lab", "String">;
+  readonly templateId: Prisma.FieldRef<"Lab", "String">;
+  readonly templateVersion: Prisma.FieldRef<"Lab", "Int">;
+  readonly config: Prisma.FieldRef<"Lab", "Json">;
   readonly difficulty: Prisma.FieldRef<"Lab", "Difficulty">;
   readonly createdAt: Prisma.FieldRef<"Lab", "DateTime">;
   readonly updatedAt: Prisma.FieldRef<"Lab", "DateTime">;

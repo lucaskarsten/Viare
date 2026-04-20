@@ -94,6 +94,7 @@ model Course {
   avgRating        Float          @default(0)
   totalRatings     Int            @default(0)
   totalEnrollments Int            @default(0)
+  enrichCount      Int            @default(0)
   generationPrompt String?        @db.Text // original user prompt
   language         String         @default("pt") // ISO 639-1 code used for generation prompts
   scope            CourseScope    @default(COMPLETE) // RULE: COURSE-06 — user-defined generation depth
@@ -182,17 +183,22 @@ model QuizQuestion {
 }
 
 model Lab {
-  id          String     @id @default(cuid())
-  lessonId    String     @unique
-  title       String
-  description String     @db.Text
-  scenario    String     @db.Text
-  objectives  Json // string[]
-  hints       Json // { text: string, cost: number }[]
-  flagHash    String
-  difficulty  Difficulty @default(MEDIUM)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  id              String     @id @default(cuid())
+  lessonId        String     @unique
+  title           String
+  description     String     @db.Text
+  scenario        String     @db.Text
+  objectives      Json // string[]
+  hints           Json // { text: string, cost: number }[]
+  // RULE: LAB-04 — Lab.type discriminates CTF (flag validation) vs INTERACTIVE (self-declaration)
+  type            LabType    @default(CTF)
+  flagHash        String? // null for INTERACTIVE labs (CHECK constraint enforces this)
+  templateId      String?
+  templateVersion Int?
+  config          Json?
+  difficulty      Difficulty @default(MEDIUM)
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
 
   lesson      Lesson       @relation(fields: [lessonId], references: [id], onDelete: Cascade)
   attempts    LabAttempt[]
@@ -255,6 +261,7 @@ model Enrollment {
   progressPercent Int              @default(0)
   lastAccessedAt  DateTime?
   customContext   Json? // personalization context for pro users
+  baseLessonCount Int?
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
 
@@ -464,6 +471,11 @@ enum LessonType {
   CASE_STUDY
   REFLECTION
   PRACTICE
+}
+
+enum LabType {
+  CTF
+  INTERACTIVE
 }
 
 enum EnrollmentStatus {

@@ -24,10 +24,22 @@ export const DomainClassifierSchema = z.object({
 
 export type DomainContext = z.infer<typeof DomainClassifierSchema>;
 
-export const LessonShellSchema = z.object({
-  title: z.string().min(1),
-  type: z.enum(["THEORY", "QUIZ", "CASE_STUDY", "REFLECTION", "PRACTICE"]),
-});
+export const LessonShellSchema = z
+  .object({
+    title: z.string().min(1),
+    type: z.enum(["THEORY", "QUIZ", "CASE_STUDY", "REFLECTION", "PRACTICE", "LAB"]),
+    // RULE: AI-06 — LAB lessons require a labVariant to drive generator routing
+    labVariant: z.enum(["CTF", "INTERACTIVE"]).optional(),
+  })
+  .superRefine((val, ctx) => {
+    if (val.type === "LAB" && !val.labVariant) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["labVariant"],
+        message: "labVariant is required when type is LAB",
+      });
+    }
+  });
 
 export const ModuleShellSchema = z.object({
   title: z.string().min(1),

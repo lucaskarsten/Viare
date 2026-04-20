@@ -7,6 +7,7 @@ import {
   CourseStatus,
   CourseCategory,
   LessonType,
+  LabType,
   EnrollmentStatus,
   ProgressStatus,
   Role,
@@ -1049,6 +1050,63 @@ async function main() {
         updatedAt: when,
       },
     });
+  }
+
+  console.log("→ Lab INTERACTIVE (piano-classico/postura/dedilhado-inicial)...");
+
+  const pianoLabLesson = await db.lesson.findFirst({
+    where: {
+      slug: "escalas-maiores",
+      module: { slug: "tecnicas", course: { slug: "piano-classico" } },
+    },
+  });
+
+  if (pianoLabLesson) {
+    await db.lab.upsert({
+      where: { lessonId: pianoLabLesson.id },
+      update: {},
+      create: {
+        lessonId: pianoLabLesson.id,
+        title: "Calculadora de intervalos musicais",
+        description: "Explore como a frequência muda entre notas da escala maior",
+        scenario:
+          "Você está estudando a relação matemática entre notas de uma escala maior. Use a calculadora para explorar como cada semitom multiplica a frequência base.",
+        objectives: [
+          "Entender a relação exponencial entre frequência e semitom",
+          "Visualizar as frequências das 7 notas de uma escala maior",
+          "Perceber que uma oitava dobra a frequência",
+        ],
+        hints: [
+          { text: "A fórmula usa 2^(semitom/12)", cost: 5 },
+          { text: "Dó central (C4) = 261.63 Hz", cost: 5 },
+        ],
+        type: LabType.INTERACTIVE,
+        flagHash: null,
+        templateId: "interactive-calculator",
+        templateVersion: 1,
+        config: {
+          variables: [
+            {
+              name: "baseFreq",
+              label: "Frequência base (Hz)",
+              min: 220,
+              max: 440,
+              step: 1,
+              default: 261,
+            },
+            { name: "semitone", label: "Semitom (0–11)", min: 0, max: 11, step: 1, default: 0 },
+          ],
+          formula: "baseFreq * Math.pow(2, semitone / 12)",
+          resultLabel: "Frequência da nota (Hz)",
+          instructions:
+            "Ajuste a frequência base e o semitom para explorar as notas da escala maior.",
+        },
+        difficulty: Difficulty.EASY,
+      },
+    });
+    console.log("  · Lab INTERACTIVE criado para escalas-maiores");
+  } else {
+    console.warn("  ! Aula escalas-maiores não encontrada — seed de Lab pulado");
   }
 
   console.log("✓ Seed concluído.");

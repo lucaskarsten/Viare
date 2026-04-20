@@ -18,6 +18,7 @@ import { generateQuiz } from "@/lib/prompts/specs/quiz";
 import { generatePracticeLesson } from "@/lib/prompts/specs/practice";
 import { generateCaseStudyLesson } from "@/lib/prompts/specs/case-study";
 import { generateReflectionLesson } from "@/lib/prompts/specs/reflection";
+import { generateAndSaveLab } from "@/lib/labs/generator";
 import type { CourseOutline, DomainContext } from "@/lib/prompts/schemas";
 
 // Shared context handed to every lesson-type generator. Generators mutate
@@ -32,6 +33,7 @@ type LessonGenerationContext = {
   domainContext: DomainContext;
   generatedTextParts: string[];
   maturityRating?: "GENERAL" | "MATURE";
+  labVariant?: "CTF" | "INTERACTIVE";
 };
 
 type LessonGenerator = (ctx: LessonGenerationContext) => Promise<void>;
@@ -144,7 +146,43 @@ const LESSON_GENERATORS: Partial<Record<string, LessonGenerator>> = {
   PRACTICE: generateAndSavePractice,
   CASE_STUDY: generateAndSaveCaseStudy,
   REFLECTION: generateAndSaveReflection,
-  // LAB and PROJECT: handled by separate pipeline, intentionally skipped here
+  // RULE: AI-07 — LAB generation gated by ENABLE_LAB_GENERATION; PROJECT still skipped
+  LAB: async (ctx) => {
+    if (process.env.ENABLE_LAB_GENERATION !== "true") {
+      // RULE: AI-07 — feature flag off → no-op; outline fallback converts LAB→THEORY
+      console.info(
+        "[LAB_GENERATION_SKIPPED]",
+        JSON.stringify({ lessonId: ctx.lessonId, reason: "flag_off" })
+      );
+      return;
+    }
+    if (!ctx.labVariant) {
+      throw new Error(`LAB lesson requires labVariant (lessonId="${ctx.lessonId}")`);
+    }
+    try {
+      // RULE: AI-01 — all LLM output Zod-validated via generator
+      await generateAndSaveLab({
+        language: ctx.language as "pt" | "en",
+        topic: ctx.topic,
+        moduleTitle: ctx.moduleTitle,
+        lessonTitle: ctx.lessonTitle,
+        lessonId: ctx.lessonId,
+        domainHint: ctx.domainContext.domain,
+        labVariant: ctx.labVariant,
+      });
+    } catch (err) {
+      console.error(
+        "[LAB_GENERATION_FAILED]",
+        JSON.stringify({
+          lessonId: ctx.lessonId,
+          labVariant: ctx.labVariant,
+          error: err instanceof Error ? err.message : String(err),
+        })
+      );
+      // Fall back to THEORY generation so course remains coherent even if lab fails
+      await generateAndSaveTheory(ctx);
+    }
+  },
 };
 
 export type GenerationEvent =
@@ -323,6 +361,7 @@ export async function generateCourse(
           domainContext,
           generatedTextParts,
           maturityRating,
+          labVariant: lesson.labVariant,
         });
 
         emit({ type: "lesson_done", moduleIndex: mi, lessonIndex: li });

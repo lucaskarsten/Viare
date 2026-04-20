@@ -106,7 +106,7 @@ describe("POST /api/courses/progress", () => {
   it("marca lição como COMPLETED e retorna progressPercent calculado", async () => {
     vi.mocked(auth).mockResolvedValue(MOCK_SESSION as never);
     vi.mocked(db.lesson.findUnique).mockResolvedValue(MOCK_LESSON as never);
-    vi.mocked(db.enrollment.findUnique).mockResolvedValue({ id: "enrollment-1" } as never);
+    vi.mocked(db.enrollment.findUnique).mockResolvedValue({ id: "enrollment-1", progressPercent: 0 } as never);
     vi.mocked(db.userProgress.upsert).mockResolvedValue({} as never);
     vi.mocked(db.lesson.count).mockResolvedValue(10);
     vi.mocked(db.userProgress.count).mockResolvedValue(5);
@@ -123,7 +123,7 @@ describe("POST /api/courses/progress", () => {
   it("calcula progressPercent como Math.round(completed/total * 100)", async () => {
     vi.mocked(auth).mockResolvedValue(MOCK_SESSION as never);
     vi.mocked(db.lesson.findUnique).mockResolvedValue(MOCK_LESSON as never);
-    vi.mocked(db.enrollment.findUnique).mockResolvedValue({ id: "e-1" } as never);
+    vi.mocked(db.enrollment.findUnique).mockResolvedValue({ id: "e-1", progressPercent: 0 } as never);
     vi.mocked(db.userProgress.upsert).mockResolvedValue({} as never);
     vi.mocked(db.lesson.count).mockResolvedValue(3);
     vi.mocked(db.userProgress.count).mockResolvedValue(2);
@@ -139,7 +139,7 @@ describe("POST /api/courses/progress", () => {
   it("seta enrollment status COMPLETED quando progressPercent é 100", async () => {
     vi.mocked(auth).mockResolvedValue(MOCK_SESSION as never);
     vi.mocked(db.lesson.findUnique).mockResolvedValue(MOCK_LESSON as never);
-    vi.mocked(db.enrollment.findUnique).mockResolvedValue({ id: "e-1" } as never);
+    vi.mocked(db.enrollment.findUnique).mockResolvedValue({ id: "e-1", progressPercent: 0 } as never);
     vi.mocked(db.userProgress.upsert).mockResolvedValue({} as never);
     vi.mocked(db.lesson.count).mockResolvedValue(5);
     vi.mocked(db.userProgress.count).mockResolvedValue(5); // todas concluídas
@@ -158,7 +158,7 @@ describe("POST /api/courses/progress", () => {
   it("usa upsert (não create) para garantir idempotência do progresso", async () => {
     vi.mocked(auth).mockResolvedValue(MOCK_SESSION as never);
     vi.mocked(db.lesson.findUnique).mockResolvedValue(MOCK_LESSON as never);
-    vi.mocked(db.enrollment.findUnique).mockResolvedValue({ id: "e-1" } as never);
+    vi.mocked(db.enrollment.findUnique).mockResolvedValue({ id: "e-1", progressPercent: 0 } as never);
     vi.mocked(db.userProgress.upsert).mockResolvedValue({} as never);
     vi.mocked(db.lesson.count).mockResolvedValue(4);
     vi.mocked(db.userProgress.count).mockResolvedValue(1);
@@ -178,7 +178,7 @@ describe("POST /api/courses/progress", () => {
   it("retorna 0% de progresso quando não há lições no curso", async () => {
     vi.mocked(auth).mockResolvedValue(MOCK_SESSION as never);
     vi.mocked(db.lesson.findUnique).mockResolvedValue(MOCK_LESSON as never);
-    vi.mocked(db.enrollment.findUnique).mockResolvedValue({ id: "e-1" } as never);
+    vi.mocked(db.enrollment.findUnique).mockResolvedValue({ id: "e-1", progressPercent: 0 } as never);
     vi.mocked(db.userProgress.upsert).mockResolvedValue({} as never);
     vi.mocked(db.lesson.count).mockResolvedValue(0); // edge case: curso sem lições
     vi.mocked(db.userProgress.count).mockResolvedValue(0);

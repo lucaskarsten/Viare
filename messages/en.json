@@ -461,6 +461,35 @@
     "attemptsUsed": "{count} attempts",
     "difficultyEasy": "Easy",
     "difficultyMedium": "Medium",
-    "difficultyHard": "Hard"
+    "difficultyHard": "Hard",
+    "markComplete": "Mark as complete",
+    "completedInteractive": "Completed!",
+    "interactiveDescription": "Interactive lab — explore and practice",
+    "interactiveOnly": "Use the completion button for interactive labs",
+    "templateUnavailable": "This lab is temporarily unavailable",
+    "timelineSelectHint": "Click an event to see details",
+    "mapAriaLabel": "Interactive map",
+    "close": "Close",
+    "pianoClickToEnable": "Click a key to enable audio",
+    "pianoAriaLabel": "Interactive piano",
+    "pianoExerciseLabel": "Exercise: "
+  },
+  "progress": {
+    "lessonCount": "{completed} of {total} lessons"
+  },
+  "enrich": {
+    "button": "Enrich with AI",
+    "loading": "Generating content...",
+    "success": "Lesson added",
+    "error": "Failed to enrich",
+    "limitReached": "Enrich limit reached (20 per course)",
+    "confirmTitle": "Add lesson with AI",
+    "confirmBody": "Choose where to insert the new lesson. An AI will generate the content based on the current course.",
+    "progressNotice": "Your current progress will be preserved",
+    "upgradeCta": "Available on Pro plan",
+    "proRequired": "Enrich is a Pro feature",
+    "insertBefore": "Insert before this lesson",
+    "insertAfter": "Insert after this lesson",
+    "lessonType": "Lesson type"
   }
 }

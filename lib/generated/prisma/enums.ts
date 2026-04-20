@@ -55,6 +55,13 @@ export const LessonType = {
 
 export type LessonType = (typeof LessonType)[keyof typeof LessonType];
 
+export const LabType = {
+  CTF: "CTF",
+  INTERACTIVE: "INTERACTIVE",
+} as const;
+
+export type LabType = (typeof LabType)[keyof typeof LabType];
+
 export const EnrollmentStatus = {
   IN_PROGRESS: "IN_PROGRESS",
   COMPLETED: "COMPLETED",

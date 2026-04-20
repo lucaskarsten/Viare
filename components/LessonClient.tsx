@@ -19,6 +19,7 @@ import SandpackBlock from "@/components/blocks/SandpackBlock";
 import PracticeBlock from "@/components/blocks/PracticeBlock";
 import CaseStudyBlock from "@/components/blocks/CaseStudyBlock";
 import type { LabData } from "@/lib/lab";
+import EnrichModal from "@/components/EnrichModal";
 
 function renderInlineMd(text: string): React.ReactNode[] {
   const parts = text.split(/(\*\*[^*]+\*\*|\*[^*]+\*)/g);
@@ -49,6 +50,7 @@ export type LessonClientProps = {
     moduleOrder: number;
     lessonNumber: number;
     courseId: string;
+    moduleId: string;
     type: string; // LessonType — kept as string to avoid Prisma client import in this file
   };
   course: {
@@ -63,6 +65,19 @@ export type LessonClientProps = {
   flashcards: FlashCard[];
   summaryPoints: string[];
   lab?: LabData | null;
+  // RULE: SUB-03 — client-side isPro flag reflects server check
+  isPro: boolean;
+  courseNav: Array<{
+    id: string;
+    title: string;
+    order: number;
+    lessons: Array<{
+      id: string;
+      title: string;
+      type: string;
+      completed: boolean;
+    }>;
+  }>;
 };
 
 const STORAGE = {
@@ -71,6 +86,7 @@ const STORAGE = {
   font: "viare:focusFont",
   size: "viare:focusSize",
   bg: "viare:focusBg",
+  nav: "viare:navOpen",
 } as const;
 
 function safeGet(key: string): string | null {
@@ -193,53 +209,75 @@ export default function LessonClient({
   flashcards,
   summaryPoints,
   lab = null,
+  isPro,
+  courseNav,
 }: LessonClientProps) {
   const t = useTranslations("lesson");
+  const tEnrich = useTranslations("enrich");
+  const tProgress = useTranslations("progress");
   const [showTutor, setShowTutor] = useState(false);
+  const [showEnrich, setShowEnrich] = useState(false);
+  // Hydration guard — server/client localStorage mismatch would otherwise flash
+  const [hydrated, setHydrated] = useState(false);
+  const [showNav, setShowNav] = useState<boolean>(false);
   const [tutorInput, setTutorInput] = useState("");
   const [tutorMessages, setTutorMessages] = useState<TutorMessage[]>(() => [
     { role: "tutor", text: t("tutorGreeting") },
   ]);
 
-  // Focus mode state
-  const [focusMode, setFocusMode] = useState<boolean>(() => safeGet(STORAGE.mode) === "1");
-  const [focusWidth, setFocusWidth] = useState<FocusWidth>(() => {
-    const w = safeGet(STORAGE.width);
-    return w === "narrow" || w === "wide" ? w : "comfortable";
-  });
-  const [focusFont, setFocusFont] = useState<FocusFont>(() => {
-    const f = safeGet(STORAGE.font);
-    return f === "sans" || f === "mono" ? f : "serif";
-  });
-  const [focusSize, setFocusSize] = useState<number>(() => {
-    const s = safeGet(STORAGE.size);
-    const n = s ? parseInt(s, 10) : NaN;
-    return Number.isFinite(n) ? Math.max(14, Math.min(28, n)) : 18;
-  });
-  const [focusBg, setFocusBg] = useState<FocusBg>(() => {
-    const bg = safeGet(STORAGE.bg);
-    return bg === "cream" || bg === "sepia" || bg === "dim" || bg === "dark" ? bg : "paper";
-  });
+  // Focus mode state — defaults match server render; real values read in hydration effect below
+  const [focusMode, setFocusMode] = useState<boolean>(false);
+  const [focusWidth, setFocusWidth] = useState<FocusWidth>("comfortable");
+  const [focusFont, setFocusFont] = useState<FocusFont>("serif");
+  const [focusSize, setFocusSize] = useState<number>(18);
+  const [focusBg, setFocusBg] = useState<FocusBg>("paper");
   const [focusSettingsOpen, setFocusSettingsOpen] = useState(false);
   const [readProgress, setReadProgress] = useState(0);
   const articleRef = useRef<HTMLElement | null>(null);
 
-  // Persist changes
+  // Read persisted values on mount (client-only) to avoid hydration mismatch
   useEffect(() => {
+    const navStored = safeGet(STORAGE.nav);
+    if (navStored !== null) setShowNav(navStored === "1");
+    const modeStored = safeGet(STORAGE.mode);
+    if (modeStored !== null) setFocusMode(modeStored === "1");
+    const w = safeGet(STORAGE.width);
+    if (w === "narrow" || w === "wide" || w === "comfortable") setFocusWidth(w);
+    const f = safeGet(STORAGE.font);
+    if (f === "sans" || f === "mono" || f === "serif") setFocusFont(f);
+    const s = safeGet(STORAGE.size);
+    const n = s ? parseInt(s, 10) : NaN;
+    if (Number.isFinite(n)) setFocusSize(Math.max(14, Math.min(28, n)));
+    const bg = safeGet(STORAGE.bg);
+    if (bg === "cream" || bg === "sepia" || bg === "dim" || bg === "dark" || bg === "paper") setFocusBg(bg);
+    setHydrated(true);
+  }, []);
+
+  // Persist changes — skip before hydration to avoid overwriting localStorage with defaults
+  useEffect(() => {
+    if (!hydrated) return;
     safeSet(STORAGE.mode, focusMode ? "1" : "0");
-  }, [focusMode]);
+  }, [hydrated, focusMode]);
   useEffect(() => {
+    if (!hydrated) return;
     safeSet(STORAGE.width, focusWidth);
-  }, [focusWidth]);
+  }, [hydrated, focusWidth]);
   useEffect(() => {
+    if (!hydrated) return;
     safeSet(STORAGE.font, focusFont);
-  }, [focusFont]);
+  }, [hydrated, focusFont]);
   useEffect(() => {
+    if (!hydrated) return;
     safeSet(STORAGE.size, String(focusSize));
-  }, [focusSize]);
+  }, [hydrated, focusSize]);
   useEffect(() => {
+    if (!hydrated) return;
     safeSet(STORAGE.bg, focusBg);
-  }, [focusBg]);
+  }, [hydrated, focusBg]);
+  useEffect(() => {
+    if (!hydrated) return;
+    safeSet(STORAGE.nav, showNav ? "1" : "0");
+  }, [hydrated, showNav]);
 
   // Tag body so shell can react
   useEffect(() => {
@@ -343,7 +381,55 @@ export default function LessonClient({
               nextLessonHref={nextLessonHref}
             />
           )}
-          <button className="ghost small" onClick={() => setShowTutor((o) => !o)}>
+          {isPro ? (
+            <button
+              className="enrich-btn"
+              onClick={() => setShowEnrich(true)}
+              title={tEnrich("button")}
+            >
+              <svg
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.75"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M12 3v3M12 18v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M3 12h3M18 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+              <span>{tEnrich("button")}</span>
+            </button>
+          ) : (
+            <a
+              href="/pricing"
+              className="enrich-btn enrich-btn-locked"
+              title={tEnrich("upgradeCta")}
+            >
+              <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="5" y="11" width="14" height="9" rx="2" />
+                <path d="M8 11V8a4 4 0 1 1 8 0v3" />
+              </svg>
+              <span>{tEnrich("upgradeCta")}</span>
+            </a>
+          )}
+          <button
+            className="ghost small"
+            onClick={() => {
+              setShowNav((o) => !o);
+              setShowTutor(false);
+            }}
+          >
+            Índice
+          </button>
+          <button
+            className="ghost small"
+            onClick={() => {
+              setShowTutor((o) => !o);
+              setShowNav(false);
+            }}
+          >
             {t("tutorTitle")}
           </button>
         </div>
@@ -365,7 +451,7 @@ export default function LessonClient({
         />
       )}
 
-      <div className={`lesson-body${showTutor ? " with-tutor" : ""}`}>
+      <div className={`lesson-body${showTutor ? " with-tutor" : ""}${showNav ? " with-nav" : ""}`}>
         <article className="reading" ref={articleRef}>
           <div className="reading-eyebrow">
             {lesson.moduleName} · {lesson.category}
@@ -467,6 +553,49 @@ export default function LessonClient({
           </div>
         </article>
 
+        {showNav && (
+          <div className="course-nav">
+            <div className="course-nav-head">
+              <div>
+                <div className="course-nav-title">Índice</div>
+                <div className="course-nav-sub">{course.title}</div>
+                <div className="course-nav-progress">
+                  {tProgress("lessonCount", {
+                    completed: courseNav.flatMap((m) => m.lessons).filter((l) => l.completed)
+                      .length,
+                    total: courseNav.flatMap((m) => m.lessons).length,
+                  })}
+                </div>
+              </div>
+              <button className="icon" onClick={() => setShowNav(false)}>
+                ×
+              </button>
+            </div>
+            <div className="course-nav-body">
+              {courseNav.map((mod) => (
+                <div key={mod.id} className="course-nav-module">
+                  <div className="cnm-title">
+                    <span className="cnm-num">{String(mod.order + 1).padStart(2, "0")}</span>
+                    {mod.title}
+                  </div>
+                  {mod.lessons.map((l) => (
+                    <Link
+                      key={l.id}
+                      href={`/courses/${course.slug}/lessons/${l.id}`}
+                      className={`cnl${l.id === lesson.id ? " cnl-current" : ""}${l.completed ? " cnl-done" : ""}`}
+                    >
+                      <span className="cnl-dot">
+                        {l.completed ? "✓" : l.id === lesson.id ? "▸" : "○"}
+                      </span>
+                      <span className="cnl-name">{l.title}</span>
+                    </Link>
+                  ))}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {showTutor && (
           <div className="tutor">
             <div className="tutor-head">
@@ -507,6 +636,15 @@ export default function LessonClient({
           </div>
         )}
       </div>
+
+      <EnrichModal
+        courseSlug={course.slug}
+        moduleId={lesson.moduleId}
+        referenceLessonId={lesson.id}
+        open={showEnrich}
+        onClose={() => setShowEnrich(false)}
+        onSuccess={() => window.location.reload()}
+      />
     </div>
   );
 }

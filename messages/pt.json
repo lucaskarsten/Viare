@@ -461,6 +461,35 @@
     "attemptsUsed": "{count} tentativas",
     "difficultyEasy": "Fácil",
     "difficultyMedium": "Médio",
-    "difficultyHard": "Difícil"
+    "difficultyHard": "Difícil",
+    "markComplete": "Marquei como concluído",
+    "completedInteractive": "Concluído!",
+    "interactiveDescription": "Lab interativo — explore e pratique",
+    "interactiveOnly": "Use o botão de conclusão para labs interativos",
+    "templateUnavailable": "Este lab está temporariamente indisponível",
+    "timelineSelectHint": "Clique em um evento para ver os detalhes",
+    "mapAriaLabel": "Mapa interativo",
+    "close": "Fechar",
+    "pianoClickToEnable": "Clique em uma tecla para ativar o áudio",
+    "pianoAriaLabel": "Piano interativo",
+    "pianoExerciseLabel": "Exercício: "
+  },
+  "progress": {
+    "lessonCount": "{completed} de {total} aulas"
+  },
+  "enrich": {
+    "button": "Enriquecer com IA",
+    "loading": "Gerando conteúdo...",
+    "success": "Lição adicionada",
+    "error": "Falha ao enriquecer",
+    "limitReached": "Limite de enriquecimentos atingido (20 por curso)",
+    "confirmTitle": "Adicionar aula com IA",
+    "confirmBody": "Escolha onde inserir a nova aula. Uma IA vai gerar o conteúdo com base no curso atual.",
+    "progressNotice": "Seu progresso atual será preservado",
+    "upgradeCta": "Disponível no plano Pro",
+    "proRequired": "Enriquecimento é um recurso Pro",
+    "insertBefore": "Inserir antes desta aula",
+    "insertAfter": "Inserir depois desta aula",
+    "lessonType": "Tipo de aula"
   }
 }

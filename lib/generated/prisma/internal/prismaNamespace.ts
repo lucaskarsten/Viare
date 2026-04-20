@@ -2497,6 +2497,7 @@ export const CourseScalarFieldEnum = {
   avgRating: "avgRating",
   totalRatings: "totalRatings",
   totalEnrollments: "totalEnrollments",
+  enrichCount: "enrichCount",
   generationPrompt: "generationPrompt",
   language: "language",
   scope: "scope",
@@ -2575,7 +2576,11 @@ export const LabScalarFieldEnum = {
   scenario: "scenario",
   objectives: "objectives",
   hints: "hints",
+  type: "type",
   flagHash: "flagHash",
+  templateId: "templateId",
+  templateVersion: "templateVersion",
+  config: "config",
   difficulty: "difficulty",
   createdAt: "createdAt",
   updatedAt: "updatedAt",
@@ -2634,6 +2639,7 @@ export const EnrollmentScalarFieldEnum = {
   progressPercent: "progressPercent",
   lastAccessedAt: "lastAccessedAt",
   customContext: "customContext",
+  baseLessonCount: "baseLessonCount",
   createdAt: "createdAt",
   updatedAt: "updatedAt",
 } as const;
@@ -3021,6 +3027,19 @@ export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, "J
  * Reference to a field of type 'QueryMode'
  */
 export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, "QueryMode">;
+
+/**
+ * Reference to a field of type 'LabType'
+ */
+export type EnumLabTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, "LabType">;
+
+/**
+ * Reference to a field of type 'LabType[]'
+ */
+export type ListEnumLabTypeFieldRefInput<$PrismaModel> = FieldRefInputType<
+  $PrismaModel,
+  "LabType[]"
+>;
 
 /**
  * Reference to a field of type 'CompletionType'

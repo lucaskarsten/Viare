@@ -27,10 +27,12 @@ export type AggregateEnrollment = {
 
 export type EnrollmentAvgAggregateOutputType = {
   progressPercent: number | null;
+  baseLessonCount: number | null;
 };
 
 export type EnrollmentSumAggregateOutputType = {
   progressPercent: number | null;
+  baseLessonCount: number | null;
 };
 
 export type EnrollmentMinAggregateOutputType = {
@@ -40,6 +42,7 @@ export type EnrollmentMinAggregateOutputType = {
   status: $Enums.EnrollmentStatus | null;
   progressPercent: number | null;
   lastAccessedAt: Date | null;
+  baseLessonCount: number | null;
   createdAt: Date | null;
   updatedAt: Date | null;
 };
@@ -51,6 +54,7 @@ export type EnrollmentMaxAggregateOutputType = {
   status: $Enums.EnrollmentStatus | null;
   progressPercent: number | null;
   lastAccessedAt: Date | null;
+  baseLessonCount: number | null;
   createdAt: Date | null;
   updatedAt: Date | null;
 };
@@ -63,6 +67,7 @@ export type EnrollmentCountAggregateOutputType = {
   progressPercent: number;
   lastAccessedAt: number;
   customContext: number;
+  baseLessonCount: number;
   createdAt: number;
   updatedAt: number;
   _all: number;
@@ -70,10 +75,12 @@ export type EnrollmentCountAggregateOutputType = {
 
 export type EnrollmentAvgAggregateInputType = {
   progressPercent?: true;
+  baseLessonCount?: true;
 };
 
 export type EnrollmentSumAggregateInputType = {
   progressPercent?: true;
+  baseLessonCount?: true;
 };
 
 export type EnrollmentMinAggregateInputType = {
@@ -83,6 +90,7 @@ export type EnrollmentMinAggregateInputType = {
   status?: true;
   progressPercent?: true;
   lastAccessedAt?: true;
+  baseLessonCount?: true;
   createdAt?: true;
   updatedAt?: true;
 };
@@ -94,6 +102,7 @@ export type EnrollmentMaxAggregateInputType = {
   status?: true;
   progressPercent?: true;
   lastAccessedAt?: true;
+  baseLessonCount?: true;
   createdAt?: true;
   updatedAt?: true;
 };
@@ -106,6 +115,7 @@ export type EnrollmentCountAggregateInputType = {
   progressPercent?: true;
   lastAccessedAt?: true;
   customContext?: true;
+  baseLessonCount?: true;
   createdAt?: true;
   updatedAt?: true;
   _all?: true;
@@ -208,6 +218,7 @@ export type EnrollmentGroupByOutputType = {
   progressPercent: number;
   lastAccessedAt: Date | null;
   customContext: runtime.JsonValue | null;
+  baseLessonCount: number | null;
   createdAt: Date;
   updatedAt: Date;
   _count: EnrollmentCountAggregateOutputType | null;
@@ -240,6 +251,7 @@ export type EnrollmentWhereInput = {
   progressPercent?: Prisma.IntFilter<"Enrollment"> | number;
   lastAccessedAt?: Prisma.DateTimeNullableFilter<"Enrollment"> | Date | string | null;
   customContext?: Prisma.JsonNullableFilter<"Enrollment">;
+  baseLessonCount?: Prisma.IntNullableFilter<"Enrollment"> | number | null;
   createdAt?: Prisma.DateTimeFilter<"Enrollment"> | Date | string;
   updatedAt?: Prisma.DateTimeFilter<"Enrollment"> | Date | string;
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>;
@@ -259,6 +271,7 @@ export type EnrollmentOrderByWithRelationInput = {
   progressPercent?: Prisma.SortOrder;
   lastAccessedAt?: Prisma.SortOrderInput | Prisma.SortOrder;
   customContext?: Prisma.SortOrderInput | Prisma.SortOrder;
+  baseLessonCount?: Prisma.SortOrderInput | Prisma.SortOrder;
   createdAt?: Prisma.SortOrder;
   updatedAt?: Prisma.SortOrder;
   user?: Prisma.UserOrderByWithRelationInput;
@@ -280,6 +293,7 @@ export type EnrollmentWhereUniqueInput = Prisma.AtLeast<
     progressPercent?: Prisma.IntFilter<"Enrollment"> | number;
     lastAccessedAt?: Prisma.DateTimeNullableFilter<"Enrollment"> | Date | string | null;
     customContext?: Prisma.JsonNullableFilter<"Enrollment">;
+    baseLessonCount?: Prisma.IntNullableFilter<"Enrollment"> | number | null;
     createdAt?: Prisma.DateTimeFilter<"Enrollment"> | Date | string;
     updatedAt?: Prisma.DateTimeFilter<"Enrollment"> | Date | string;
     user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>;
@@ -301,6 +315,7 @@ export type EnrollmentOrderByWithAggregationInput = {
   progressPercent?: Prisma.SortOrder;
   lastAccessedAt?: Prisma.SortOrderInput | Prisma.SortOrder;
   customContext?: Prisma.SortOrderInput | Prisma.SortOrder;
+  baseLessonCount?: Prisma.SortOrderInput | Prisma.SortOrder;
   createdAt?: Prisma.SortOrder;
   updatedAt?: Prisma.SortOrder;
   _count?: Prisma.EnrollmentCountOrderByAggregateInput;
@@ -325,6 +340,7 @@ export type EnrollmentScalarWhereWithAggregatesInput = {
   progressPercent?: Prisma.IntWithAggregatesFilter<"Enrollment"> | number;
   lastAccessedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Enrollment"> | Date | string | null;
   customContext?: Prisma.JsonNullableWithAggregatesFilter<"Enrollment">;
+  baseLessonCount?: Prisma.IntNullableWithAggregatesFilter<"Enrollment"> | number | null;
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Enrollment"> | Date | string;
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Enrollment"> | Date | string;
 };
@@ -335,6 +351,7 @@ export type EnrollmentCreateInput = {
   progressPercent?: number;
   lastAccessedAt?: Date | string | null;
   customContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
+  baseLessonCount?: number | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   user: Prisma.UserCreateNestedOneWithoutEnrollmentsInput;
@@ -351,6 +368,7 @@ export type EnrollmentUncheckedCreateInput = {
   progressPercent?: number;
   lastAccessedAt?: Date | string | null;
   customContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
+  baseLessonCount?: number | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   review?: Prisma.ReviewUncheckedCreateNestedOneWithoutEnrollmentInput;
@@ -363,6 +381,7 @@ export type EnrollmentUpdateInput = {
   progressPercent?: Prisma.IntFieldUpdateOperationsInput | number;
   lastAccessedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
   customContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
+  baseLessonCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   user?: Prisma.UserUpdateOneRequiredWithoutEnrollmentsNestedInput;
@@ -379,6 +398,7 @@ export type EnrollmentUncheckedUpdateInput = {
   progressPercent?: Prisma.IntFieldUpdateOperationsInput | number;
   lastAccessedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
   customContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
+  baseLessonCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   review?: Prisma.ReviewUncheckedUpdateOneWithoutEnrollmentNestedInput;
@@ -393,6 +413,7 @@ export type EnrollmentCreateManyInput = {
   progressPercent?: number;
   lastAccessedAt?: Date | string | null;
   customContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
+  baseLessonCount?: number | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
 };
@@ -403,6 +424,7 @@ export type EnrollmentUpdateManyMutationInput = {
   progressPercent?: Prisma.IntFieldUpdateOperationsInput | number;
   lastAccessedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
   customContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
+  baseLessonCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
 };
@@ -415,6 +437,7 @@ export type EnrollmentUncheckedUpdateManyInput = {
   progressPercent?: Prisma.IntFieldUpdateOperationsInput | number;
   lastAccessedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
   customContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
+  baseLessonCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
 };
@@ -442,12 +465,14 @@ export type EnrollmentCountOrderByAggregateInput = {
   progressPercent?: Prisma.SortOrder;
   lastAccessedAt?: Prisma.SortOrder;
   customContext?: Prisma.SortOrder;
+  baseLessonCount?: Prisma.SortOrder;
   createdAt?: Prisma.SortOrder;
   updatedAt?: Prisma.SortOrder;
 };
 
 export type EnrollmentAvgOrderByAggregateInput = {
   progressPercent?: Prisma.SortOrder;
+  baseLessonCount?: Prisma.SortOrder;
 };
 
 export type EnrollmentMaxOrderByAggregateInput = {
@@ -457,6 +482,7 @@ export type EnrollmentMaxOrderByAggregateInput = {
   status?: Prisma.SortOrder;
   progressPercent?: Prisma.SortOrder;
   lastAccessedAt?: Prisma.SortOrder;
+  baseLessonCount?: Prisma.SortOrder;
   createdAt?: Prisma.SortOrder;
   updatedAt?: Prisma.SortOrder;
 };
@@ -468,12 +494,14 @@ export type EnrollmentMinOrderByAggregateInput = {
   status?: Prisma.SortOrder;
   progressPercent?: Prisma.SortOrder;
   lastAccessedAt?: Prisma.SortOrder;
+  baseLessonCount?: Prisma.SortOrder;
   createdAt?: Prisma.SortOrder;
   updatedAt?: Prisma.SortOrder;
 };
 
 export type EnrollmentSumOrderByAggregateInput = {
   progressPercent?: Prisma.SortOrder;
+  baseLessonCount?: Prisma.SortOrder;
 };
 
 export type EnrollmentScalarRelationFilter = {
@@ -715,6 +743,7 @@ export type EnrollmentCreateWithoutUserInput = {
   progressPercent?: number;
   lastAccessedAt?: Date | string | null;
   customContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
+  baseLessonCount?: number | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   course: Prisma.CourseCreateNestedOneWithoutEnrollmentsInput;
@@ -729,6 +758,7 @@ export type EnrollmentUncheckedCreateWithoutUserInput = {
   progressPercent?: number;
   lastAccessedAt?: Date | string | null;
   customContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
+  baseLessonCount?: number | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   review?: Prisma.ReviewUncheckedCreateNestedOneWithoutEnrollmentInput;
@@ -787,6 +817,7 @@ export type EnrollmentScalarWhereInput = {
   progressPercent?: Prisma.IntFilter<"Enrollment"> | number;
   lastAccessedAt?: Prisma.DateTimeNullableFilter<"Enrollment"> | Date | string | null;
   customContext?: Prisma.JsonNullableFilter<"Enrollment">;
+  baseLessonCount?: Prisma.IntNullableFilter<"Enrollment"> | number | null;
   createdAt?: Prisma.DateTimeFilter<"Enrollment"> | Date | string;
   updatedAt?: Prisma.DateTimeFilter<"Enrollment"> | Date | string;
 };
@@ -797,6 +828,7 @@ export type EnrollmentCreateWithoutCourseInput = {
   progressPercent?: number;
   lastAccessedAt?: Date | string | null;
   customContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
+  baseLessonCount?: number | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   user: Prisma.UserCreateNestedOneWithoutEnrollmentsInput;
@@ -811,6 +843,7 @@ export type EnrollmentUncheckedCreateWithoutCourseInput = {
   progressPercent?: number;
   lastAccessedAt?: Date | string | null;
   customContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
+  baseLessonCount?: number | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   review?: Prisma.ReviewUncheckedCreateNestedOneWithoutEnrollmentInput;
@@ -864,6 +897,7 @@ export type EnrollmentCreateWithoutReviewInput = {
   progressPercent?: number;
   lastAccessedAt?: Date | string | null;
   customContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
+  baseLessonCount?: number | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   user: Prisma.UserCreateNestedOneWithoutEnrollmentsInput;
@@ -879,6 +913,7 @@ export type EnrollmentUncheckedCreateWithoutReviewInput = {
   progressPercent?: number;
   lastAccessedAt?: Date | string | null;
   customContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
+  baseLessonCount?: number | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   certificate?: Prisma.CertificateUncheckedCreateNestedOneWithoutEnrollmentInput;
@@ -918,6 +953,7 @@ export type EnrollmentUpdateWithoutReviewInput = {
   progressPercent?: Prisma.IntFieldUpdateOperationsInput | number;
   lastAccessedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
   customContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
+  baseLessonCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   user?: Prisma.UserUpdateOneRequiredWithoutEnrollmentsNestedInput;
@@ -933,6 +969,7 @@ export type EnrollmentUncheckedUpdateWithoutReviewInput = {
   progressPercent?: Prisma.IntFieldUpdateOperationsInput | number;
   lastAccessedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
   customContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
+  baseLessonCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   certificate?: Prisma.CertificateUncheckedUpdateOneWithoutEnrollmentNestedInput;
@@ -944,6 +981,7 @@ export type EnrollmentCreateWithoutCertificateInput = {
   progressPercent?: number;
   lastAccessedAt?: Date | string | null;
   customContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
+  baseLessonCount?: number | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   user: Prisma.UserCreateNestedOneWithoutEnrollmentsInput;
@@ -959,6 +997,7 @@ export type EnrollmentUncheckedCreateWithoutCertificateInput = {
   progressPercent?: number;
   lastAccessedAt?: Date | string | null;
   customContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
+  baseLessonCount?: number | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   review?: Prisma.ReviewUncheckedCreateNestedOneWithoutEnrollmentInput;
@@ -998,6 +1037,7 @@ export type EnrollmentUpdateWithoutCertificateInput = {
   progressPercent?: Prisma.IntFieldUpdateOperationsInput | number;
   lastAccessedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
   customContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
+  baseLessonCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   user?: Prisma.UserUpdateOneRequiredWithoutEnrollmentsNestedInput;
@@ -1013,6 +1053,7 @@ export type EnrollmentUncheckedUpdateWithoutCertificateInput = {
   progressPercent?: Prisma.IntFieldUpdateOperationsInput | number;
   lastAccessedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
   customContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
+  baseLessonCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   review?: Prisma.ReviewUncheckedUpdateOneWithoutEnrollmentNestedInput;
@@ -1025,6 +1066,7 @@ export type EnrollmentCreateManyUserInput = {
   progressPercent?: number;
   lastAccessedAt?: Date | string | null;
   customContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
+  baseLessonCount?: number | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
 };
@@ -1035,6 +1077,7 @@ export type EnrollmentUpdateWithoutUserInput = {
   progressPercent?: Prisma.IntFieldUpdateOperationsInput | number;
   lastAccessedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
   customContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
+  baseLessonCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   course?: Prisma.CourseUpdateOneRequiredWithoutEnrollmentsNestedInput;
@@ -1049,6 +1092,7 @@ export type EnrollmentUncheckedUpdateWithoutUserInput = {
   progressPercent?: Prisma.IntFieldUpdateOperationsInput | number;
   lastAccessedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
   customContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
+  baseLessonCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   review?: Prisma.ReviewUncheckedUpdateOneWithoutEnrollmentNestedInput;
@@ -1062,6 +1106,7 @@ export type EnrollmentUncheckedUpdateManyWithoutUserInput = {
   progressPercent?: Prisma.IntFieldUpdateOperationsInput | number;
   lastAccessedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
   customContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
+  baseLessonCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
 };
@@ -1073,6 +1118,7 @@ export type EnrollmentCreateManyCourseInput = {
   progressPercent?: number;
   lastAccessedAt?: Date | string | null;
   customContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
+  baseLessonCount?: number | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
 };
@@ -1083,6 +1129,7 @@ export type EnrollmentUpdateWithoutCourseInput = {
   progressPercent?: Prisma.IntFieldUpdateOperationsInput | number;
   lastAccessedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
   customContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
+  baseLessonCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   user?: Prisma.UserUpdateOneRequiredWithoutEnrollmentsNestedInput;
@@ -1097,6 +1144,7 @@ export type EnrollmentUncheckedUpdateWithoutCourseInput = {
   progressPercent?: Prisma.IntFieldUpdateOperationsInput | number;
   lastAccessedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
   customContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
+  baseLessonCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   review?: Prisma.ReviewUncheckedUpdateOneWithoutEnrollmentNestedInput;
@@ -1110,6 +1158,7 @@ export type EnrollmentUncheckedUpdateManyWithoutCourseInput = {
   progressPercent?: Prisma.IntFieldUpdateOperationsInput | number;
   lastAccessedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
   customContext?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue;
+  baseLessonCount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
 };
@@ -1125,6 +1174,7 @@ export type EnrollmentSelect<
     progressPercent?: boolean;
     lastAccessedAt?: boolean;
     customContext?: boolean;
+    baseLessonCount?: boolean;
     createdAt?: boolean;
     updatedAt?: boolean;
     user?: boolean | Prisma.UserDefaultArgs<ExtArgs>;
@@ -1146,6 +1196,7 @@ export type EnrollmentSelectCreateManyAndReturn<
     progressPercent?: boolean;
     lastAccessedAt?: boolean;
     customContext?: boolean;
+    baseLessonCount?: boolean;
     createdAt?: boolean;
     updatedAt?: boolean;
     user?: boolean | Prisma.UserDefaultArgs<ExtArgs>;
@@ -1165,6 +1216,7 @@ export type EnrollmentSelectUpdateManyAndReturn<
     progressPercent?: boolean;
     lastAccessedAt?: boolean;
     customContext?: boolean;
+    baseLessonCount?: boolean;
     createdAt?: boolean;
     updatedAt?: boolean;
     user?: boolean | Prisma.UserDefaultArgs<ExtArgs>;
@@ -1181,6 +1233,7 @@ export type EnrollmentSelectScalar = {
   progressPercent?: boolean;
   lastAccessedAt?: boolean;
   customContext?: boolean;
+  baseLessonCount?: boolean;
   createdAt?: boolean;
   updatedAt?: boolean;
 };
@@ -1195,6 +1248,7 @@ export type EnrollmentOmit<
   | "progressPercent"
   | "lastAccessedAt"
   | "customContext"
+  | "baseLessonCount"
   | "createdAt"
   | "updatedAt",
   ExtArgs["result"]["enrollment"]
@@ -1239,6 +1293,7 @@ export type $EnrollmentPayload<
       progressPercent: number;
       lastAccessedAt: Date | null;
       customContext: runtime.JsonValue | null;
+      baseLessonCount: number | null;
       createdAt: Date;
       updatedAt: Date;
     },
@@ -1871,6 +1926,7 @@ export interface EnrollmentFieldRefs {
   readonly progressPercent: Prisma.FieldRef<"Enrollment", "Int">;
   readonly lastAccessedAt: Prisma.FieldRef<"Enrollment", "DateTime">;
   readonly customContext: Prisma.FieldRef<"Enrollment", "Json">;
+  readonly baseLessonCount: Prisma.FieldRef<"Enrollment", "Int">;
   readonly createdAt: Prisma.FieldRef<"Enrollment", "DateTime">;
   readonly updatedAt: Prisma.FieldRef<"Enrollment", "DateTime">;
 }
