@@ -50,12 +50,10 @@ const SUGGESTIONS = [
   "Aberturas de xadrez",
 ];
 
-const DEPTH_IDS = ["beginner", "intermediate", "deep"] as const;
-const FORMAT_IDS = ["reading", "mixed", "practical"] as const;
-const PACE_VALUES = ["20", "30", "45", "60"] as const;
-
-type DepthId = (typeof DEPTH_IDS)[number];
-type FormatId = (typeof FORMAT_IDS)[number];
+const SCOPE_IDS = ["overview", "complete", "deep"] as const;
+type ScopeId = (typeof SCOPE_IDS)[number];
+// RULE: COURSE-06 / AI-05 — estimated hours per scope
+const SCOPE_HOURS: Record<ScopeId, number> = { overview: 60, complete: 180, deep: 360 };
 
 const LANGUAGES = [
   { code: "pt", flag: "PT", native: "Português" },
@@ -68,13 +66,6 @@ const LANGUAGES = [
   { code: "ja", flag: "JP", native: "日本語" },
 ];
 
-function estimatedMinutes(depth: DepthId, pace: string): number {
-  const baseByDepth: Record<DepthId, number> = { beginner: 4, intermediate: 7, deep: 12 };
-  const base = baseByDepth[depth];
-  const paceNum = parseInt(pace, 10) || 30;
-  return Math.round(base * (paceNum / 30));
-}
-
 const btnGhost =
   "bg-transparent text-foreground px-4 py-2.5 rounded text-[13px] border border-border cursor-pointer font-[inherit] transition-colors hover:bg-card";
 const btnPrimary =
@@ -84,9 +75,7 @@ export default function GeneratePage() {
   const t = useTranslations("generate");
   const router = useRouter();
   const [topic, setTopic] = useState("");
-  const [depth, setDepth] = useState<DepthId>("intermediate");
-  const [pace, setPace] = useState("30");
-  const [format, setFormat] = useState<FormatId>("mixed");
+  const [scope, setScope] = useState<ScopeId>("complete");
   const [language, setLanguage] = useState("pt");
   const [alsoGenerate, setAlsoGenerate] = useState<string[]>([]);
   const [phase, setPhase] = useState<Phase>({ status: "idle" });
@@ -155,6 +144,7 @@ export default function GeneratePage() {
         body: JSON.stringify({
           topic: topic.trim(),
           language,
+          scope: scope.toUpperCase(),
           ...(sources.length > 0 ? { sources } : {}),
         }),
         signal: abortRef.current.signal,
@@ -225,7 +215,7 @@ export default function GeneratePage() {
     }
   }
 
-  const estTime = estimatedMinutes(depth, pace);
+  const estTime = SCOPE_HOURS[scope];
 
   return (
     <div className="flex flex-col gap-10 pb-20">
@@ -425,69 +415,30 @@ export default function GeneratePage() {
           </div>
         )}
 
-        <div className="mt-10 grid grid-cols-3 gap-8 py-6 border-t border-b border-border">
-          <div>
-            <div className="font-mono text-[10px] tracking-[0.08em] uppercase text-muted-foreground mb-2.5">
-              {t("depthLabel")}
-            </div>
-            <div className="flex gap-1.5 flex-wrap">
-              {DEPTH_IDS.map((id) => (
-                <button
-                  key={id}
-                  type="button"
-                  className={`text-[13px] px-3 py-1.5 rounded-[var(--radius)] transition-all border-0 cursor-pointer font-[inherit]${
-                    depth === id
-                      ? " bg-foreground text-background"
-                      : " bg-card text-muted-foreground hover:bg-muted"
-                  }`}
-                  onClick={() => setDepth(id)}
-                >
-                  {t(`depth.${id}`)}
-                </button>
-              ))}
-            </div>
+        <div className="mt-10 py-6 border-t border-b border-border">
+          <div className="font-mono text-[10px] tracking-[0.08em] uppercase text-muted-foreground mb-2.5">
+            {t("scopeLabel")}
           </div>
-          <div>
-            <div className="font-mono text-[10px] tracking-[0.08em] uppercase text-muted-foreground mb-2.5">
-              {t("paceLabel")}
-            </div>
-            <div className="flex gap-1.5 flex-wrap">
-              {PACE_VALUES.map((v) => (
-                <button
-                  key={v}
-                  type="button"
-                  className={`text-[13px] px-3 py-1.5 rounded-[var(--radius)] transition-all border-0 cursor-pointer font-[inherit]${
-                    pace === v
-                      ? " bg-foreground text-background"
-                      : " bg-card text-muted-foreground hover:bg-muted"
-                  }`}
-                  onClick={() => setPace(v)}
+          <div className="flex gap-2 flex-wrap">
+            {SCOPE_IDS.map((id) => (
+              <button
+                key={id}
+                type="button"
+                className={`flex flex-col items-start px-4 py-2.5 rounded-[var(--radius)] transition-all border cursor-pointer font-[inherit]${
+                  scope === id
+                    ? " bg-foreground text-background border-foreground"
+                    : " bg-card text-muted-foreground border-border hover:border-foreground/40"
+                }`}
+                onClick={() => setScope(id)}
+              >
+                <span className="text-[13px] font-medium">{t(`scope.${id}`)}</span>
+                <span
+                  className={`text-[11px] mt-0.5 ${scope === id ? "text-background/60" : "text-muted-foreground/70"}`}
                 >
-                  {v}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div>
-            <div className="font-mono text-[10px] tracking-[0.08em] uppercase text-muted-foreground mb-2.5">
-              {t("formatLabel")}
-            </div>
-            <div className="flex gap-1.5 flex-wrap">
-              {FORMAT_IDS.map((id) => (
-                <button
-                  key={id}
-                  type="button"
-                  className={`text-[13px] px-3 py-1.5 rounded-[var(--radius)] transition-all border-0 cursor-pointer font-[inherit]${
-                    format === id
-                      ? " bg-foreground text-background"
-                      : " bg-card text-muted-foreground hover:bg-muted"
-                  }`}
-                  onClick={() => setFormat(id)}
-                >
-                  {t(`format.${id}`)}
-                </button>
-              ))}
-            </div>
+                  {t(`scopeHint.${id}`)}
+                </span>
+              </button>
+            ))}
           </div>
         </div>
 

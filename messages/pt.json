@@ -215,9 +215,7 @@
     "lede": "Digite um tema, quanto mais específico, melhor o currículo gerado.",
     "placeholder": "Ex: Redes de computadores, história do jazz, panificação…",
     "suggestionsLabel": "SUGESTÕES",
-    "depthLabel": "PROFUNDIDADE",
-    "paceLabel": "DURAÇÃO (min/aula)",
-    "formatLabel": "FORMATO",
+    "scopeLabel": "ESCOPO DO CURSO",
     "languageLabel": "IDIOMA",
     "languageSub": "Selecione o idioma principal do curso",
     "primaryBadge": "PRINCIPAL",
@@ -239,15 +237,15 @@
     "errorTitle": "Erro ao gerar curso",
     "errorStart": "Falha ao iniciar geração",
     "retry": "Tentar novamente",
-    "depth": {
-      "beginner": "Iniciante",
-      "intermediate": "Intermediário",
+    "scope": {
+      "overview": "Visão Geral",
+      "complete": "Completo",
       "deep": "Profundo"
     },
-    "format": {
-      "reading": "Leitura",
-      "mixed": "Misto",
-      "practical": "Prático"
+    "scopeHint": {
+      "overview": "~1h",
+      "complete": "~3h",
+      "deep": "~6h"
     },
     "thinking": [
       "Varrendo fontes primárias…",
@@ -396,6 +394,31 @@
     "sinceStart": "desde o início · Jan 2026",
     "fulfilled": "cumprida",
     "failed": "falhou"
+  },
+  "certificates": {
+    "title": "Certificados",
+    "empty": "Nenhum certificado ainda.",
+    "emptyHint": "Conclua um curso para receber seu certificado.",
+    "issuedAt": "Emitido em {date}",
+    "hours": "{n}h de conteúdo",
+    "viewCertificate": "Ver certificado →",
+    "downloadPdf": "Baixar PDF",
+    "addToLinkedIn": "Adicionar ao LinkedIn"
+  },
+  "verify": {
+    "valid": "Certificado válido",
+    "revoked": "Certificado revogado",
+    "revokedDetail": "Este certificado foi revogado e não tem mais validade.",
+    "notFound": "Certificado não encontrado.",
+    "certifiedThat": "Certificamos que",
+    "completedCourse": "concluiu o curso",
+    "hours": "{n}h de carga horária",
+    "issuedAt": "Emitido em {date}",
+    "downloadPdf": "Baixar certificado PDF",
+    "addToLinkedIn": "Adicionar ao LinkedIn",
+    "legalNote": "Curso livre nos termos do Art. 42 da LDB (Lei 9.394/96) e Decreto 5.154/2004.",
+    "verifiedBy": "Verificado por Viare",
+    "uuid": "ID: {uuid}"
   },
   "lab": {
     "scenario": "CENÁRIO",

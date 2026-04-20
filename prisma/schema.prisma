@@ -32,6 +32,7 @@ model User {
   xp           UserXP?
   quizAttempts QuizAttempt[]
   reviewCards  ReviewCard[]
+  certificates Certificate[]
 }
 
 model Account {
@@ -92,6 +93,7 @@ model Course {
   totalEnrollments Int            @default(0)
   generationPrompt String?        @db.Text // original user prompt
   language         String         @default("pt") // ISO 639-1 code used for generation prompts
+  scope            CourseScope    @default(COMPLETE) // RULE: COURSE-06 — user-defined generation depth
   requiresReview   Boolean        @default(false) // RULE: CONTENT-03 — flagged for manual review
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
@@ -101,6 +103,7 @@ model Course {
   forks        Course[]     @relation("CourseForks")
   modules      Module[]
   enrollments  Enrollment[]
+  certificates Certificate[]
 }
 
 model Module {
@@ -234,9 +237,10 @@ model Enrollment {
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
 
-  user   User    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  course Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  review Review?
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course      Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  review      Review?
+  certificate Certificate?
 
   @@unique([userId, courseId])
 }
@@ -380,6 +384,28 @@ model CardReview {
   @@index([cardId])
 }
 
+// ─── Certificates ─────────────────────────────────────────────────────────
+
+model Certificate {
+  id                  String    @id @default(cuid())
+  uuid                String    @unique @default(uuid())
+  userId              String
+  courseId            String
+  enrollmentId        String    @unique
+  userNameSnapshot    String
+  courseTitleSnapshot String
+  hoursSnapshot       Int
+  issuedAt            DateTime  @default(now())
+  revokedAt           DateTime?
+
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course     Course     @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  enrollment Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([courseId])
+}
+
 // ─── Enums ─────────────────────────────────────────────────────────────────
 
 enum CourseCategory {
@@ -437,6 +463,12 @@ enum Difficulty {
 enum CompletionType {
   MANUAL
   AUTO
+}
+
+enum CourseScope {
+  OVERVIEW
+  COMPLETE
+  DEEP
 }
 
 enum SubscriptionPlan {

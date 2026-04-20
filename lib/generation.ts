@@ -1,7 +1,7 @@
 import { tavily } from "@tavily/core";
 import { extractSourceContent, type IngestSource } from "@/lib/ingest";
 import { db } from "@/lib/db";
-import { Difficulty } from "@prisma/client";
+import { CourseScope, Difficulty } from "@prisma/client";
 import { checkInputSafety, classifyGeneratedContent, SAFETY_MESSAGES } from "@/lib/content-safety";
 import { toSlug } from "@/lib/slug";
 import { buildResearchQuery } from "@/lib/prompts/language";
@@ -28,7 +28,8 @@ export async function generateCourse(
   customContext: string | undefined,
   emit: (event: GenerationEvent) => void,
   sources?: IngestSource[],
-  language = "pt"
+  language = "pt",
+  scope = "COMPLETE"
 ) {
   let courseId: string | undefined;
 
@@ -82,6 +83,7 @@ export async function generateCourse(
     const outline = await generateOutline({
       language,
       topic,
+      scope,
       customContext,
       sourcesContext,
       researchContext,
@@ -103,6 +105,7 @@ export async function generateCourse(
         tags: outline.tags,
         difficulty: outline.difficulty as Difficulty,
         estimatedHours: outline.estimatedHours,
+        scope: scope as CourseScope, // RULE: COURSE-06
         status: "GENERATING",
         sourceType: "AI_GENERATED",
         generationPrompt: `${topic}${customContext ? `\n${customContext}` : ""}${sources?.length ? `\nsources: ${sources.map((s) => (s.type === "text" ? "[text paste]" : s.url)).join(", ")}` : ""}`,

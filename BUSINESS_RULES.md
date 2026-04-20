@@ -40,11 +40,18 @@ const userId = session?.user?.id;
 
 **AI-01** — Todo output de LLM que será parseado como JSON DEVE usar Zod para validação. Nunca `JSON.parse(raw) as T`.
 
-**AI-02** — Outline gerado deve ter entre 3 e 5 módulos, cada módulo entre 2 e 4 lições THEORY + 1 QUIZ.
+**AI-02** — Contagem de módulos e lições depende do `scope` do curso (ver AI-05 e COURSE-06). `estimatedHours` deve estar entre 2 e 12.
 
 **AI-03** — `estimatedHours` deve estar entre 2 e 12. Rejeitar valores fora deste range.
 
 **AI-04** — O lifecycle de geração é: `status: GENERATING` ao criar o curso → gerar conteúdo lição a lição → `status: PUBLISHED` ao finalizar. Em caso de erro no meio: `status: DRAFT`.
+
+**AI-05** — Scope-to-prompt mapping: o campo `scope` do curso é injetado no user message do outline prompt como constraint de módulos/lições.
+
+- `OVERVIEW` → 1-2 módulos, 2 lições THEORY cada
+- `COMPLETE` → 3-4 módulos, 2-3 lições THEORY cada (padrão)
+- `DEEP` → 4-5 módulos, 3-4 lições THEORY cada, exemplos elaborados e casos extremos
+- O `tone` (technical/practical/conceptual) continua sendo determinado pelo classificador de domínio, não pelo usuário.
 
 ---
 
@@ -93,3 +100,35 @@ const userId = session?.user?.id;
 **CONTENT-04** — Cursos forkados herdam a classificação de conteúdo do curso original. Fork não é reset de moderação. Conteúdo novo adicionado no fork é classificado independentemente.
 
 **CONTENT-05** — Mensagens de erro ao usuário sobre rejeição de conteúdo NÃO revelam os padrões de detecção utilizados. Sempre usar mensagens genéricas ("tópico não disponível", "revise o título").
+
+---
+
+## LEARN — Learning Graph & Study Plans
+
+**LEARN-01** — Cursos podem ter dependências de outros cursos (`CourseDependency` junction table). A relação é direcional: curso A depende de curso B, não o contrário.
+
+**LEARN-02** — Topic branch: de qualquer aula, o usuário pode gerar um novo curso sobre um tópico mencionado. O curso gerado é independente, mas registra `parentCourseId` e `parentLessonId` como origem.
+
+**LEARN-03** — Antes de gerar um novo curso, o sistema DEVE buscar cursos existentes com o mesmo tópico. O usuário escolhe entre usar um existente ou gerar o próprio. Gerar duplicata sem confirmação explícita é proibido.
+
+**LEARN-04** — Study Plan é uma coleção ordenada de cursos com dependências resolvidas. O progresso de um plano é derivado do progresso individual de cada curso membro — nunca armazenado separadamente.
+
+**LEARN-05** — Um topic branch criado para "visão geral" (`scope: OVERVIEW`) tem no máximo 2 módulos e 3 lições each. Um branch para "aprofundamento" (`scope: DEEP`) segue os limites normais (AI-02).
+
+**LEARN-06** — Fork de módulo herda a moderação de conteúdo do curso original (ver CONTENT-04). A geração de conteúdo novo no fork é classificada independentemente.
+
+---
+
+## CERT — Certificados
+
+**CERT-01** — Certificado só é emitido para `enrollment.status === 'COMPLETED'`. Verificar antes de qualquer criação.
+
+**CERT-02** — Certificado é idempotente: se já existe para um enrollmentId, retornar o existente sem criar duplicata.
+
+**CERT-03** — `userNameSnapshot`, `courseTitleSnapshot` e `hoursSnapshot` são snapshots imutáveis capturados no momento da emissão. Nunca atualizar após criação.
+
+**CERT-04** — `uuid` é o identificador público. `id` (cuid) é interno. URLs públicas usam sempre `uuid`.
+
+**CERT-05** — Revogação é soft-delete: setar `revokedAt`. Nunca deletar o registro.
+
+**CERT-06** — Certificados usam `onDelete: Cascade` em todas as FKs (consistente com o padrão do projeto). Deletar um Enrollment ou Course também deleta o Certificate associado. Para evitar perda acidental, revogar (CERT-05) antes de remover o curso ou enrollment. Revisitar se for necessário sobreviver a deleções de conta no futuro.

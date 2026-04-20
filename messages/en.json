@@ -215,9 +215,7 @@
     "lede": "Type a topic — the more specific, the better the generated curriculum.",
     "placeholder": "E.g.: Computer networks, history of jazz, bread baking…",
     "suggestionsLabel": "SUGGESTIONS",
-    "depthLabel": "DEPTH",
-    "paceLabel": "DURATION (min/lesson)",
-    "formatLabel": "FORMAT",
+    "scopeLabel": "COURSE SCOPE",
     "languageLabel": "LANGUAGE",
     "languageSub": "Pick the primary language for the course",
     "primaryBadge": "PRIMARY",
@@ -239,15 +237,15 @@
     "errorTitle": "Error generating course",
     "errorStart": "Failed to start generation",
     "retry": "Try again",
-    "depth": {
-      "beginner": "Beginner",
-      "intermediate": "Intermediate",
+    "scope": {
+      "overview": "Overview",
+      "complete": "Complete",
       "deep": "Deep"
     },
-    "format": {
-      "reading": "Reading",
-      "mixed": "Mixed",
-      "practical": "Hands-on"
+    "scopeHint": {
+      "overview": "~1h",
+      "complete": "~3h",
+      "deep": "~6h"
     },
     "thinking": [
       "Scanning primary sources…",
@@ -396,6 +394,31 @@
     "sinceStart": "since start · Jan 2026",
     "fulfilled": "fulfilled",
     "failed": "missed"
+  },
+  "certificates": {
+    "title": "Certificates",
+    "empty": "No certificates yet.",
+    "emptyHint": "Complete a course to receive your certificate.",
+    "issuedAt": "Issued {date}",
+    "hours": "{n}h of content",
+    "viewCertificate": "View certificate →",
+    "downloadPdf": "Download PDF",
+    "addToLinkedIn": "Add to LinkedIn"
+  },
+  "verify": {
+    "valid": "Valid certificate",
+    "revoked": "Revoked certificate",
+    "revokedDetail": "This certificate has been revoked.",
+    "notFound": "Certificate not found.",
+    "certifiedThat": "This certifies that",
+    "completedCourse": "completed the course",
+    "hours": "{n}h of content",
+    "issuedAt": "Issued {date}",
+    "downloadPdf": "Download certificate PDF",
+    "addToLinkedIn": "Add to LinkedIn",
+    "legalNote": "Free course under Art. 42 of Brazilian Education Law (LDB 9.394/96) and Decree 5.154/2004.",
+    "verifiedBy": "Verified by Viare",
+    "uuid": "ID: {uuid}"
   },
   "lab": {
     "scenario": "SCENARIO",

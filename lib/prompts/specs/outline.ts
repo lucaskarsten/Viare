@@ -8,10 +8,21 @@ import { antiInjection, persona, regras, userData } from "@/lib/prompts/tags";
 export interface OutlineInput {
   language: string;
   topic: string;
+  scope?: string;
   customContext?: string;
   sourcesContext?: string;
   researchContext?: string;
 }
+
+// RULE: AI-05 — scope controls module/lesson density in the outline
+const SCOPE_CONSTRAINTS: Record<string, { modules: string; lessons: string }> = {
+  overview: { modules: "1 to 2 modules", lessons: "2 THEORY lessons each" },
+  complete: { modules: "3 to 4 modules", lessons: "2 to 3 THEORY lessons each" },
+  deep: {
+    modules: "4 to 5 modules",
+    lessons: "3 to 4 THEORY lessons each — use elaborate examples and cover edge cases",
+  },
+};
 
 const outlineTool: Anthropic.Tool = {
   name: "create_course_outline",
@@ -98,9 +109,14 @@ function buildUserMessage(input: OutlineInput): string {
   const scalingRule = hasSources
     ? "IMPORTANT: Base the course ONLY on the provided source material. Scale modules and lessons to content volume — a short video or article warrants 1-2 modules with 2-3 lessons each. Do not add topics absent from the sources."
     : "";
+  const scopeKey = (input.scope ?? "COMPLETE").toLowerCase();
+  const scopeConstraints = SCOPE_CONSTRAINTS[scopeKey] ?? SCOPE_CONSTRAINTS.complete;
   const moduleCountRule = hasSources
     ? "- 1 to 3 modules (scale to content volume)"
-    : "- 3 to 5 modules";
+    : `- ${scopeConstraints.modules}`;
+  const theoryLessonsRule = hasSources
+    ? "- 2 to 4 THEORY lessons per module, followed by 1 QUIZ lesson"
+    : `- ${scopeConstraints.lessons}, followed by 1 QUIZ lesson`;
 
   const parts: string[] = [
     buildLanguageInstruction(input.language),
@@ -125,11 +141,7 @@ function buildUserMessage(input: OutlineInput): string {
 
   parts.push("", "Rules:");
   if (scalingRule) parts.push(scalingRule);
-  parts.push(
-    moduleCountRule,
-    "- 2 to 4 THEORY lessons per module, followed by 1 QUIZ lesson",
-    "- 3 to 6 tags"
-  );
+  parts.push(moduleCountRule, theoryLessonsRule, "- 3 to 6 tags");
 
   return parts.join("\n");
 }

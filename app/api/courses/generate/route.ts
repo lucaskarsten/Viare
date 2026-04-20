@@ -15,6 +15,9 @@ export async function POST(request: Request) {
   const topic: string = body.topic?.trim() ?? "";
   const customContext: string | undefined = body.customContext?.trim() || undefined;
   const language: string = typeof body.language === "string" ? body.language : "pt";
+  const VALID_SCOPES = ["OVERVIEW", "COMPLETE", "DEEP"] as const;
+  const rawScope = typeof body.scope === "string" ? body.scope.toUpperCase() : "COMPLETE";
+  const scope = (VALID_SCOPES as readonly string[]).includes(rawScope) ? rawScope : "COMPLETE";
 
   const SourcesSchema = z.array(IngestSourceSchema).max(5).optional();
   const parseResult = SourcesSchema.safeParse(body.sources);
@@ -42,7 +45,7 @@ export async function POST(request: Request) {
         }
       }
 
-      await generateCourse(topic, session.user!.id!, customContext, emit, sources, language);
+      await generateCourse(topic, session.user!.id!, customContext, emit, sources, language, scope);
       if (!cancelled) controller.close();
     },
     cancel() {
