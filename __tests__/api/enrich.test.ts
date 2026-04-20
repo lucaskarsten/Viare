@@ -69,7 +69,6 @@ import { db } from "@/lib/db";
 import { isPro } from "@/lib/subscription";
 import { generateEnrichModules } from "@/lib/prompts/specs/enrich-modules";
 import { generateTheoryLesson } from "@/lib/prompts/specs/theory";
-import { generateQuiz } from "@/lib/prompts/specs/quiz";
 import { classifyGeneratedContent } from "@/lib/content-safety";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────

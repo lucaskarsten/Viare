@@ -95,8 +95,8 @@ export default function CourseMap({ modules, slug }: CourseMapProps) {
   return (
     <div>
       {/* Toolbar */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+        <div className="flex items-center gap-3 text-[11px] text-muted-foreground flex-wrap">
           {legend.map((item) => (
             <span key={item.label} className="flex items-center gap-1.5">
               <span
@@ -130,9 +130,9 @@ export default function CourseMap({ modules, slug }: CourseMapProps) {
         </div>
       </div>
 
-      <div className="flex gap-4">
+      <div className="flex flex-col lg:flex-row gap-4">
         {/* SVG scroll container */}
-        <div className="overflow-x-auto flex-1">
+        <div className="overflow-x-auto flex-1 min-w-0">
           <svg width={width * zoom} height={height * zoom} viewBox={`0 0 ${width} ${height}`}>
             {/* Module column backgrounds */}
             {modules.map((m, mi) => {
@@ -306,7 +306,7 @@ export default function CourseMap({ modules, slug }: CourseMapProps) {
 
         {/* Detail panel */}
         {focusNode && (
-          <div className="w-56 shrink-0 rounded-lg border bg-card p-4 self-start sticky top-4">
+          <div className="w-full lg:w-56 lg:shrink-0 rounded-lg border bg-card p-4 lg:self-start lg:sticky lg:top-4">
             <div className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1">
               {focusNode.moduleTitle}
             </div>

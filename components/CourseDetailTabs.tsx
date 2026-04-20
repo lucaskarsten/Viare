@@ -82,11 +82,11 @@ export default function CourseDetailTabs({ courseSlug, modules }: Props) {
 
   return (
     <div className="flex flex-col">
-      <div className="flex gap-1 border-b border-border">
+      <div className="flex gap-1 border-b border-border overflow-x-auto flex-nowrap -mx-4 sm:mx-0 px-4 sm:px-0">
         {TAB_IDS.map((id) => (
           <button
             key={id}
-            className={`text-[13px] px-3.5 py-2.5 -mb-px cursor-pointer font-[inherit] bg-transparent transition-colors${
+            className={`text-[13px] px-3.5 py-2.5 -mb-px cursor-pointer font-[inherit] bg-transparent transition-colors whitespace-nowrap${
               tab === id
                 ? " text-foreground font-medium [border-bottom:2px_solid_var(--accent)]"
                 : " text-muted-foreground [border-bottom:2px_solid_transparent] hover:text-foreground"
@@ -144,7 +144,7 @@ export default function CourseDetailTabs({ courseSlug, modules }: Props) {
                       return (
                         <li
                           key={l.id}
-                          className={`grid grid-cols-[24px_80px_1fr_80px_60px] gap-4 items-center px-2 py-2.5 rounded text-[14px] transition-colors${
+                          className={`grid grid-cols-[24px_1fr_auto] sm:grid-cols-[24px_80px_1fr_80px_60px] gap-3 sm:gap-4 items-center px-2 py-2.5 rounded text-[14px] transition-colors${
                             l.current ? " bg-accent/15" : ""
                           }${isClickable ? " cursor-pointer hover:bg-card" : " cursor-default"}`}
                           onClick={
@@ -164,21 +164,26 @@ export default function CourseDetailTabs({ courseSlug, modules }: Props) {
                               <span className="w-2.5 h-2.5 border border-muted-foreground rounded-full inline-block" />
                             )}
                           </span>
-                          <span className="font-mono text-[11px] text-muted-foreground">
+                          <span className="hidden sm:inline font-mono text-[11px] text-muted-foreground">
                             {String(l.order).padStart(2, "0")}
                           </span>
-                          <span className={l.done ? "text-muted-foreground" : "text-foreground"}>
+                          <span
+                            className={`min-w-0 truncate ${l.done ? "text-muted-foreground" : "text-foreground"}`}
+                          >
                             {l.title}
                           </span>
                           {(() => {
                             const k = kindStyle(l.kind);
                             return (
-                              <span className={k.className} style={k.style}>
+                              <span
+                                className={`${k.className} hidden sm:inline-block`}
+                                style={k.style}
+                              >
                                 {l.kind}
                               </span>
                             );
                           })()}
-                          <span className="font-mono text-[11px] text-muted-foreground text-right">
+                          <span className="font-mono text-[11px] text-muted-foreground text-right whitespace-nowrap">
                             {l.estimatedMinutes}min
                           </span>
                         </li>
@@ -197,7 +202,7 @@ export default function CourseDetailTabs({ courseSlug, modules }: Props) {
 
         {tab === "reviews" && (
           <div className="flex flex-col gap-6">
-            <div className="grid grid-cols-[200px_1fr] gap-12 p-6 bg-card rounded-[var(--radius-lg)] items-center">
+            <div className="grid grid-cols-1 sm:grid-cols-[200px_1fr] gap-8 sm:gap-12 p-5 sm:p-6 bg-card rounded-[var(--radius-lg)] items-center">
               <div className="text-center">
                 <div className="text-[48px] leading-none tracking-[-0.04em] font-medium tabular-nums text-foreground">
                   —

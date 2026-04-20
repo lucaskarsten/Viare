@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import type { InteractivePianoConfig } from "@/lib/labs/templates/registry";
 
@@ -44,7 +44,10 @@ export default function InteractivePiano({ config }: Props) {
   const octaves = config.octaves ?? 2;
   const startOctave = 4;
 
-  const scaleNotes = new Set(buildScaleNotes(root, scale, octaves, startOctave));
+  const scaleNotes = useMemo(
+    () => new Set(buildScaleNotes(root, scale, octaves, startOctave)),
+    [root, scale, octaves, startOctave]
+  );
 
   const initAudio = useCallback(async () => {
     if (synthRef.current) return;

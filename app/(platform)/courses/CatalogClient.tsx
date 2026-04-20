@@ -124,12 +124,12 @@ export default function CatalogClient({
 
   return (
     <>
-      <header className="flex items-end justify-between gap-8 pb-6 border-b border-border mb-10 flex-wrap">
+      <header className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 md:gap-8 pb-6 border-b border-border mb-8 md:mb-10 flex-wrap">
         <div>
           <div className="font-mono text-[11px] tracking-[0.08em] uppercase text-muted-foreground mb-3">
             {t("label", { count: courses.length })}
           </div>
-          <h1 className="font-medium text-[36px] leading-[1.15] tracking-[-0.02em] m-0 text-balance text-foreground">
+          <h1 className="font-medium text-[28px] sm:text-[32px] md:text-[36px] leading-[1.15] tracking-[-0.02em] m-0 text-balance text-foreground">
             <em className="not-italic text-muted-foreground font-normal">{t("headline")}</em>{" "}
             {t("headlineSuffix")}
           </h1>
@@ -137,7 +137,7 @@ export default function CatalogClient({
             {t("description")}
           </p>
         </div>
-        <div className="flex gap-8 font-mono text-[10px] tracking-[0.08em] uppercase text-muted-foreground">
+        <div className="flex flex-wrap gap-6 md:gap-8 font-mono text-[10px] tracking-[0.08em] uppercase text-muted-foreground">
           <div>
             <strong className="block font-sans text-[28px] font-normal text-foreground tracking-[-0.02em] normal-case leading-none mb-1">
               {courses.length}
@@ -160,7 +160,7 @@ export default function CatalogClient({
       </header>
 
       <div
-        className="mb-8 py-4 px-5 rounded flex items-center gap-4"
+        className="mb-8 py-4 px-5 rounded flex items-center gap-4 flex-wrap"
         style={{
           background: "color-mix(in oklch, var(--accent), transparent 92%)",
           borderLeft: "3px solid var(--accent)",
@@ -209,7 +209,7 @@ export default function CatalogClient({
           );
         })}
         <input
-          className="ml-auto text-[13px] px-3.5 py-1.5 bg-card border border-transparent rounded-full min-w-[240px] text-foreground outline-none focus:border-muted-foreground focus:bg-background placeholder:text-muted-foreground"
+          className="w-full sm:ml-auto sm:w-auto sm:min-w-[240px] text-[13px] px-3.5 py-1.5 bg-card border border-transparent rounded-full text-foreground outline-none focus:border-muted-foreground focus:bg-background placeholder:text-muted-foreground"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={t("searchPlaceholder")}

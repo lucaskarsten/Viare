@@ -94,12 +94,12 @@ export default async function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-14">
-      <header className="flex items-end justify-between gap-12 pb-8 border-b border-border">
+      <header className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between md:gap-12 pb-8 border-b border-border">
         <div>
           <div className="font-mono text-[11px] tracking-[0.08em] uppercase text-muted-foreground mb-3">
             {formattedDate}
           </div>
-          <h1 className="text-[36px] font-medium leading-[1.15] tracking-[-0.02em] m-0 text-balance text-foreground">
+          <h1 className="text-[28px] sm:text-[32px] md:text-[36px] font-medium leading-[1.15] tracking-[-0.02em] m-0 text-balance text-foreground">
             <em className="not-italic text-muted-foreground font-normal">{greeting},</em>{" "}
             {firstName}.
           </h1>
@@ -107,7 +107,7 @@ export default async function DashboardPage() {
             {motivationalMessage}
           </p>
         </div>
-        <div className="flex gap-8">
+        <div className="flex flex-wrap gap-6 md:gap-8">
           <div className="text-right">
             <div className="text-[28px] leading-none tracking-[-0.03em] font-medium tabular-nums text-foreground">
               {currentStreak}
@@ -149,7 +149,7 @@ export default async function DashboardPage() {
             </Link>
           </div>
           <Link
-            className="grid grid-cols-[280px_1fr_auto] items-center gap-8 p-6 bg-card rounded-[10px] no-underline text-inherit cursor-pointer transition-[transform,box-shadow] hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(0,0,0,0.08)]"
+            className="grid grid-cols-1 lg:grid-cols-[280px_1fr_auto] items-center gap-6 lg:gap-8 p-5 md:p-6 bg-card rounded-[10px] no-underline text-inherit cursor-pointer transition-[transform,box-shadow] hover:-translate-y-0.5 hover:shadow-[0_12px_32px_rgba(0,0,0,0.08)]"
             href={
               resumeNextLesson
                 ? `/courses/${resumeEnrollment.course.slug}/lessons/${resumeNextLesson.id}`
@@ -203,17 +203,17 @@ export default async function DashboardPage() {
                 />
               </div>
             </div>
-            <div className="text-[28px] text-muted-foreground px-2">→</div>
+            <div className="hidden lg:block text-[28px] text-muted-foreground px-2">→</div>
           </Link>
         </section>
       )}
 
       <section>
-        <div className="flex items-baseline justify-between mb-5">
+        <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-3 mb-5">
           <h2 className="font-medium text-[20px] m-0 tracking-[-0.02em] text-foreground">
             {t("yourCourses")}
           </h2>
-          <div className="flex gap-1">
+          <div className="flex gap-1 flex-wrap">
             <button className="text-[12px] px-2.5 py-[5px] rounded-full border-0 cursor-pointer bg-foreground text-background">
               {t("filterAll")}
             </button>
@@ -228,7 +228,7 @@ export default async function DashboardPage() {
             </button>
           </div>
         </div>
-        <div className="grid grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {enrollments.map((enrollment, i) => {
             const color = COURSE_COLORS[i % COURSE_COLORS.length];
             const categoryKey = `categoryLabels.${enrollment.course.category}` as Parameters<
@@ -289,12 +289,12 @@ export default async function DashboardPage() {
             {archivedEnrollments.map((e) => (
               <li
                 key={e.id}
-                className="grid grid-cols-[1fr_auto_auto] gap-6 items-center py-4 px-1 border-b border-border cursor-pointer transition-[padding] hover:pl-3"
+                className="grid grid-cols-[1fr_auto] sm:grid-cols-[1fr_auto_auto] gap-3 sm:gap-6 items-center py-4 px-1 border-b border-border cursor-pointer transition-[padding] hover:pl-3"
               >
                 <span className="text-[14px] font-medium tracking-[-0.01em] text-foreground">
                   {e.course.title}
                 </span>
-                <span className="text-[12px] text-muted-foreground tabular-nums">
+                <span className="hidden sm:inline text-[12px] text-muted-foreground tabular-nums">
                   {t("paused")} ·{" "}
                   {e.updatedAt.toLocaleDateString(dateLocale, { month: "short", year: "numeric" })}
                 </span>

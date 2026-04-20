@@ -13,7 +13,8 @@
     "defaultName": "Você",
     "streakLabel": "Pro · {streak} dias seguidos",
     "lightMode": "Modo claro",
-    "darkMode": "Modo escuro"
+    "darkMode": "Modo escuro",
+    "openMenu": "Abrir menu"
   },
   "review": {
     "label": "REVISÃO ESPAÇADA",
@@ -175,7 +176,8 @@
     "tutorTitle": "Tutor IA",
     "tutorGreeting": "Travou? Pergunte qualquer coisa sobre a aula. Respondo com base no material e sinalizo o que fugir dele.",
     "tutorPlaceholder": "Pergunte algo…",
-    "lessonOf": "Aula {current} de {total}"
+    "lessonOf": "Aula {current} de {total}",
+    "courseIndex": "Índice"
   },
   "quiz": {
     "noQuestions": "Nenhuma questão encontrada.",

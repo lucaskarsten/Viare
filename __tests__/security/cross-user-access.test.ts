@@ -21,7 +21,6 @@ vi.mock("@/lib/db", () => ({
 
 import { auth } from "@/lib/dev-auth";
 import { db } from "@/lib/db";
-import { validateFlag } from "@/lib/lab";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 

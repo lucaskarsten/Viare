@@ -161,9 +161,9 @@ export default async function GoalsPage() {
         </div>
       </header>
 
-      <div className="grid grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
         {/* Meta semanal — col-span-2 */}
-        <div className="col-span-2 bg-card rounded-[var(--radius-lg)] p-7 flex flex-col">
+        <div className="lg:col-span-2 bg-card rounded-[var(--radius-lg)] p-5 md:p-7 flex flex-col">
           <div className="flex justify-between items-baseline mb-5">
             <h2 className="font-medium text-[15px] m-0 tracking-[-0.015em] text-foreground">
               {t("weeklyGoal")}
@@ -172,11 +172,14 @@ export default async function GoalsPage() {
               {t("editGoal")}
             </button>
           </div>
-          <div className="flex items-baseline gap-3 mb-6">
-            <div className="text-[72px] leading-none tracking-[-0.05em] text-foreground font-medium tabular-nums">
+          <div className="flex items-baseline gap-3 mb-6 flex-wrap">
+            <div className="text-[56px] sm:text-[72px] leading-none tracking-[-0.05em] text-foreground font-medium tabular-nums">
               {weeklyProgress}
             </div>
-            <div className="text-[36px] font-normal" style={{ color: "var(--ink-4)" }}>
+            <div
+              className="text-[28px] sm:text-[36px] font-normal"
+              style={{ color: "var(--ink-4)" }}
+            >
               /{weeklyGoal}
             </div>
             <div className="text-[14px] text-muted-foreground">{t("lessonsThisWeek")}</div>
@@ -224,7 +227,7 @@ export default async function GoalsPage() {
         </div>
 
         {/* Sequência */}
-        <div className="bg-card rounded-[var(--radius-lg)] p-7 flex flex-col">
+        <div className="bg-card rounded-[var(--radius-lg)] p-5 md:p-7 flex flex-col">
           <h2 className="font-medium text-[15px] m-0 tracking-[-0.015em] text-foreground mb-5">
             {t("currentStreak")}
           </h2>
@@ -260,7 +263,7 @@ export default async function GoalsPage() {
         </div>
 
         {/* Tempo investido */}
-        <div className="bg-card rounded-[var(--radius-lg)] p-7 flex flex-col">
+        <div className="bg-card rounded-[var(--radius-lg)] p-5 md:p-7 flex flex-col">
           <h2 className="font-medium text-[15px] m-0 tracking-[-0.015em] text-foreground mb-5">
             {t("timeInvested")}
           </h2>
@@ -287,7 +290,7 @@ export default async function GoalsPage() {
         </div>
 
         {/* Histórico — col-span-3 */}
-        <div className="col-span-3 bg-card rounded-[var(--radius-lg)] p-7">
+        <div className="lg:col-span-3 bg-card rounded-[var(--radius-lg)] p-5 md:p-7">
           <h2 className="font-medium text-[15px] m-0 tracking-[-0.015em] text-foreground mb-5">
             {t("history")}
           </h2>
@@ -295,10 +298,10 @@ export default async function GoalsPage() {
             {history.map((w, i) => (
               <li
                 key={i}
-                className="grid grid-cols-[140px_1fr_80px] items-center gap-4 py-3 border-t border-border text-[13px] first:border-t-0"
+                className="grid grid-cols-[1fr_auto] sm:grid-cols-[140px_1fr_80px] items-center gap-3 sm:gap-4 py-3 border-t border-border text-[13px] first:border-t-0"
               >
                 <span style={{ color: "var(--ink-2)" }}>{w.label}</span>
-                <div className="flex gap-1">
+                <div className="flex gap-1 order-3 col-span-2 sm:order-none sm:col-span-1">
                   {Array.from({ length: w.goal }, (_, j) => (
                     <span
                       key={j}

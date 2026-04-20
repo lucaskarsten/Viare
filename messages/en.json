@@ -13,7 +13,8 @@
     "defaultName": "You",
     "streakLabel": "Pro · {streak} days in a row",
     "lightMode": "Light mode",
-    "darkMode": "Dark mode"
+    "darkMode": "Dark mode",
+    "openMenu": "Open menu"
   },
   "review": {
     "label": "SPACED REPETITION",
@@ -175,7 +176,8 @@
     "tutorTitle": "AI Tutor",
     "tutorGreeting": "Stuck? Ask anything about this lesson. I answer based on the material and flag anything outside of it.",
     "tutorPlaceholder": "Ask something…",
-    "lessonOf": "Lesson {current} of {total}"
+    "lessonOf": "Lesson {current} of {total}",
+    "courseIndex": "Index"
   },
   "quiz": {
     "noQuestions": "No questions found.",

@@ -1632,3 +1632,147 @@
   font-weight: 500;
   font-family: var(--mono);
 }
+
+/* === Responsive: tablet and below === */
+@media (max-width: 1023px) {
+  .lesson-chrome {
+    grid-template-columns: minmax(0, auto) 1fr minmax(0, auto);
+    gap: 16px;
+    align-items: center;
+  }
+  .lesson-back {
+    display: inline-block;
+    max-width: clamp(120px, 22vw, 260px);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+  }
+  .lesson-chrome-right {
+    flex-wrap: nowrap;
+    overflow: hidden;
+  }
+  .lesson-body.with-tutor,
+  .lesson-body.with-nav {
+    grid-template-columns: 1fr;
+  }
+  .tutor,
+  .course-nav {
+    position: static;
+    height: auto;
+    max-height: none;
+  }
+}
+
+/* === Responsive: mobile === */
+@media (max-width: 767px) {
+  .lesson-chrome {
+    grid-template-columns: auto 1fr auto;
+    gap: 8px;
+    padding: 10px 0;
+    margin-bottom: 20px;
+  }
+  .lesson-progress-mini {
+    display: none;
+  }
+  .lesson-back {
+    max-width: 44px;
+    text-indent: -9999px;
+    position: relative;
+    overflow: hidden;
+    font-size: 0;
+  }
+  .lesson-back::before {
+    content: "←";
+    text-indent: 0;
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-size: 18px;
+    color: var(--ink-3);
+  }
+  .lesson-chrome-right {
+    gap: 4px;
+    flex-wrap: nowrap;
+  }
+  .lesson-chrome-right .ghost.small {
+    padding: 5px 8px;
+    font-size: 12px;
+  }
+  .lesson-chrome-right .primary {
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+  .lesson-title {
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  .lesson-dek {
+    font-size: 15px;
+    margin: 12px 0 28px;
+  }
+  .reading p,
+  .reading .md-body li {
+    font-size: 15px;
+  }
+  .reading .md-body h1 {
+    font-size: 22px;
+  }
+  .reading .md-body h2 {
+    font-size: 19px;
+  }
+  .reading .md-body h3 {
+    font-size: 16px;
+  }
+  .reading .md-body pre,
+  .code {
+    font-size: 12px;
+    padding: 12px 14px;
+  }
+  .reading .md-body table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+  }
+  .quiz {
+    padding: 16px;
+  }
+  .quiz-opt {
+    grid-template-columns: 24px 1fr;
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+  .quiz-opt .qmark {
+    display: none;
+  }
+  .flash-card {
+    height: 170px;
+  }
+  .fc-face {
+    padding: 20px;
+  }
+  .fc-text {
+    font-size: 16px;
+  }
+  .summary-box {
+    padding: 16px 18px;
+    margin-bottom: 24px;
+  }
+  .lesson-foot {
+    padding: 32px 0 16px;
+    margin-top: 24px;
+    gap: 12px;
+  }
+  .enrich-btn span {
+    display: none;
+  }
+  .enrich-modal {
+    padding: 20px;
+  }
+}

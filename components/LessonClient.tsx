@@ -20,6 +20,8 @@ import PracticeBlock from "@/components/blocks/PracticeBlock";
 import CaseStudyBlock from "@/components/blocks/CaseStudyBlock";
 import type { LabData } from "@/lib/lab";
 import EnrichModal from "@/components/EnrichModal";
+import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet";
+import { useMediaQuery } from "@/hooks/use-media-query";
 
 function renderInlineMd(text: string): React.ReactNode[] {
   const parts = text.split(/(\*\*[^*]+\*\*|\*[^*]+\*)/g);
@@ -180,7 +182,6 @@ const lessonMarkdownComponents: Components = {
     }
     return <p>{children}</p>;
   },
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   div({ children, node: _node, ...props }) {
     const block = (props as Record<string, unknown>)["data-block"] as string | undefined;
     const dtype = (props as Record<string, unknown>)["data-type"] as string | undefined;
@@ -215,6 +216,7 @@ export default function LessonClient({
   const t = useTranslations("lesson");
   const tEnrich = useTranslations("enrich");
   const tProgress = useTranslations("progress");
+  const isLg = useMediaQuery("(min-width: 1024px)");
   const [showTutor, setShowTutor] = useState(false);
   const [showEnrich, setShowEnrich] = useState(false);
   // Hydration guard — server/client localStorage mismatch would otherwise flash
@@ -235,7 +237,10 @@ export default function LessonClient({
   const [readProgress, setReadProgress] = useState(0);
   const articleRef = useRef<HTMLElement | null>(null);
 
-  // Read persisted values on mount (client-only) to avoid hydration mismatch
+  // Read persisted values on mount (client-only) to avoid hydration mismatch.
+  // Effect-based setState is required here: SSR cannot access localStorage, so
+  // initial render must use defaults and reconcile after mount.
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     const navStored = safeGet(STORAGE.nav);
     if (navStored !== null) setShowNav(navStored === "1");
@@ -249,9 +254,11 @@ export default function LessonClient({
     const n = s ? parseInt(s, 10) : NaN;
     if (Number.isFinite(n)) setFocusSize(Math.max(14, Math.min(28, n)));
     const bg = safeGet(STORAGE.bg);
-    if (bg === "cream" || bg === "sepia" || bg === "dim" || bg === "dark" || bg === "paper") setFocusBg(bg);
+    if (bg === "cream" || bg === "sepia" || bg === "dim" || bg === "dark" || bg === "paper")
+      setFocusBg(bg);
     setHydrated(true);
   }, []);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   // Persist changes — skip before hydration to avoid overwriting localStorage with defaults
   useEffect(() => {
@@ -345,6 +352,88 @@ export default function LessonClient({
     "Como isso se aplica no mundo real?",
   ];
 
+  const courseNavPanel = (
+    <div className="course-nav">
+      <div className="course-nav-head">
+        <div>
+          <div className="course-nav-title">{t("courseIndex")}</div>
+          <div className="course-nav-sub">{course.title}</div>
+          <div className="course-nav-progress">
+            {tProgress("lessonCount", {
+              completed: courseNav.flatMap((m) => m.lessons).filter((l) => l.completed).length,
+              total: courseNav.flatMap((m) => m.lessons).length,
+            })}
+          </div>
+        </div>
+        <button className="icon" onClick={() => setShowNav(false)}>
+          ×
+        </button>
+      </div>
+      <div className="course-nav-body">
+        {courseNav.map((mod) => (
+          <div key={mod.id} className="course-nav-module">
+            <div className="cnm-title">
+              <span className="cnm-num">{String(mod.order + 1).padStart(2, "0")}</span>
+              {mod.title}
+            </div>
+            {mod.lessons.map((l) => (
+              <Link
+                key={l.id}
+                href={`/courses/${course.slug}/lessons/${l.id}`}
+                className={`cnl${l.id === lesson.id ? " cnl-current" : ""}${l.completed ? " cnl-done" : ""}`}
+              >
+                <span className="cnl-dot">
+                  {l.completed ? "✓" : l.id === lesson.id ? "▸" : "○"}
+                </span>
+                <span className="cnl-name">{l.title}</span>
+              </Link>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  const tutorPanel = (
+    <div className="tutor">
+      <div className="tutor-head">
+        <div>
+          <div className="tutor-title">{t("tutorTitle")}</div>
+          <div className="tutor-sub">ASSISTENTE DO CURSO</div>
+        </div>
+        <button className="icon" onClick={() => setShowTutor(false)}>
+          ×
+        </button>
+      </div>
+      <div className="tutor-msgs">
+        {tutorMessages.map((m, i) => (
+          <div key={i} className={`tutor-msg${m.role === "user" ? " user" : ""}`}>
+            {m.role === "tutor" && <div className="tutor-avatar">AI</div>}
+            <div className="tutor-bubble">{m.text}</div>
+          </div>
+        ))}
+      </div>
+      <div className="tutor-suggest">
+        {tutorSuggestions.map((s, i) => (
+          <button key={i} className="suggest-chip small" onClick={() => sendMsg(s)}>
+            {s}
+          </button>
+        ))}
+      </div>
+      <div className="tutor-input">
+        <input
+          value={tutorInput}
+          onChange={(e) => setTutorInput(e.target.value)}
+          placeholder={t("tutorPlaceholder")}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") sendMsg(tutorInput);
+          }}
+        />
+        <button onClick={() => sendMsg(tutorInput)}>→</button>
+      </div>
+    </div>
+  );
+
   return (
     <div
       className={pageClassName}
@@ -407,7 +496,15 @@ export default function LessonClient({
               className="enrich-btn enrich-btn-locked"
               title={tEnrich("upgradeCta")}
             >
-              <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+              <svg
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.75"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
                 <rect x="5" y="11" width="14" height="9" rx="2" />
                 <path d="M8 11V8a4 4 0 1 1 8 0v3" />
               </svg>
@@ -421,7 +518,7 @@ export default function LessonClient({
               setShowTutor(false);
             }}
           >
-            Índice
+            {t("courseIndex")}
           </button>
           <button
             className="ghost small"
@@ -451,7 +548,9 @@ export default function LessonClient({
         />
       )}
 
-      <div className={`lesson-body${showTutor ? " with-tutor" : ""}${showNav ? " with-nav" : ""}`}>
+      <div
+        className={`lesson-body${showTutor && isLg ? " with-tutor" : ""}${showNav && isLg ? " with-nav" : ""}`}
+      >
         <article className="reading" ref={articleRef}>
           <div className="reading-eyebrow">
             {lesson.moduleName} · {lesson.category}
@@ -553,89 +652,33 @@ export default function LessonClient({
           </div>
         </article>
 
-        {showNav && (
-          <div className="course-nav">
-            <div className="course-nav-head">
-              <div>
-                <div className="course-nav-title">Índice</div>
-                <div className="course-nav-sub">{course.title}</div>
-                <div className="course-nav-progress">
-                  {tProgress("lessonCount", {
-                    completed: courseNav.flatMap((m) => m.lessons).filter((l) => l.completed)
-                      .length,
-                    total: courseNav.flatMap((m) => m.lessons).length,
-                  })}
-                </div>
-              </div>
-              <button className="icon" onClick={() => setShowNav(false)}>
-                ×
-              </button>
-            </div>
-            <div className="course-nav-body">
-              {courseNav.map((mod) => (
-                <div key={mod.id} className="course-nav-module">
-                  <div className="cnm-title">
-                    <span className="cnm-num">{String(mod.order + 1).padStart(2, "0")}</span>
-                    {mod.title}
-                  </div>
-                  {mod.lessons.map((l) => (
-                    <Link
-                      key={l.id}
-                      href={`/courses/${course.slug}/lessons/${l.id}`}
-                      className={`cnl${l.id === lesson.id ? " cnl-current" : ""}${l.completed ? " cnl-done" : ""}`}
-                    >
-                      <span className="cnl-dot">
-                        {l.completed ? "✓" : l.id === lesson.id ? "▸" : "○"}
-                      </span>
-                      <span className="cnl-name">{l.title}</span>
-                    </Link>
-                  ))}
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {showTutor && (
-          <div className="tutor">
-            <div className="tutor-head">
-              <div>
-                <div className="tutor-title">{t("tutorTitle")}</div>
-                <div className="tutor-sub">ASSISTENTE DO CURSO</div>
-              </div>
-              <button className="icon" onClick={() => setShowTutor(false)}>
-                ×
-              </button>
-            </div>
-            <div className="tutor-msgs">
-              {tutorMessages.map((m, i) => (
-                <div key={i} className={`tutor-msg${m.role === "user" ? " user" : ""}`}>
-                  {m.role === "tutor" && <div className="tutor-avatar">AI</div>}
-                  <div className="tutor-bubble">{m.text}</div>
-                </div>
-              ))}
-            </div>
-            <div className="tutor-suggest">
-              {tutorSuggestions.map((s, i) => (
-                <button key={i} className="suggest-chip small" onClick={() => sendMsg(s)}>
-                  {s}
-                </button>
-              ))}
-            </div>
-            <div className="tutor-input">
-              <input
-                value={tutorInput}
-                onChange={(e) => setTutorInput(e.target.value)}
-                placeholder={t("tutorPlaceholder")}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") sendMsg(tutorInput);
-                }}
-              />
-              <button onClick={() => sendMsg(tutorInput)}>→</button>
-            </div>
-          </div>
-        )}
+        {isLg && showNav && courseNavPanel}
+        {isLg && showTutor && tutorPanel}
       </div>
+
+      <Sheet
+        open={!isLg && showNav}
+        onOpenChange={(o) => {
+          if (!o) setShowNav(false);
+        }}
+      >
+        <SheetContent side="right" className="p-0 w-full sm:max-w-md bg-card overflow-y-auto">
+          <SheetTitle className="sr-only">{t("courseIndex")}</SheetTitle>
+          {courseNavPanel}
+        </SheetContent>
+      </Sheet>
+
+      <Sheet
+        open={!isLg && showTutor}
+        onOpenChange={(o) => {
+          if (!o) setShowTutor(false);
+        }}
+      >
+        <SheetContent side="right" className="p-0 w-full sm:max-w-md bg-card flex flex-col">
+          <SheetTitle className="sr-only">{t("tutorTitle")}</SheetTitle>
+          {tutorPanel}
+        </SheetContent>
+      </Sheet>
 
       <EnrichModal
         courseSlug={course.slug}

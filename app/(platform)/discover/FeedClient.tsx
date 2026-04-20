@@ -130,7 +130,7 @@ function FeedPost({ post }: { post: Post }) {
   const likes = post.likes + (liked ? 1 : 0);
 
   return (
-    <article className="bg-card rounded-[var(--radius-lg)] p-6">
+    <article className="bg-card rounded-[var(--radius-lg)] p-4 sm:p-6">
       {/* Post header */}
       <div className="flex items-center gap-3 mb-3.5">
         <div className="w-9 h-9 bg-muted rounded-full grid place-items-center text-[11px] font-semibold text-foreground shrink-0">
@@ -159,7 +159,7 @@ function FeedPost({ post }: { post: Post }) {
 
       {/* Course share card */}
       {post.kind === "course-share" && post.course && (
-        <div className="grid grid-cols-[80px_1fr_auto] gap-4 items-center p-4 bg-background rounded-[var(--radius)] cursor-pointer transition-transform hover:-translate-y-px">
+        <div className="grid grid-cols-[72px_1fr] sm:grid-cols-[80px_1fr_auto] gap-3 sm:gap-4 items-center p-3 sm:p-4 bg-background rounded-[var(--radius)] cursor-pointer transition-transform hover:-translate-y-px">
           <div
             className="aspect-square rounded-[var(--radius)] relative overflow-hidden"
             style={{ background: post.course.color }}
@@ -182,7 +182,7 @@ function FeedPost({ post }: { post: Post }) {
               </div>
             )}
           </div>
-          <button className="text-[13px] px-3 py-1.5 rounded-[var(--radius)] border border-border bg-transparent text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer font-[inherit] transition-colors whitespace-nowrap">
+          <button className="col-span-2 sm:col-span-1 text-[13px] px-3 py-1.5 rounded-[var(--radius)] border border-border bg-transparent text-muted-foreground hover:text-foreground hover:bg-muted cursor-pointer font-[inherit] transition-colors whitespace-nowrap justify-self-start sm:justify-self-auto">
             Remixar →
           </button>
         </div>
@@ -209,8 +209,8 @@ function FeedPost({ post }: { post: Post }) {
 
       {/* Milestone card */}
       {post.kind === "milestone" && post.milestone && (
-        <div className="p-10 bg-background rounded-[var(--radius)] text-center">
-          <div className="text-[88px] leading-none text-foreground tracking-[-0.05em] font-medium tabular-nums">
+        <div className="p-6 sm:p-10 bg-background rounded-[var(--radius)] text-center">
+          <div className="text-[64px] sm:text-[88px] leading-none text-foreground tracking-[-0.05em] font-medium tabular-nums">
             {post.milestone.big}
           </div>
           <div className="font-mono text-[11px] tracking-[0.1em] uppercase text-muted-foreground mt-2">
@@ -259,12 +259,12 @@ export default function FeedClient() {
   return (
     <div className="flex flex-col gap-10 pb-20">
       {/* Page header */}
-      <header className="flex items-end justify-between pb-8 border-b border-border gap-8">
+      <header className="flex flex-col md:flex-row md:items-end md:justify-between pb-8 border-b border-border gap-6 md:gap-8">
         <div>
           <div className="font-mono text-[11px] tracking-[0.1em] uppercase text-muted-foreground mb-2">
             DESCOBRIR
           </div>
-          <h1 className="font-medium text-[36px] leading-[1.15] tracking-[-0.02em] m-0 mb-2 text-foreground">
+          <h1 className="font-medium text-[28px] sm:text-[32px] md:text-[36px] leading-[1.15] tracking-[-0.02em] m-0 mb-2 text-foreground">
             <em className="not-italic text-muted-foreground font-normal">O que os outros</em> estão
             aprendendo.
           </h1>
@@ -273,7 +273,7 @@ export default function FeedClient() {
             para torná-lo seu.
           </p>
         </div>
-        <div className="relative w-72 shrink-0">
+        <div className="relative w-full md:w-72 md:shrink-0">
           <input
             placeholder="Buscar 4.218 cursos públicos…"
             className="w-full px-3.5 py-2.5 bg-card border border-border rounded-[var(--radius)] font-[inherit] text-[13px] text-foreground focus:outline-none focus:border-accent"
@@ -285,7 +285,7 @@ export default function FeedClient() {
       </header>
 
       {/* Filters */}
-      <div className="flex gap-1 items-center pb-3 border-b border-border">
+      <div className="flex gap-1 items-center pb-3 border-b border-border flex-wrap">
         {FILTERS.map((f) => (
           <button
             key={f.id}
@@ -306,15 +306,15 @@ export default function FeedClient() {
       </div>
 
       {/* Main grid */}
-      <div className="grid grid-cols-[1fr_300px] gap-12">
-        <div className="flex flex-col gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8 lg:gap-12">
+        <div className="flex flex-col gap-6 min-w-0">
           {POSTS.map((post) => (
             <FeedPost key={post.id} post={post} />
           ))}
         </div>
 
         {/* Sidebar */}
-        <div className="flex flex-col gap-6 sticky top-12 self-start">
+        <div className="flex flex-col gap-6 lg:sticky lg:top-12 lg:self-start">
           {/* Suggested for you */}
           <div className="bg-card rounded-[var(--radius-lg)] p-[18px]">
             <div className="font-mono text-[10px] tracking-[0.1em] uppercase text-muted-foreground mb-3.5 pb-2.5 border-b border-border">
