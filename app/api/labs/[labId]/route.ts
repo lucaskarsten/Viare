@@ -2,10 +2,7 @@ import { auth } from "@/lib/dev-auth";
 import { getLabForUser } from "@/lib/lab";
 import { db } from "@/lib/db";
 
-export async function GET(
-  _req: Request,
-  { params }: { params: Promise<{ labId: string }> },
-) {
+export async function GET(_req: Request, { params }: { params: Promise<{ labId: string }> }) {
   // RULE: AUTH-01 — userId from session only
   const session = await auth();
   if (!session?.user?.id) {

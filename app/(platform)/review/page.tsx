@@ -32,7 +32,9 @@ export default async function ReviewPage() {
     const newCards = due - overdue - learning;
     const color = COURSE_COLORS[i % COURSE_COLORS.length];
     const cards = e.course.modules
-      .flatMap((m) => m.lessons.map((l) => ({ q: l.title, a: m.title, tag: "conceito", course: e.courseId })))
+      .flatMap((m) =>
+        m.lessons.map((l) => ({ q: l.title, a: m.title, tag: "conceito", course: e.courseId }))
+      )
       .slice(0, 20);
 
     return {

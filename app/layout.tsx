@@ -22,7 +22,8 @@ const ibmPlexMono = IBM_Plex_Mono({
 
 export const metadata: Metadata = {
   title: "Viare — Aprenda Kali Linux & Cybersecurity",
-  description: "Plataforma interativa para aprender Kali Linux e Cybersecurity com labs CTF, projetos guiados e gamificação.",
+  description:
+    "Plataforma interativa para aprender Kali Linux e Cybersecurity com labs CTF, projetos guiados e gamificação.",
 };
 
 export default async function RootLayout({
@@ -48,9 +49,7 @@ export default async function RootLayout({
             __html: `try{var p=localStorage.getItem('vr:palette');document.documentElement.dataset.palette=p||'cool';if(localStorage.getItem('vr:dark')==='1')document.documentElement.classList.add('dark')}catch(e){}`,
           }}
         />
-        <NextIntlClientProvider messages={messages}>
-          {children}
-        </NextIntlClientProvider>
+        <NextIntlClientProvider messages={messages}>{children}</NextIntlClientProvider>
       </body>
     </html>
   );

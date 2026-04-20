@@ -3,9 +3,7 @@ import Link from "next/link";
 import { auth } from "@/lib/dev-auth";
 import { db } from "@/lib/db";
 import EnrollButton from "./EnrollButton";
-import CourseDetailTabs, {
-  type CourseDetailModule,
-} from "@/components/CourseDetailTabs";
+import CourseDetailTabs, { type CourseDetailModule } from "@/components/CourseDetailTabs";
 
 type Params = Promise<{ slug: string }>;
 
@@ -17,19 +15,27 @@ const DIFFICULTY_LABEL: Record<string, string> = {
 
 function lessonKindLabel(type: string): string {
   switch (type) {
-    case "QUIZ": return "quiz";
-    case "LAB": return "lab";
-    case "PROJECT": return "projeto";
-    default: return "leitura";
+    case "QUIZ":
+      return "quiz";
+    case "LAB":
+      return "lab";
+    case "PROJECT":
+      return "projeto";
+    default:
+      return "leitura";
   }
 }
 
 function lessonEstimatedMinutes(type: string): number {
   switch (type) {
-    case "QUIZ": return 8;
-    case "LAB": return 25;
-    case "PROJECT": return 45;
-    default: return 12;
+    case "QUIZ":
+      return 8;
+    case "LAB":
+      return 25;
+    case "PROJECT":
+      return 45;
+    default:
+      return 12;
   }
 }
 
@@ -80,7 +86,7 @@ export default async function CoursePage({ params }: { params: Params }) {
   const progressPct = enrollment?.progressPercent ?? 0;
 
   const flatLessons = course.modules.flatMap((m) =>
-    m.lessons.map((l, li) => ({ ...l, moduleIdx: course.modules.indexOf(m), lessonIdx: li })),
+    m.lessons.map((l, li) => ({ ...l, moduleIdx: course.modules.indexOf(m), lessonIdx: li }))
   );
   const nextLessonRaw = flatLessons.find((l) => !completedLessonIds.has(l.id)) ?? flatLessons[0];
   const nextLessonHref = nextLessonRaw
@@ -95,13 +101,10 @@ export default async function CoursePage({ params }: { params: Params }) {
 
   const detailModules: CourseDetailModule[] = course.modules.map((m, mi) => {
     const isLocked =
-      mi > 0 &&
-      !course.modules[mi - 1].lessons.every((l) => completedLessonIds.has(l.id));
+      mi > 0 && !course.modules[mi - 1].lessons.every((l) => completedLessonIds.has(l.id));
     const isCurrent =
       mi ===
-      course.modules.findIndex((mod) =>
-        mod.lessons.some((l) => !completedLessonIds.has(l.id)),
-      );
+      course.modules.findIndex((mod) => mod.lessons.some((l) => !completedLessonIds.has(l.id)));
 
     return {
       id: m.id,
@@ -176,7 +179,8 @@ export default async function CoursePage({ params }: { params: Params }) {
           <aside className="bg-card p-6 rounded-[var(--radius-lg)]">
             <div className="pb-5 border-b border-border">
               <div className="text-[44px] leading-none tracking-[-0.04em] font-medium tabular-nums text-foreground">
-                {progressPct}<span className="text-[22px] text-muted-foreground font-normal">%</span>
+                {progressPct}
+                <span className="text-[22px] text-muted-foreground font-normal">%</span>
               </div>
               <div className="text-[13px] text-muted-foreground mt-1">concluído</div>
               <div className="h-1 bg-border/50 overflow-hidden rounded-[2px] mt-3">
@@ -189,11 +193,15 @@ export default async function CoursePage({ params }: { params: Params }) {
             <ul className="list-none p-0 mt-4 m-0 flex flex-col gap-2">
               <li className="flex justify-between text-[13px]">
                 <span className="text-muted-foreground">Aulas concluídas</span>
-                <strong className="font-medium tabular-nums text-foreground">{completedLessons}/{totalLessons}</strong>
+                <strong className="font-medium tabular-nums text-foreground">
+                  {completedLessons}/{totalLessons}
+                </strong>
               </li>
               <li className="flex justify-between text-[13px]">
                 <span className="text-muted-foreground">Tempo estimado</span>
-                <strong className="font-medium tabular-nums text-foreground">{estimatedHours}h</strong>
+                <strong className="font-medium tabular-nums text-foreground">
+                  {estimatedHours}h
+                </strong>
               </li>
               <li className="flex justify-between text-[13px]">
                 <span className="text-muted-foreground">Módulos</span>
@@ -204,10 +212,7 @@ export default async function CoursePage({ params }: { params: Params }) {
         </div>
       </div>
 
-      <CourseDetailTabs
-        courseSlug={slug}
-        modules={detailModules}
-      />
+      <CourseDetailTabs courseSlug={slug} modules={detailModules} />
     </div>
   );
 }

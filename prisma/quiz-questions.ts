@@ -20,7 +20,12 @@ export const QUIZ_QUESTIONS: Record<string, SeedQuizQuestion[]> = {
     },
     {
       question: "Em um laboratório de pentest de produção, que canal escolher?",
-      options: ["kali-rolling com apt upgrade diário", "kali-last-snapshot", "kali-experimental", "Nenhum — mantenha sem updates"],
+      options: [
+        "kali-rolling com apt upgrade diário",
+        "kali-last-snapshot",
+        "kali-experimental",
+        "Nenhum — mantenha sem updates",
+      ],
       correctIndex: 1,
       explanation:
         "Para estabilidade em ambientes críticos, kali-last-snapshot congela num ponto conhecido e testado. Rolling é ótimo para estudo, arriscado em produção.",
@@ -57,7 +62,7 @@ export const QUIZ_QUESTIONS: Record<string, SeedQuizQuestion[]> = {
       ],
       correctIndex: 2,
       explanation:
-        "Reprodução manual com payloads controlados (ex. \"id=1'\", \"id=1 OR 1=1\") é a única forma confiável. Se o comportamento bater com SQLi, é real.",
+        'Reprodução manual com payloads controlados (ex. "id=1\'", "id=1 OR 1=1") é a única forma confiável. Se o comportamento bater com SQLi, é real.',
     },
     {
       question: "Quanto tempo é razoável para triar um único finding?",

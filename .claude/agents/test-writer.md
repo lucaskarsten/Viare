@@ -9,16 +9,19 @@ Você escreve testes para o projeto Viare (Vitest 2 + @testing-library/react).
 ## 3 dimensões de cobertura
 
 ### 1. Persistence (testes de persistência)
+
 - Verificar que dados são salvos corretamente no banco
 - Usar Prisma mock (`jest.mock('@/lib/db')`)
 - Testar casos de upsert, increment, transaction
 
 ### 2. Read Points (testes de leitura)
+
 - Verificar que queries retornam dados corretos
 - Testar filtros, ordenação, paginação
 - Verificar que dados de outros usuários NÃO são retornados (RULE-AUTH-03)
 
 ### 3. Regression (testes de regressão)
+
 - Para cada bug encontrado, escrever teste que o teria detectado
 - Focar em edge cases de business rules
 
@@ -26,41 +29,50 @@ Você escreve testes para o projeto Viare (Vitest 2 + @testing-library/react).
 
 ```ts
 // Mock Prisma
-jest.mock('@/lib/db', () => ({
+jest.mock("@/lib/db", () => ({
   db: {
     course: { findMany: jest.fn(), create: jest.fn() },
     enrollment: { findUnique: jest.fn(), create: jest.fn() },
     // ...
-  }
+  },
 }));
 
 // Mock Auth.js
-jest.mock('@/auth', () => ({
+jest.mock("@/auth", () => ({
   auth: jest.fn().mockResolvedValue({
-    user: { id: 'user-1', email: 'test@example.com', role: 'STUDENT' }
-  })
+    user: { id: "user-1", email: "test@example.com", role: "STUDENT" },
+  }),
 }));
 
 // Mock Anthropic SDK
-jest.mock('@anthropic-ai/sdk', () => ({
+jest.mock("@anthropic-ai/sdk", () => ({
   default: jest.fn().mockImplementation(() => ({
-    messages: { create: jest.fn() }
-  }))
+    messages: { create: jest.fn() },
+  })),
 }));
 ```
 
 ## Estrutura de arquivo de teste
-```ts
-describe('NomeDoModulo', () => {
-  beforeEach(() => { jest.clearAllMocks(); });
 
-  describe('cenário feliz', () => {
-    it('deve ...', async () => { /* */ });
+```ts
+describe("NomeDoModulo", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
   });
 
-  describe('casos de erro', () => {
-    it('deve rejeitar quando não autenticado', async () => { /* */ });
-    it('deve rejeitar acesso a dados de outro usuário', async () => { /* */ });
+  describe("cenário feliz", () => {
+    it("deve ...", async () => {
+      /* */
+    });
+  });
+
+  describe("casos de erro", () => {
+    it("deve rejeitar quando não autenticado", async () => {
+      /* */
+    });
+    it("deve rejeitar acesso a dados de outro usuário", async () => {
+      /* */
+    });
   });
 });
 ```

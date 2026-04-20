@@ -32,7 +32,12 @@ export async function POST(request: Request, { params }: { params: Params }) {
   const [updated] = await Promise.all([
     db.reviewCard.update({
       where: { id: cardId },
-      data: { easeFactor: result.easeFactor, interval: result.interval, repetitions: result.repetitions, dueAt: result.dueAt },
+      data: {
+        easeFactor: result.easeFactor,
+        interval: result.interval,
+        repetitions: result.repetitions,
+        dueAt: result.dueAt,
+      },
       select: { dueAt: true, interval: true, easeFactor: true },
     }),
     db.cardReview.create({

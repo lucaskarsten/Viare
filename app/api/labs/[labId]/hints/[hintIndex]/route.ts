@@ -4,7 +4,7 @@ import { STARTING_XP } from "@/lib/lab";
 
 export async function POST(
   _req: Request,
-  { params }: { params: Promise<{ labId: string; hintIndex: string }> },
+  { params }: { params: Promise<{ labId: string; hintIndex: string }> }
 ) {
   // RULE: AUTH-01 — userId from session only
   const session = await auth();

@@ -11,7 +11,12 @@ type Props = {
   nextLessonHref: string;
 };
 
-export default function MarkCompleteButton({ lessonId, courseId, isCompleted, nextLessonHref }: Props) {
+export default function MarkCompleteButton({
+  lessonId,
+  courseId,
+  isCompleted,
+  nextLessonHref,
+}: Props) {
   const t = useTranslations("lesson");
   const router = useRouter();
   const [loading, setLoading] = useState(false);

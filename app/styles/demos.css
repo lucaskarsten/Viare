@@ -89,7 +89,9 @@
   color: var(--ink);
   font-size: 0.82rem;
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
+  transition:
+    background 0.15s,
+    border-color 0.15s;
   white-space: nowrap;
 }
 
@@ -156,7 +158,9 @@
 .demo-bar {
   width: 100%;
   border-radius: 2px 2px 0 0;
-  transition: height 0.15s ease, background 0.15s;
+  transition:
+    height 0.15s ease,
+    background 0.15s;
   min-height: 4px;
 }
 
@@ -183,7 +187,9 @@
   align-items: center;
   justify-content: center;
   gap: 2px;
-  transition: background 0.2s, color 0.2s;
+  transition:
+    background 0.2s,
+    color 0.2s;
   flex: 1;
 }
 
@@ -246,7 +252,10 @@
   color: var(--ink-2);
   font-size: 0.72rem;
   cursor: pointer;
-  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    border-color 0.15s,
+    color 0.15s;
   font-family: var(--font-mono, monospace);
 }
 

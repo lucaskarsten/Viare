@@ -3,10 +3,10 @@
 import dynamic from "next/dynamic";
 import type { SandpackPredefinedTemplate } from "@codesandbox/sandpack-react";
 
-const Sandpack = dynamic(
-  () => import("@codesandbox/sandpack-react").then((m) => m.Sandpack),
-  { ssr: false, loading: () => <div className="sandpack-loading">Loading editor…</div> }
-);
+const Sandpack = dynamic(() => import("@codesandbox/sandpack-react").then((m) => m.Sandpack), {
+  ssr: false,
+  loading: () => <div className="sandpack-loading">Loading editor…</div>,
+});
 
 const ALLOWED_TEMPLATES: SandpackPredefinedTemplate[] = [
   "react",

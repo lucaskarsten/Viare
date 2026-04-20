@@ -80,7 +80,14 @@ export default function CssFlexbox() {
           <Select
             label="justify-content"
             value={justify}
-            options={["flex-start", "flex-end", "center", "space-between", "space-around", "space-evenly"]}
+            options={[
+              "flex-start",
+              "flex-end",
+              "center",
+              "space-between",
+              "space-around",
+              "space-evenly",
+            ]}
             onChange={setJustify}
           />
           <Select

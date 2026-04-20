@@ -41,8 +41,14 @@ type CorpusItem = {
 // ── Constants ────────────────────────────────────────────────────────────────
 
 const COURSE_COLORS = [
-  "#c97a4a", "#8a9a5b", "#6b7a8f", "#b8a06e",
-  "#7a5a8f", "#5a8a8a", "#4f7cac", "#a04a3a",
+  "#c97a4a",
+  "#8a9a5b",
+  "#6b7a8f",
+  "#b8a06e",
+  "#7a5a8f",
+  "#5a8a8a",
+  "#4f7cac",
+  "#a04a3a",
 ];
 
 const KIND_ICON: Record<Kind, string> = {
@@ -67,10 +73,38 @@ function buildCorpus(courses: SearchCourse[], t: TFn): CorpusItem[] {
   const items: CorpusItem[] = [];
 
   const staticActions: CorpusItem[] = [
-    { kind: "action", id: "a-generate", title: t("actions.generateNew"),   sub: t("actionLabel"), shortcut: "⌘N",  href: "/courses/generate" },
-    { kind: "action", id: "a-review",   title: t("actions.startReview"),   sub: t("actionLabel"), shortcut: "⌘R",  href: "/review" },
-    { kind: "action", id: "a-library",  title: t("actions.goToLibrary"),   sub: t("actionLabel"), shortcut: "G L", href: "/library" },
-    { kind: "action", id: "a-goals",    title: t("actions.goToGoals"),     sub: t("actionLabel"), shortcut: "G G", href: "/goals" },
+    {
+      kind: "action",
+      id: "a-generate",
+      title: t("actions.generateNew"),
+      sub: t("actionLabel"),
+      shortcut: "⌘N",
+      href: "/courses/generate",
+    },
+    {
+      kind: "action",
+      id: "a-review",
+      title: t("actions.startReview"),
+      sub: t("actionLabel"),
+      shortcut: "⌘R",
+      href: "/review",
+    },
+    {
+      kind: "action",
+      id: "a-library",
+      title: t("actions.goToLibrary"),
+      sub: t("actionLabel"),
+      shortcut: "G L",
+      href: "/library",
+    },
+    {
+      kind: "action",
+      id: "a-goals",
+      title: t("actions.goToGoals"),
+      sub: t("actionLabel"),
+      shortcut: "G G",
+      href: "/goals",
+    },
   ];
 
   for (const [i, course] of courses.entries()) {
@@ -85,9 +119,8 @@ function buildCorpus(courses: SearchCourse[], t: TFn): CorpusItem[] {
     });
 
     for (const lesson of course.lessons) {
-      const kindBadge = (lesson.type === "lab" || lesson.type === "quiz")
-        ? (lesson.type as "lab" | "quiz")
-        : "read";
+      const kindBadge =
+        lesson.type === "lab" || lesson.type === "quiz" ? (lesson.type as "lab" | "quiz") : "read";
       items.push({
         kind: "lesson",
         id: `lesson-${lesson.id}`,
@@ -295,7 +328,10 @@ export default function GlobalSearch({ courses }: { courses: SearchCourse[] }) {
             ref={inputRef}
             className="flex-1 bg-transparent border-0 outline-none font-[inherit] text-[16px] text-foreground tracking-[-0.01em] py-1 placeholder:text-muted-foreground"
             value={query}
-            onChange={(e) => { setQuery(e.target.value); setSelected(0); }}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              setSelected(0);
+            }}
             placeholder={t("placeholder")}
             autoFocus
           />
@@ -317,7 +353,10 @@ export default function GlobalSearch({ courses }: { courses: SearchCourse[] }) {
                   ? " text-foreground bg-card font-semibold"
                   : " bg-transparent text-muted-foreground hover:text-foreground/70 hover:bg-card"
               }`}
-              onClick={() => { setFilter(id); setSelected(0); }}
+              onClick={() => {
+                setFilter(id);
+                setSelected(0);
+              }}
             >
               {t(`tabs.${id}`)}
             </button>
@@ -330,14 +369,16 @@ export default function GlobalSearch({ courses }: { courses: SearchCourse[] }) {
           {query && !hasResults && (
             <div className="px-5 py-10 text-center">
               <div className="text-[14px] text-foreground/70">
-                {t("noResults")} &ldquo;<span className="text-foreground font-medium">{query}</span>&rdquo;
+                {t("noResults")} &ldquo;<span className="text-foreground font-medium">{query}</span>
+                &rdquo;
               </div>
-              <div className="text-[12px] text-muted-foreground mt-1.5">
-                {t("tryFewer")}
-              </div>
+              <div className="text-[12px] text-muted-foreground mt-1.5">{t("tryFewer")}</div>
               <button
                 className="mt-5 px-[18px] py-2.5 bg-foreground text-background border-0 rounded-[var(--radius)] font-[inherit] text-[13px] font-medium cursor-pointer"
-                onClick={() => { router.push("/courses/generate"); onClose(); }}
+                onClick={() => {
+                  router.push("/courses/generate");
+                  onClose();
+                }}
               >
                 {t("generateCourse")} &ldquo;<span className="opacity-80">{query}</span>&rdquo; →
               </button>
@@ -369,7 +410,9 @@ export default function GlobalSearch({ courses }: { courses: SearchCourse[] }) {
                       {/* Icon */}
                       <span
                         className="text-[14px] text-center leading-none font-mono"
-                        style={item.color ? { color: item.color } : { color: "var(--muted-foreground)" }}
+                        style={
+                          item.color ? { color: item.color } : { color: "var(--muted-foreground)" }
+                        }
                       >
                         {KIND_ICON[item.kind]}
                       </span>
@@ -408,7 +451,9 @@ export default function GlobalSearch({ courses }: { courses: SearchCourse[] }) {
                       {item.shortcut ? (
                         <span
                           className={`font-mono text-[10px] px-[7px] py-[3px] rounded-[4px] tracking-[0.04em] whitespace-nowrap${
-                            isSel ? " bg-background text-foreground/70" : " bg-card text-muted-foreground"
+                            isSel
+                              ? " bg-background text-foreground/70"
+                              : " bg-card text-muted-foreground"
                           }`}
                         >
                           {item.shortcut}
@@ -416,7 +461,9 @@ export default function GlobalSearch({ courses }: { courses: SearchCourse[] }) {
                       ) : isSel ? (
                         <span
                           className={`font-mono text-[10px] px-[7px] py-[3px] rounded-[4px] tracking-[0.04em]${
-                            isSel ? " bg-background text-foreground/70" : " bg-card text-muted-foreground"
+                            isSel
+                              ? " bg-background text-foreground/70"
+                              : " bg-card text-muted-foreground"
                           }`}
                         >
                           ↵
@@ -433,16 +480,24 @@ export default function GlobalSearch({ courses }: { courses: SearchCourse[] }) {
         {/* Footer */}
         <footer className="flex items-center gap-4 px-4 py-2.5 border-t border-border bg-card text-[11px] text-muted-foreground font-mono tracking-[0.02em]">
           <span>
-            <kbd className="inline-block px-1.5 py-0.5 bg-background rounded-[3px] font-mono text-[10px] text-foreground/70 mr-1">↑</kbd>
-            <kbd className="inline-block px-1.5 py-0.5 bg-background rounded-[3px] font-mono text-[10px] text-foreground/70 mr-1">↓</kbd>
+            <kbd className="inline-block px-1.5 py-0.5 bg-background rounded-[3px] font-mono text-[10px] text-foreground/70 mr-1">
+              ↑
+            </kbd>
+            <kbd className="inline-block px-1.5 py-0.5 bg-background rounded-[3px] font-mono text-[10px] text-foreground/70 mr-1">
+              ↓
+            </kbd>
             navegar
           </span>
           <span>
-            <kbd className="inline-block px-1.5 py-0.5 bg-background rounded-[3px] font-mono text-[10px] text-foreground/70 mr-1">↵</kbd>
+            <kbd className="inline-block px-1.5 py-0.5 bg-background rounded-[3px] font-mono text-[10px] text-foreground/70 mr-1">
+              ↵
+            </kbd>
             abrir
           </span>
           <span>
-            <kbd className="inline-block px-1.5 py-0.5 bg-background rounded-[3px] font-mono text-[10px] text-foreground/70 mr-1">esc</kbd>
+            <kbd className="inline-block px-1.5 py-0.5 bg-background rounded-[3px] font-mono text-[10px] text-foreground/70 mr-1">
+              esc
+            </kbd>
             fechar
           </span>
           <span className="flex-1" />

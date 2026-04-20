@@ -13,6 +13,7 @@ Você refatora código do projeto Viare mantendo TypeScript strict e as BUSINESS
 ## Padrões do projeto
 
 ### Route Handler
+
 ```ts
 // Padrão: auth → validate → query → respond
 export async function POST(request: Request) {
@@ -23,6 +24,7 @@ export async function POST(request: Request) {
 ```
 
 ### Server Component com dados
+
 ```ts
 // Padrão: queries em paralelo com Promise.all
 const [streak, count] = await Promise.all([
@@ -32,14 +34,16 @@ const [streak, count] = await Promise.all([
 ```
 
 ### Tratamento de erro de LLM
-```ts
+
+````ts
 // Padrão: strip markdown fence + Zod parse
 const raw = (response.content[0] as { text: string }).text.trim();
 const clean = raw.startsWith("```") ? raw.replace(/```json?\n?|```/g, "") : raw;
 const data = SomeSchema.parse(JSON.parse(clean)); // RULE: AI-01
-```
+````
 
 ## Checklist de refactor
+
 - [ ] Sem `any` introduzido
 - [ ] Tipos inferidos onde possível (não repetir tipos óbvios)
 - [ ] Sem lógica duplicada (extrair função)

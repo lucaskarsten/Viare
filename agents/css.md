@@ -11,10 +11,10 @@ Você é especialista em CSS do Viare. Organiza, audita e refatora estilos mante
 
 ## Dois sistemas de tokens — regra de uso
 
-| Sistema | Tokens | Quando usar |
-|---------|--------|-------------|
+| Sistema                | Tokens                                                                                | Quando usar                                                          |
+| ---------------------- | ------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
 | **shadcn** (preferido) | `--background`, `--foreground`, `--card`, `--muted`, `--accent`, `--border`, `--ring` | Classes Tailwind em componentes React (`bg-card`, `text-foreground`) |
-| **BEM legacy** | `--ink`, `--paper`, `--rule`, `--vr-accent`, `--ok`, `--danger` | Apenas classes custom *já existentes* em `globals.css` |
+| **BEM legacy**         | `--ink`, `--paper`, `--rule`, `--vr-accent`, `--ok`, `--danger`                       | Apenas classes custom _já existentes_ em `globals.css`               |
 
 **Regra absoluta:** novas implementações sempre usam shadcn tokens. Nunca criar nova classe com `var(--ink)` ou `var(--paper)` — esses tokens são legados.
 
@@ -36,18 +36,21 @@ Custom variants disponíveis: `palette-cool:`, `palette-warm:`, `palette-mono:`,
 ## Decisão: Tailwind utility vs classe custom em globals.css
 
 **Use utilities quando:**
+
 - Layout simples (flex, grid, padding, margin, sizing)
 - Tipografia (font-size, weight, tracking, line-height, color)
 - Hover/focus em 1-2 estados simples
 - Cor de fundo/texto com token semântico existente
 
 **Crie classe custom em `globals.css` quando:**
+
 - O componente aparece em 3+ lugares com a mesma composição
 - Layout complexo com `grid-template-areas`, `calc()`, `clamp()`, `sticky`
 - Animação com múltiplos estados ou `@keyframes`
-- A lista de utilities ultrapassa ~8 classes de *comportamento distinto*
+- A lista de utilities ultrapassa ~8 classes de _comportamento distinto_
 
 **Nunca:**
+
 - `style={{ display, gap, padding, margin, width, height }}` — usar Tailwind
 - `style={{ color }}` quando existe token semântico equivalente
 - Classe custom nova para algo que cabe em ≤3 utilities
@@ -57,23 +60,24 @@ Custom variants disponíveis: `palette-cool:`, `palette-warm:`, `palette-mono:`,
 
 Tailwind v4: 1 unit = 4px. Preferir sempre a escala nativa.
 
-| Pixels desejados | Unit Tailwind | Classe |
-|-----------------|--------------|--------|
-| 4 | 1 | `p-1` |
-| 8 | 2 | `p-2` |
-| 10 | 2.5 | `p-2.5` |
-| 12 | 3 | `p-3` |
-| 14 | 3.5 | `p-3.5` |
-| 16 | 4 | `p-4` |
-| 18 | — | `px-[18px]` ⚠️ |
-| 20 | 5 | `p-5` |
-| 24 | 6 | `p-6` |
+| Pixels desejados | Unit Tailwind | Classe         |
+| ---------------- | ------------- | -------------- |
+| 4                | 1             | `p-1`          |
+| 8                | 2             | `p-2`          |
+| 10               | 2.5           | `p-2.5`        |
+| 12               | 3             | `p-3`          |
+| 14               | 3.5           | `p-3.5`        |
+| 16               | 4             | `p-4`          |
+| 18               | —             | `px-[18px]` ⚠️ |
+| 20               | 5             | `p-5`          |
+| 24               | 6             | `p-6`          |
 
 Valores arbitrários (`px-[18px]`) apenas quando a diferença para o unit mais próximo é > 1px E o valor de design é deliberado. Documentar com comentário se reusado em mais de 1 lugar.
 
 ## Padrões aprovados
 
 ### cn() para condicionais
+
 ```tsx
 // ✅ Correto
 className={cn(
@@ -87,6 +91,7 @@ className={`flex items-center gap-2 ${isActive ? "bg-accent" : ""}`}
 ```
 
 ### CVA para variantes tipadas
+
 ```tsx
 // ✅ Correto
 const cardVariants = cva("rounded-lg border bg-card text-card-foreground", {
@@ -95,10 +100,11 @@ const cardVariants = cva("rounded-lg border bg-card text-card-foreground", {
     intent: { default: "", destructive: "border-destructive text-destructive" },
   },
   defaultVariants: { size: "md", intent: "default" },
-})
+});
 ```
 
-### data-* para estado de CSS puro
+### data-\* para estado de CSS puro
+
 ```tsx
 // ✅ Estado via data attribute — sem JS toggle de classes
 <button data-active={isActive} className="data-[active=true]:bg-accent">
@@ -108,7 +114,9 @@ element.classList.toggle("is-active")
 ```
 
 ### Buscar antes de criar
+
 Antes de criar qualquer nova classe custom, buscar em `globals.css`:
+
 - Já existe uma classe com essa semântica?
 - Dá para estender com modificador ao invés de duplicar?
 
@@ -144,14 +152,22 @@ Todo elemento interativo precisa de `:focus-visible` explícito:
 
 ```css
 /* ✅ Correto */
-.chip:hover { border-color: var(--border); }
-.chip:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+.chip:hover {
+  border-color: var(--border);
+}
+.chip:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
 
 /* ❌ Só hover — teclado e leitores de tela ficam sem feedback */
-.chip:hover { border-color: var(--border); }
+.chip:hover {
+  border-color: var(--border);
+}
 ```
 
 Regras:
+
 - Contraste mínimo: texto normal ≥ 4.5:1, texto grande (18px+ ou 14px bold) ≥ 3:1
 - Nunca usar apenas cor para comunicar estado (adicionar ícone ou texto auxiliar)
 - Não remover `outline` sem substituir por indicador visível equivalente
@@ -159,6 +175,7 @@ Regras:
 ## Dark mode e paletas
 
 Ao criar ou refatorar, verificar:
+
 1. `.dark` class no `<html>` — tokens semânticos ajustam automaticamente
 2. Cada paleta (`cool`, `warm`, `mono`, `forest`) — testar que não quebra visualmente
 3. Classes custom que usam `var(--ink)` ou `var(--paper)` já têm override no dark mode em `globals.css`

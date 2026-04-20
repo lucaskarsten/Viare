@@ -111,6 +111,7 @@ const lessonMarkdownComponents: Components = {
     }
     return <blockquote>{children}</blockquote>;
   },
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   div({ children, node: _node, ...props }) {
     const block = (props as Record<string, unknown>)["data-block"] as string | undefined;
     const dtype = (props as Record<string, unknown>)["data-type"] as string | undefined;

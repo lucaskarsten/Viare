@@ -4,11 +4,7 @@ import { db } from "@/lib/db";
 import Sidebar from "@/components/layout/Sidebar";
 import GlobalSearch from "@/components/GlobalSearch";
 
-export default async function PlatformLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default async function PlatformLayout({ children }: { children: React.ReactNode }) {
   const session = await auth();
   if (!session?.user) redirect("/login");
 

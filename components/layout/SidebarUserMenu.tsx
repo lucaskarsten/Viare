@@ -41,17 +41,10 @@ export default function SidebarUserMenu({ user }: { user: SidebarUser }) {
         </div>
       </DropdownMenuTrigger>
       <DropdownMenuContent side="top" align="start" className="w-48">
-        <DropdownMenuItem onClick={() => router.push("/profile")}>
-          Perfil
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={() => router.push("/settings")}>
-          Configurações
-        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => router.push("/profile")}>Perfil</DropdownMenuItem>
+        <DropdownMenuItem onClick={() => router.push("/settings")}>Configurações</DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem
-          variant="destructive"
-          onClick={() => signOut({ callbackUrl: "/" })}
-        >
+        <DropdownMenuItem variant="destructive" onClick={() => signOut({ callbackUrl: "/" })}>
           Sair
         </DropdownMenuItem>
       </DropdownMenuContent>

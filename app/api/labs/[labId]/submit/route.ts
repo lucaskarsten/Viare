@@ -9,10 +9,7 @@ const SubmitSchema = z.object({
   courseId: z.string().min(1),
 });
 
-export async function POST(
-  req: Request,
-  { params }: { params: Promise<{ labId: string }> },
-) {
+export async function POST(req: Request, { params }: { params: Promise<{ labId: string }> }) {
   // RULE: AUTH-01 — userId from session only
   const session = await auth();
   if (!session?.user?.id) {
@@ -60,7 +57,8 @@ export async function POST(
       }),
     ]);
 
-    const progressPercent = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+    const progressPercent =
+      totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
     const status = progressPercent === 100 ? "COMPLETED" : "IN_PROGRESS";
 
     await db.enrollment.update({

@@ -20,29 +20,28 @@ export default async function Sidebar({ user }: { user: SidebarUser }) {
   startOfWeek.setDate(now.getDate() + diffToMonday);
   startOfWeek.setHours(0, 0, 0, 0);
 
-  const [streakData, enrollments, enrollmentCount, catalogCount, reviewCount, weeklyProgressCount] = await Promise.all([
-    userId
-      ? db.userStreak.findUnique({ where: { userId }, select: { currentStreak: true } })
-      : null,
-    userId
-      ? db.enrollment.findMany({
-          where: { userId, status: { not: "ABANDONED" } },
-          orderBy: { lastAccessedAt: "desc" },
-          take: 5,
-          include: { course: { select: { slug: true, title: true } } },
-        })
-      : [],
-    userId
-      ? db.enrollment.count({ where: { userId, status: { not: "ABANDONED" } } })
-      : 0,
-    db.course.count({ where: { status: "PUBLISHED" } }),
-    userId
-      ? db.userProgress.count({ where: { userId, status: "COMPLETED" } })
-      : 0,
-    userId
-      ? db.userProgress.count({ where: { userId, status: "COMPLETED", updatedAt: { gte: startOfWeek } } })
-      : 0,
-  ]);
+  const [streakData, enrollments, enrollmentCount, catalogCount, reviewCount, weeklyProgressCount] =
+    await Promise.all([
+      userId
+        ? db.userStreak.findUnique({ where: { userId }, select: { currentStreak: true } })
+        : null,
+      userId
+        ? db.enrollment.findMany({
+            where: { userId, status: { not: "ABANDONED" } },
+            orderBy: { lastAccessedAt: "desc" },
+            take: 5,
+            include: { course: { select: { slug: true, title: true } } },
+          })
+        : [],
+      userId ? db.enrollment.count({ where: { userId, status: { not: "ABANDONED" } } }) : 0,
+      db.course.count({ where: { status: "PUBLISHED" } }),
+      userId ? db.userProgress.count({ where: { userId, status: "COMPLETED" } }) : 0,
+      userId
+        ? db.userProgress.count({
+            where: { userId, status: "COMPLETED", updatedAt: { gte: startOfWeek } },
+          })
+        : 0,
+    ]);
 
   const currentStreak = streakData?.currentStreak ?? 0;
 
@@ -56,8 +55,12 @@ export default async function Sidebar({ user }: { user: SidebarUser }) {
           </svg>
         </div>
         <div>
-          <div className="text-base font-semibold leading-none tracking-tight text-foreground">Viare</div>
-          <div className="text-[11px] text-muted-foreground tracking-[0.02em] mt-0.5">{t("tagline")}</div>
+          <div className="text-base font-semibold leading-none tracking-tight text-foreground">
+            Viare
+          </div>
+          <div className="text-[11px] text-muted-foreground tracking-[0.02em] mt-0.5">
+            {t("tagline")}
+          </div>
         </div>
       </div>
 

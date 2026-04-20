@@ -64,7 +64,7 @@ async function fetchYouTubeTranscript(url: string): Promise<{ text: string }> {
   if (/youtube\.com\/playlist\?/.test(url)) {
     throw new Error(
       "Playlist URLs are not supported — paste individual video URLs instead. " +
-      "Open the playlist, click each video, and copy that URL."
+        "Open the playlist, click each video, and copy that URL."
     );
   }
   const videoId = extractYouTubeId(url);

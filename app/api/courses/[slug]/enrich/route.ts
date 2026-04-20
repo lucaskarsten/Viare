@@ -11,15 +11,18 @@ export const maxDuration = 300;
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-const NewModulesSchema = z.array(
-  z.object({
-    title: z.string().min(1),
-    description: z.string().min(1),
-    lessons: z
-      .array(z.object({ title: z.string().min(1), type: z.enum(["THEORY", "QUIZ"]) }))
-      .min(1),
-  })
-).min(1).max(2);
+const NewModulesSchema = z
+  .array(
+    z.object({
+      title: z.string().min(1),
+      description: z.string().min(1),
+      lessons: z
+        .array(z.object({ title: z.string().min(1), type: z.enum(["THEORY", "QUIZ"]) }))
+        .min(1),
+    })
+  )
+  .min(1)
+  .max(2);
 
 const QuizQuestionsSchema = z.array(
   z.object({
@@ -76,10 +79,10 @@ export async function POST(_req: Request, { params }: { params: Params }) {
 
   const courseTopic = course.topic ?? toSlug(course.title);
   const tv = tavily({ apiKey: process.env.TAVILY_API_KEY! });
-  const searchResults = await tv.search(
-    `${courseTopic} advanced tutorial learn`,
-    { searchDepth: "basic", maxResults: 4 }
-  );
+  const searchResults = await tv.search(`${courseTopic} advanced tutorial learn`, {
+    searchDepth: "basic",
+    maxResults: 4,
+  });
   const researchContext = searchResults.results
     .map((r) => `## ${r.title}\n${r.content}`)
     .join("\n\n");
@@ -90,9 +93,10 @@ export async function POST(_req: Request, { params }: { params: Params }) {
   const modulesResponse = await anthropic.messages.create({
     model: "claude-sonnet-4-6",
     max_tokens: 1000,
-    messages: [{
-      role: "user",
-      content: `You are enriching an existing online course titled "${course.title}".
+    messages: [
+      {
+        role: "user",
+        content: `You are enriching an existing online course titled "${course.title}".
 
 The course already has ${existingModuleCount} modules. Generate 1-2 NEW modules with additional advanced content that complements what already exists.
 
@@ -116,7 +120,8 @@ Rules:
 - 2 to 3 THEORY lessons per module followed by 1 QUIZ
 - Content must complement the existing course, not repeat basics
 - Return ONLY valid JSON, no markdown fences`,
-    }],
+      },
+    ],
   });
 
   const rawModules = (modulesResponse.content[0] as { text: string }).text.trim();
@@ -151,9 +156,10 @@ Rules:
         const contentResponse = await anthropic.messages.create({
           model: "claude-sonnet-4-6",
           max_tokens: 2000,
-          messages: [{
-            role: "user",
-            content: `Write educational markdown content for the lesson titled "${lesson.title}".
+          messages: [
+            {
+              role: "user",
+              content: `Write educational markdown content for the lesson titled "${lesson.title}".
 This lesson is part of module "${mod.title}" in a course titled "${course.title}".
 
 Requirements:
@@ -163,7 +169,8 @@ Requirements:
 - 400 to 800 words
 - Educational and informational tone only
 - No introductory meta-text, just the lesson content`,
-          }],
+            },
+          ],
         });
         const content = (contentResponse.content[0] as { text: string }).text;
         await db.lesson.update({ where: { id: dbLesson.id }, data: { content } });
@@ -171,9 +178,10 @@ Requirements:
         const quizResponse = await anthropic.messages.create({
           model: "claude-sonnet-4-6",
           max_tokens: 1500,
-          messages: [{
-            role: "user",
-            content: `Generate 5 multiple-choice quiz questions for module "${mod.title}" in a course titled "${course.title}".
+          messages: [
+            {
+              role: "user",
+              content: `Generate 5 multiple-choice quiz questions for module "${mod.title}" in a course titled "${course.title}".
 
 Return valid JSON array only (no markdown):
 [
@@ -189,7 +197,8 @@ Rules:
 - correctIndex must be 0, 1, 2, or 3
 - Questions based on practical scenarios
 - Return ONLY valid JSON, no markdown fences`,
-          }],
+            },
+          ],
         });
         const rawQuiz = (quizResponse.content[0] as { text: string }).text.trim();
         const questions = QuizQuestionsSchema.parse(parseJson(rawQuiz));

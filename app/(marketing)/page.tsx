@@ -30,12 +30,11 @@ export default function LandingPage() {
           Aprenda fazendo, não só lendo
         </div>
         <h1 className="text-5xl font-bold tracking-tight max-w-3xl mx-auto">
-          Domine Kali Linux e{" "}
-          <span className="text-primary">Cybersecurity</span> na prática
+          Domine Kali Linux e <span className="text-primary">Cybersecurity</span> na prática
         </h1>
         <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-          Trilhas interativas com labs reais, desafios CTF e projetos guiados.
-          Para devs que querem entrar no mundo da segurança.
+          Trilhas interativas com labs reais, desafios CTF e projetos guiados. Para devs que querem
+          entrar no mundo da segurança.
         </p>
         <div className="flex items-center justify-center gap-4">
           <Link

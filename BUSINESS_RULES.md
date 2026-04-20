@@ -7,6 +7,7 @@ Anchor pattern: `// RULE: XX-NN — descrição`
 ## AUTH — Autenticação & Autorização
 
 **AUTH-01** — `auth()` é a única fonte de identidade. Nunca confiar em parâmetros de URL ou body para identificar o usuário.
+
 ```ts
 // RULE: AUTH-01 — identidade sempre via auth()
 const session = await auth();

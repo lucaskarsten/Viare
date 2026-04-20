@@ -5,12 +5,14 @@ Você é especialista em performance do Viare. Otimiza Server Components, cachin
 ## Decisão: Server Component vs Client Component
 
 **Server Component (padrão — preferir sempre):**
+
 - Leitura de dados do banco (Prisma)
 - Renderização de conteúdo estático ou por request
 - Componentes sem interatividade (sem onClick, useState, useEffect)
 - Acesso a `auth()`, variáveis de ambiente
 
 **Client Component (`"use client"` — somente quando necessário):**
+
 - State local do usuário (`useState`, `useReducer`)
 - Event handlers interativos (`onClick`, `onChange`, `onSubmit`)
 - Browser APIs (`localStorage`, `window`, `navigator`)
@@ -22,61 +24,64 @@ Você é especialista em performance do Viare. Otimiza Server Components, cachin
 // ✅ Correto — Server Component busca dados, Client só recebe
 // page.tsx (Server)
 export default async function CoursePage({ params }: { params: { slug: string } }) {
-  const course = await getCourse(params.slug) // RULE: COURSE-04
-  return <CourseClient course={course} />     // dados já prontos
+  const course = await getCourse(params.slug); // RULE: COURSE-04
+  return <CourseClient course={course} />; // dados já prontos
 }
 
 // CourseClient.tsx (Client)
-"use client"
+("use client");
 export function CourseClient({ course }: { course: Course }) {
-  const [tab, setTab] = useState("overview")
-  return <TabView tab={tab} onTabChange={setTab} course={course} />
+  const [tab, setTab] = useState("overview");
+  return <TabView tab={tab} onTabChange={setTab} course={course} />;
 }
 
 // ❌ Errado — transformar página inteira em client só pelo state de tab
-"use client"
+("use client");
 export default function CoursePage({ params }) {
-  const [tab, setTab] = useState("overview")
-  const [course, setCourse] = useState(null)
-  useEffect(() => fetchCourse(params.slug).then(setCourse), [])  // waterfall!
+  const [tab, setTab] = useState("overview");
+  const [course, setCourse] = useState(null);
+  useEffect(() => fetchCourse(params.slug).then(setCourse), []); // waterfall!
 }
 ```
 
 ## Caching no Next.js 16
 
 ### `use cache` (novo em Next.js 16 — preferir)
+
 ```tsx
 // Componente cacheado — executa no servidor, resultado cacheado
 async function CourseStats({ courseId }: { courseId: string }) {
-  "use cache"
-  const stats = await getCourseStats(courseId)
-  return <StatsDisplay stats={stats} />
+  "use cache";
+  const stats = await getCourseStats(courseId);
+  return <StatsDisplay stats={stats} />;
 }
 
 // Cache com revalidação
-import { cacheLife } from "next/cache"
+import { cacheLife } from "next/cache";
 async function PopularCourses() {
-  "use cache"
-  cacheLife("hours")  // revalida a cada hora
-  return <CourseList courses={await getPopularCourses()} />
+  "use cache";
+  cacheLife("hours"); // revalida a cada hora
+  return <CourseList courses={await getPopularCourses()} />;
 }
 ```
 
 ### `unstable_cache` (quando `use cache` não se aplica)
+
 ```ts
-import { unstable_cache } from "next/cache"
+import { unstable_cache } from "next/cache";
 const getCachedCourse = unstable_cache(
   async (slug: string) => db.course.findUnique({ where: { slug } }),
   ["course-by-slug"],
   { revalidate: 3600, tags: ["courses"] }
-)
+);
 ```
 
 ### `revalidateTag` para invalidação explícita
+
 ```ts
 // Após mutation:
-import { revalidateTag } from "next/cache"
-revalidateTag("courses")  // invalida todos caches com tag "courses"
+import { revalidateTag } from "next/cache";
+revalidateTag("courses"); // invalida todos caches com tag "courses"
 ```
 
 ## Queries Prisma — prevenir N+1
@@ -91,46 +96,46 @@ const course = await db.course.findUnique({
       orderBy: { order: "asc" },
     },
   },
-})
+});
 
 // ✅ Select apenas campos necessários
 const courses = await db.course.findMany({
   where: { status: "PUBLISHED" },
   select: { id: true, slug: true, title: true, color: true, totalEnrollments: true },
   // Não incluir: modules, lessons, flagHash, etc.
-})
+});
 
 // ❌ N+1 — query por curso dentro de loop
-const courses = await db.course.findMany()
+const courses = await db.course.findMany();
 const withModules = await Promise.all(
-  courses.map(c => db.module.findMany({ where: { courseId: c.id } }))
-) // → usar include na query principal
+  courses.map((c) => db.module.findMany({ where: { courseId: c.id } }))
+); // → usar include na query principal
 
 // ✅ Queries paralelas independentes
 const [streak, enrollments] = await Promise.all([
   db.userStreak.findUnique({ where: { userId } }),
   db.enrollment.findMany({ where: { userId }, select: { courseId: true, progressPercent: true } }),
-])
+]);
 ```
 
 ## Suspense e Streaming
 
 ```tsx
 // ✅ Streaming de componentes lentos — não bloquear página inteira
-import { Suspense } from "react"
+import { Suspense } from "react";
 
 export default async function Dashboard() {
   return (
     <div>
-      <HeroSection />  {/* rápido — renderiza imediatamente */}
+      <HeroSection /> {/* rápido — renderiza imediatamente */}
       <Suspense fallback={<StatsSkeleton />}>
-        <Stats />        {/* lento — stream assim que pronto */}
+        <Stats /> {/* lento — stream assim que pronto */}
       </Suspense>
       <Suspense fallback={<FeedSkeleton />}>
         <ActivityFeed /> {/* lento — stream independente */}
       </Suspense>
     </div>
-  )
+  );
 }
 ```
 

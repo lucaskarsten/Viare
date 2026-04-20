@@ -98,7 +98,12 @@ export default function BinarySearch() {
                 background: BG[state],
                 color: COLOR[state],
                 border: `1px solid ${state === "mid" || state === "found" ? "transparent" : "var(--rule)"}`,
-                outline: state === "mid" ? "2px solid var(--rating-hard)" : state === "found" ? "2px solid var(--ok)" : "none",
+                outline:
+                  state === "mid"
+                    ? "2px solid var(--rating-hard)"
+                    : state === "found"
+                      ? "2px solid var(--ok)"
+                      : "none",
               }}
             >
               <span className="demo-bs-val">{v}</span>

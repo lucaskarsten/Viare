@@ -265,7 +265,8 @@ export default function FeedClient() {
             DESCOBRIR
           </div>
           <h1 className="font-medium text-[36px] leading-[1.15] tracking-[-0.02em] m-0 mb-2 text-foreground">
-            <em className="not-italic text-muted-foreground font-normal">O que os outros</em> estão aprendendo.
+            <em className="not-italic text-muted-foreground font-normal">O que os outros</em> estão
+            aprendendo.
           </h1>
           <p className="text-[14px] text-muted-foreground leading-[1.5] m-0 max-w-[420px]">
             Cursos, notas e descobertas de quem você segue e da comunidade. Remixe qualquer curso

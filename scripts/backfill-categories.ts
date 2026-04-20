@@ -2,7 +2,12 @@ import { PrismaClient } from "@prisma/client";
 import { topicToCategory } from "../lib/catalog";
 
 const CATEGORY_MAP: Record<string, "TECH" | "LANG" | "MUSIC" | "CRAFT" | "SCIENCE" | "LIFE"> = {
-  tech: "TECH", lang: "LANG", music: "MUSIC", craft: "CRAFT", science: "SCIENCE", life: "LIFE",
+  tech: "TECH",
+  lang: "LANG",
+  music: "MUSIC",
+  craft: "CRAFT",
+  science: "SCIENCE",
+  life: "LIFE",
 };
 
 const db = new PrismaClient();
@@ -22,4 +27,6 @@ async function main() {
   console.log(`\nBackfill completo: ${updated} cursos atualizados.`);
 }
 
-main().catch(console.error).finally(() => db.$disconnect());
+main()
+  .catch(console.error)
+  .finally(() => db.$disconnect());

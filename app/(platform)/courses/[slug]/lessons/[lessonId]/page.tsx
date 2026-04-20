@@ -81,11 +81,8 @@ export default async function LessonPage({ params }: { params: Params }) {
   });
   const currentIndex = allLessons.findIndex((l) => l.id === lessonId);
   const prevLesson = currentIndex > 0 ? allLessons[currentIndex - 1] : null;
-  const nextLesson =
-    currentIndex < allLessons.length - 1 ? allLessons[currentIndex + 1] : null;
-  const prevLessonHref = prevLesson
-    ? `/courses/${slug}/lessons/${prevLesson.id}`
-    : null;
+  const nextLesson = currentIndex < allLessons.length - 1 ? allLessons[currentIndex + 1] : null;
+  const prevLessonHref = prevLesson ? `/courses/${slug}/lessons/${prevLesson.id}` : null;
   const nextLessonHref = nextLesson
     ? `/courses/${slug}/lessons/${nextLesson.id}`
     : `/courses/${slug}`;
@@ -137,9 +134,7 @@ export default async function LessonPage({ params }: { params: Params }) {
       .split(/\n\s*\n/)
       .map((p) => p.replace(/^#+\s*/, "").trim())
       .filter((p) => p.length > 20 && !p.startsWith("```"));
-    return paragraphs.slice(0, 4).map((p) =>
-      p.length > 160 ? p.slice(0, 157) + "…" : p,
-    );
+    return paragraphs.slice(0, 4).map((p) => (p.length > 160 ? p.slice(0, 157) + "…" : p));
   })();
 
   return (

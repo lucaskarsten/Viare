@@ -2,14 +2,22 @@
 
 Você é especialista em labs e desafios CTF do Viare.
 
-## Invariantes (RULE-LAB-*)
+## Invariantes (RULE-LAB-\*)
 
 **LAB-01:** `flagHash` NUNCA retornado ao cliente:
+
 ```ts
 // ✅ Correto — select explícito sem flagHash
 const lab = await db.lab.findUnique({
   where: { lessonId },
-  select: { id: true, title: true, description: true, scenario: true, objectives: true, hints: true }
+  select: {
+    id: true,
+    title: true,
+    description: true,
+    scenario: true,
+    objectives: true,
+    hints: true,
+  },
   // ❌ Nunca incluir: flagHash: true
 });
 
@@ -19,6 +27,7 @@ return Response.json({ correct: valid }); // retornar apenas resultado
 ```
 
 **LAB-02:** Hints são one-way, débito atômico:
+
 ```ts
 // RULE: LAB-02 — hint reveal + XP debit em transaction
 await db.$transaction([
@@ -28,6 +37,7 @@ await db.$transaction([
 ```
 
 **LAB-03:** Conclusão requer flag válida:
+
 ```ts
 // RULE: LAB-03 — verificar flag antes de marcar completo
 const valid = await bcrypt.compare(flag, lab.flagHash);
@@ -52,6 +62,7 @@ const isCorrect = await bcrypt.compare(submittedFlag.trim(), lab.flagHash);
 ```
 
 ## Estrutura de lab no schema
+
 ```prisma
 model Lab {
   lessonId    String  @unique  // 1:1 com Lesson

@@ -64,8 +64,7 @@ const COURSES: SeedCourse[] = [
   {
     slug: "rust-systems",
     title: "Rust ownership",
-    description:
-      "Borrow checker, lifetimes e por que você nunca mais vai temer um segfault.",
+    description: "Borrow checker, lifetimes e por que você nunca mais vai temer um segfault.",
     topic: "rust",
     tags: ["rust", "sistemas", "performance"],
     category: CourseCategory.TECH,
@@ -78,8 +77,7 @@ const COURSES: SeedCourse[] = [
   {
     slug: "sql-completo",
     title: "SQL, a fundo",
-    description:
-      "De SELECT básico a window functions e CTEs. PostgreSQL em datasets reais.",
+    description: "De SELECT básico a window functions e CTEs. PostgreSQL em datasets reais.",
     topic: "sql",
     tags: ["sql", "banco-de-dados", "postgresql"],
     category: CourseCategory.TECH,
@@ -106,8 +104,7 @@ const COURSES: SeedCourse[] = [
   {
     slug: "react-moderno",
     title: "React moderno",
-    description:
-      "Hooks, Server Components e o jeito de escrever React hoje. Com TypeScript.",
+    description: "Hooks, Server Components e o jeito de escrever React hoje. Com TypeScript.",
     topic: "react",
     tags: ["react", "frontend", "typescript"],
     category: CourseCategory.TECH,
@@ -404,8 +401,7 @@ const COURSES: SeedCourse[] = [
   {
     slug: "escrita-criativa",
     title: "Escrita criativa",
-    description:
-      "Personagens, conflito e voz narrativa. Ficção que dá vontade de terminar de ler.",
+    description: "Personagens, conflito e voz narrativa. Ficção que dá vontade de terminar de ler.",
     topic: "escrita-criativa",
     tags: ["escrita", "ficção", "narrativa"],
     category: CourseCategory.LIFE,
@@ -454,8 +450,18 @@ const KALI_MODULES: ModuleSeed[] = [
     title: "Foundations",
     order: 0,
     lessons: [
-      { slug: "what-kali-actually-is", title: "What Kali actually is", type: LessonType.THEORY, order: 0 },
-      { slug: "install-and-first-boot", title: "Install & first boot", type: LessonType.LAB, order: 1 },
+      {
+        slug: "what-kali-actually-is",
+        title: "What Kali actually is",
+        type: LessonType.THEORY,
+        order: 0,
+      },
+      {
+        slug: "install-and-first-boot",
+        title: "Install & first boot",
+        type: LessonType.LAB,
+        order: 1,
+      },
       { slug: "filesystem-layout", title: "Filesystem layout", type: LessonType.THEORY, order: 2 },
       { slug: "update-streams", title: "Update streams", type: LessonType.QUIZ, order: 3 },
     ],
@@ -466,8 +472,18 @@ const KALI_MODULES: ModuleSeed[] = [
     order: 1,
     lessons: [
       { slug: "nmap-basics", title: "Nmap basics", type: LessonType.THEORY, order: 0 },
-      { slug: "network-recon-nmap", title: "Network reconnaissance with nmap", type: LessonType.LAB, order: 1 },
-      { slug: "service-enumeration", title: "Service enumeration", type: LessonType.THEORY, order: 2 },
+      {
+        slug: "network-recon-nmap",
+        title: "Network reconnaissance with nmap",
+        type: LessonType.LAB,
+        order: 1,
+      },
+      {
+        slug: "service-enumeration",
+        title: "Service enumeration",
+        type: LessonType.THEORY,
+        order: 2,
+      },
       { slug: "tracing-routes", title: "Tracing routes", type: LessonType.LAB, order: 3 },
     ],
   },
@@ -478,7 +494,12 @@ const KALI_MODULES: ModuleSeed[] = [
     lessons: [
       { slug: "nessus-openvas", title: "Nessus & OpenVAS", type: LessonType.THEORY, order: 0 },
       { slug: "web-scanning", title: "Web application scanning", type: LessonType.LAB, order: 1 },
-      { slug: "false-positives", title: "Reading results without crying", type: LessonType.QUIZ, order: 2 },
+      {
+        slug: "false-positives",
+        title: "Reading results without crying",
+        type: LessonType.QUIZ,
+        order: 2,
+      },
     ],
   },
   {
@@ -487,9 +508,19 @@ const KALI_MODULES: ModuleSeed[] = [
     order: 3,
     lessons: [
       { slug: "metasploit-intro", title: "Metasploit basics", type: LessonType.THEORY, order: 0 },
-      { slug: "payloads-vs-exploits", title: "Payloads vs exploits", type: LessonType.QUIZ, order: 1 },
+      {
+        slug: "payloads-vs-exploits",
+        title: "Payloads vs exploits",
+        type: LessonType.QUIZ,
+        order: 1,
+      },
       { slug: "initial-access", title: "Getting initial access", type: LessonType.LAB, order: 2 },
-      { slug: "privilege-escalation", title: "Privilege escalation", type: LessonType.LAB, order: 3 },
+      {
+        slug: "privilege-escalation",
+        title: "Privilege escalation",
+        type: LessonType.LAB,
+        order: 3,
+      },
     ],
   },
   {
@@ -512,7 +543,12 @@ const PAO_MODULES: ModuleSeed[] = [
     lessons: [
       { slug: "farinha-agua-sal", title: "Farinha, água, sal", type: LessonType.THEORY, order: 0 },
       { slug: "hidratacao", title: "Hidratação como orçamento", type: LessonType.THEORY, order: 1 },
-      { slug: "temperatura-ambiente", title: "Temperatura e tempo", type: LessonType.THEORY, order: 2 },
+      {
+        slug: "temperatura-ambiente",
+        title: "Temperatura e tempo",
+        type: LessonType.THEORY,
+        order: 2,
+      },
     ],
   },
   {
@@ -532,7 +568,12 @@ const PAO_MODULES: ModuleSeed[] = [
     lessons: [
       { slug: "autolise", title: "Autólise", type: LessonType.THEORY, order: 0 },
       { slug: "dobras", title: "Dobras de força", type: LessonType.LAB, order: 1 },
-      { slug: "fermentacao-em-bloco", title: "Fermentação em bloco", type: LessonType.LAB, order: 2 },
+      {
+        slug: "fermentacao-em-bloco",
+        title: "Fermentação em bloco",
+        type: LessonType.LAB,
+        order: 2,
+      },
     ],
   },
   {
@@ -554,11 +595,21 @@ const PIANO_MODULES: ModuleSeed[] = [
     order: 0,
     lessons: [
       { slug: "postura-das-maos", title: "Postura das mãos", type: LessonType.THEORY, order: 0 },
-      { slug: "leitura-do-pentagrama", title: "Leitura do pentagrama", type: LessonType.THEORY, order: 1 },
+      {
+        slug: "leitura-do-pentagrama",
+        title: "Leitura do pentagrama",
+        type: LessonType.THEORY,
+        order: 1,
+      },
       { slug: "claves-fa-sol", title: "Claves de fá e sol", type: LessonType.QUIZ, order: 2 },
       { slug: "dedilhado-inicial", title: "Dedilhado inicial", type: LessonType.LAB, order: 3 },
       { slug: "ritmo-basico", title: "Ritmo básico", type: LessonType.THEORY, order: 4 },
-      { slug: "primeiro-exercicio", title: "Primeiro exercício completo", type: LessonType.LAB, order: 5 },
+      {
+        slug: "primeiro-exercicio",
+        title: "Primeiro exercício completo",
+        type: LessonType.LAB,
+        order: 5,
+      },
     ],
   },
   {
@@ -569,7 +620,12 @@ const PIANO_MODULES: ModuleSeed[] = [
       { slug: "escalas-maiores", title: "Escalas maiores", type: LessonType.LAB, order: 0 },
       { slug: "escalas-menores", title: "Escalas menores", type: LessonType.LAB, order: 1 },
       { slug: "arpejos", title: "Arpejos básicos", type: LessonType.LAB, order: 2 },
-      { slug: "passagem-de-polegar", title: "Passagem de polegar", type: LessonType.THEORY, order: 3 },
+      {
+        slug: "passagem-de-polegar",
+        title: "Passagem de polegar",
+        type: LessonType.THEORY,
+        order: 3,
+      },
       { slug: "legato-staccato", title: "Legato e staccato", type: LessonType.LAB, order: 4 },
       { slug: "exercicios-hanon", title: "Exercícios Hanon", type: LessonType.LAB, order: 5 },
     ],
@@ -584,7 +640,12 @@ const PIANO_MODULES: ModuleSeed[] = [
       { slug: "fraseado", title: "Fraseado musical", type: LessonType.THEORY, order: 2 },
       { slug: "rubato", title: "Rubato com controle", type: LessonType.LAB, order: 3 },
       { slug: "respiracao-musical", title: "Respiração musical", type: LessonType.QUIZ, order: 4 },
-      { slug: "interpretacao-bach", title: "Interpretando Bach", type: LessonType.THEORY, order: 5 },
+      {
+        slug: "interpretacao-bach",
+        title: "Interpretando Bach",
+        type: LessonType.THEORY,
+        order: 5,
+      },
     ],
   },
   {
@@ -596,7 +657,12 @@ const PIANO_MODULES: ModuleSeed[] = [
       { slug: "fur-elise", title: "Für Elise — Beethoven", type: LessonType.PROJECT, order: 1 },
       { slug: "prelude-chopin", title: "Prelúdio — Chopin", type: LessonType.PROJECT, order: 2 },
       { slug: "gymnopedie-satie", title: "Gymnopédie — Satie", type: LessonType.PROJECT, order: 3 },
-      { slug: "nocturnes-primeiros", title: "Primeiros noturnos", type: LessonType.PROJECT, order: 4 },
+      {
+        slug: "nocturnes-primeiros",
+        title: "Primeiros noturnos",
+        type: LessonType.PROJECT,
+        order: 4,
+      },
       { slug: "recital-final", title: "Recital final", type: LessonType.PROJECT, order: 5 },
     ],
   },
@@ -620,7 +686,12 @@ const NEGOCIACAO_MODULES: ModuleSeed[] = [
     lessons: [
       { slug: "ancoragem", title: "Ancoragem", type: LessonType.THEORY, order: 0 },
       { slug: "silencio", title: "O poder do silêncio", type: LessonType.LAB, order: 1 },
-      { slug: "quadros-de-referencia", title: "Quadros de referência", type: LessonType.THEORY, order: 2 },
+      {
+        slug: "quadros-de-referencia",
+        title: "Quadros de referência",
+        type: LessonType.THEORY,
+        order: 2,
+      },
       { slug: "lidando-com-pressao", title: "Lidando com pressão", type: LessonType.LAB, order: 3 },
     ],
   },
@@ -665,30 +736,110 @@ type ProgressPlan = {
 
 const PROGRESS_PLAN: ProgressPlan[] = [
   // Kali: 6 completadas (3 nesta semana, 3 antes)
-  { courseSlug: "kali-linux-essencial", moduleSlug: "foundations", lessonSlug: "what-kali-actually-is", daysAgoValue: 0 },   // hoje
-  { courseSlug: "kali-linux-essencial", moduleSlug: "foundations", lessonSlug: "install-and-first-boot", daysAgoValue: 4 },  // quarta
-  { courseSlug: "kali-linux-essencial", moduleSlug: "foundations", lessonSlug: "filesystem-layout", daysAgoValue: 6 },       // segunda
-  { courseSlug: "kali-linux-essencial", moduleSlug: "foundations", lessonSlug: "update-streams", daysAgoValue: 11 },
-  { courseSlug: "kali-linux-essencial", moduleSlug: "network-recon", lessonSlug: "nmap-basics", daysAgoValue: 17 },
-  { courseSlug: "kali-linux-essencial", moduleSlug: "network-recon", lessonSlug: "service-enumeration", daysAgoValue: 24 },
+  {
+    courseSlug: "kali-linux-essencial",
+    moduleSlug: "foundations",
+    lessonSlug: "what-kali-actually-is",
+    daysAgoValue: 0,
+  }, // hoje
+  {
+    courseSlug: "kali-linux-essencial",
+    moduleSlug: "foundations",
+    lessonSlug: "install-and-first-boot",
+    daysAgoValue: 4,
+  }, // quarta
+  {
+    courseSlug: "kali-linux-essencial",
+    moduleSlug: "foundations",
+    lessonSlug: "filesystem-layout",
+    daysAgoValue: 6,
+  }, // segunda
+  {
+    courseSlug: "kali-linux-essencial",
+    moduleSlug: "foundations",
+    lessonSlug: "update-streams",
+    daysAgoValue: 11,
+  },
+  {
+    courseSlug: "kali-linux-essencial",
+    moduleSlug: "network-recon",
+    lessonSlug: "nmap-basics",
+    daysAgoValue: 17,
+  },
+  {
+    courseSlug: "kali-linux-essencial",
+    moduleSlug: "network-recon",
+    lessonSlug: "service-enumeration",
+    daysAgoValue: 24,
+  },
 
   // Pão: 7 completadas (1 nesta semana + 6 antes)
-  { courseSlug: "pao-artesanal", moduleSlug: "fundamentos", lessonSlug: "farinha-agua-sal", daysAgoValue: 2 },               // sexta
-  { courseSlug: "pao-artesanal", moduleSlug: "fundamentos", lessonSlug: "hidratacao", daysAgoValue: 8 },
-  { courseSlug: "pao-artesanal", moduleSlug: "fundamentos", lessonSlug: "temperatura-ambiente", daysAgoValue: 9 },
-  { courseSlug: "pao-artesanal", moduleSlug: "levain", lessonSlug: "criar-levain", daysAgoValue: 14 },
-  { courseSlug: "pao-artesanal", moduleSlug: "levain", lessonSlug: "leitura-do-levain", daysAgoValue: 16 },
+  {
+    courseSlug: "pao-artesanal",
+    moduleSlug: "fundamentos",
+    lessonSlug: "farinha-agua-sal",
+    daysAgoValue: 2,
+  }, // sexta
+  {
+    courseSlug: "pao-artesanal",
+    moduleSlug: "fundamentos",
+    lessonSlug: "hidratacao",
+    daysAgoValue: 8,
+  },
+  {
+    courseSlug: "pao-artesanal",
+    moduleSlug: "fundamentos",
+    lessonSlug: "temperatura-ambiente",
+    daysAgoValue: 9,
+  },
+  {
+    courseSlug: "pao-artesanal",
+    moduleSlug: "levain",
+    lessonSlug: "criar-levain",
+    daysAgoValue: 14,
+  },
+  {
+    courseSlug: "pao-artesanal",
+    moduleSlug: "levain",
+    lessonSlug: "leitura-do-levain",
+    daysAgoValue: 16,
+  },
   { courseSlug: "pao-artesanal", moduleSlug: "levain", lessonSlug: "refrescos", daysAgoValue: 21 },
   { courseSlug: "pao-artesanal", moduleSlug: "massa", lessonSlug: "autolise", daysAgoValue: 25 },
 
   // Piano: 4 completadas (todas antes desta semana)
-  { courseSlug: "piano-classico", moduleSlug: "postura", lessonSlug: "postura-das-maos", daysAgoValue: 11 },
-  { courseSlug: "piano-classico", moduleSlug: "postura", lessonSlug: "leitura-do-pentagrama", daysAgoValue: 15 },
-  { courseSlug: "piano-classico", moduleSlug: "postura", lessonSlug: "claves-fa-sol", daysAgoValue: 20 },
-  { courseSlug: "piano-classico", moduleSlug: "postura", lessonSlug: "dedilhado-inicial", daysAgoValue: 28 },
+  {
+    courseSlug: "piano-classico",
+    moduleSlug: "postura",
+    lessonSlug: "postura-das-maos",
+    daysAgoValue: 11,
+  },
+  {
+    courseSlug: "piano-classico",
+    moduleSlug: "postura",
+    lessonSlug: "leitura-do-pentagrama",
+    daysAgoValue: 15,
+  },
+  {
+    courseSlug: "piano-classico",
+    moduleSlug: "postura",
+    lessonSlug: "claves-fa-sol",
+    daysAgoValue: 20,
+  },
+  {
+    courseSlug: "piano-classico",
+    moduleSlug: "postura",
+    lessonSlug: "dedilhado-inicial",
+    daysAgoValue: 28,
+  },
 
   // Negociação: 1 completada (antes desta semana)
-  { courseSlug: "negociacao", moduleSlug: "fundamentos", lessonSlug: "o-que-e-batna", daysAgoValue: 14 },
+  {
+    courseSlug: "negociacao",
+    moduleSlug: "fundamentos",
+    lessonSlug: "o-que-e-batna",
+    daysAgoValue: 14,
+  },
 ];
 
 // ── Main ───────────────────────────────────────────────────────────────────
@@ -829,12 +980,17 @@ async function main() {
 
   console.log("→ Enrollments ativos do dev (4)...");
 
-  const enrolledCourseSlugs = ["kali-linux-essencial", "pao-artesanal", "piano-classico", "negociacao"];
+  const enrolledCourseSlugs = [
+    "kali-linux-essencial",
+    "pao-artesanal",
+    "piano-classico",
+    "negociacao",
+  ];
   const lastAccessedMap: Record<string, number> = {
-    "kali-linux-essencial": 0,   // hoje
-    "pao-artesanal": 2,          // 2 dias atrás
-    "piano-classico": 11,        // semana passada
-    negociacao: 14,              // ~2 semanas atrás
+    "kali-linux-essencial": 0, // hoje
+    "pao-artesanal": 2, // 2 dias atrás
+    "piano-classico": 11, // semana passada
+    negociacao: 14, // ~2 semanas atrás
   };
 
   const enrollmentByCourse: Record<string, string> = {};
@@ -848,7 +1004,8 @@ async function main() {
 
     const totalLessons = course.modules.flatMap((m) => m.lessons).length;
     const completedForCourse = PROGRESS_PLAN.filter((p) => p.courseSlug === slug).length;
-    const progressPercent = totalLessons === 0 ? 0 : Math.round((completedForCourse / totalLessons) * 100);
+    const progressPercent =
+      totalLessons === 0 ? 0 : Math.round((completedForCourse / totalLessons) * 100);
 
     const enrollment = await db.enrollment.create({
       data: {

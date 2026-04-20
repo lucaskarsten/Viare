@@ -12,10 +12,12 @@ Você extrai componentes React do projeto Viare, seguindo shadcn/ui e Tailwind v
 
 ```ts
 // Server Component (padrão) — sem state, sem eventos
-export function CourseCard({ course }: { course: Course }) { /* JSX */ }
+export function CourseCard({ course }: { course: Course }) {
+  /* JSX */
+}
 
 // Client Component — apenas quando necessário
-"use client";
+("use client");
 export function EnrollButton({ courseId }: { courseId: string }) {
   const [loading, setLoading] = useState(false);
   // ...
@@ -25,11 +27,13 @@ export function EnrollButton({ courseId }: { courseId: string }) {
 ## Convenções do Viare
 
 ### Localização
+
 - Componentes de UI genéricos: `components/ui/`
 - Componentes de layout: `components/layout/`
 - Componentes de feature: co-locados com a página (`app/(platform)/courses/CourseCard.tsx`)
 
 ### Props typing
+
 ```ts
 // Sempre tipar explicitamente, reuse tipos do Prisma quando possível
 import type { Course } from "@prisma/client";
@@ -41,6 +45,7 @@ type CourseCardProps = {
 ```
 
 ### shadcn/ui
+
 - Usar componentes shadcn para: Button, Input, Card, Dialog, Tabs, Badge
 - Não criar primitivos do zero se shadcn tem equivalente
 - Customizar via `className` prop com `cn()` (tailwind-merge)

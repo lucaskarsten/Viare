@@ -34,9 +34,7 @@ function QuizItem({ question, index }: { question: QuizBlockQuestion; index: num
 
   return (
     <div className="quiz">
-      <div className="quiz-label">
-        Múltipla escolha · questão {index + 1}
-      </div>
+      <div className="quiz-label">Múltipla escolha · questão {index + 1}</div>
       <div className="quiz-q">{question.question}</div>
       <div className="quiz-options">
         {question.options.map((opt, i) => {
@@ -75,9 +73,7 @@ function QuizItem({ question, index }: { question: QuizBlockQuestion; index: num
             Conferir
           </button>
         ) : (
-          <div className={`quiz-feedback ${isRight ? "ok" : "no"}`}>
-            {question.explanation}
-          </div>
+          <div className={`quiz-feedback ${isRight ? "ok" : "no"}`}>{question.explanation}</div>
         )}
       </div>
     </div>

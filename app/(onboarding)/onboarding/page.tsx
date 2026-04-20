@@ -55,8 +55,7 @@ export default function OnboardingPage() {
     router.push(`/courses/generate?topic=${encodeURIComponent(topic)}`);
   };
 
-  const isPrimaryDisabled =
-    (step === 0 && !name.trim()) || (step === 3 && !topic.trim());
+  const isPrimaryDisabled = (step === 0 && !name.trim()) || (step === 3 && !topic.trim());
 
   const dayLabels = t.raw("days") as string[];
 
@@ -72,23 +71,28 @@ export default function OnboardingPage() {
           Viare
         </div>
         <div className="onb-steps">
-          {Array(STEPS).fill(0).map((_, i) => (
-            <div
-              key={i}
-              className={`onb-step${i < step ? " on" : i === step ? " current" : ""}`}
-            />
-          ))}
+          {Array(STEPS)
+            .fill(0)
+            .map((_, i) => (
+              <div
+                key={i}
+                className={`onb-step${i < step ? " on" : i === step ? " current" : ""}`}
+              />
+            ))}
         </div>
         <div className="onb-lang">
-          <button className={lang === "pt" ? "on" : ""} onClick={() => setLang("pt")}>PT</button>
-          <button className={lang === "en" ? "on" : ""} onClick={() => setLang("en")}>EN</button>
+          <button className={lang === "pt" ? "on" : ""} onClick={() => setLang("pt")}>
+            PT
+          </button>
+          <button className={lang === "en" ? "on" : ""} onClick={() => setLang("en")}>
+            EN
+          </button>
         </div>
       </div>
 
       {/* Main content */}
       <div className="onb-main">
         <div className="onb-slide" key={step}>
-
           {step === 0 && (
             <>
               <div className="onb-eye">{t("step", { current: 1, total: STEPS })}</div>
@@ -210,7 +214,11 @@ export default function OnboardingPage() {
                     <div>
                       <div className="op-title">{topic}</div>
                       <div className="op-meta">
-                        {t("step3.previewMeta", { pace: t(`pace.${pace}`), days: days.length, style: t(`style.${style}`) })}
+                        {t("step3.previewMeta", {
+                          pace: t(`pace.${pace}`),
+                          days: days.length,
+                          style: t(`style.${style}`),
+                        })}
                       </div>
                     </div>
                   </div>
@@ -218,7 +226,6 @@ export default function OnboardingPage() {
               )}
             </>
           )}
-
         </div>
       </div>
 

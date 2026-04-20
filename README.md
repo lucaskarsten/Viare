@@ -10,16 +10,17 @@ O diferencial não é gerar conteúdo do zero: é **extrair estrutura de materia
 
 A superfície visível ao usuário se divide em seis áreas (sidebar fixa):
 
-| Área | Rota | O que entrega |
-|---|---|---|
-| **Biblioteca** | `/dashboard` | Retomada do último curso em andamento, grade dos cursos ativos, arquivo de pausados, métricas de streak/semana/total |
-| **Revisar** | `/review` | Fila de flashcards com repetição espaçada — rating por dificuldade (again/hard/good/easy), progresso por curso, agenda da semana |
-| **Metas** | `/goals` | Meta semanal (default 6 aulas), heatmap dos últimos 90 dias, histórico de 6 semanas, breakdown de tempo investido por curso |
-| **Descobrir** | `/discover` | Feed social: posts de outros alunos, curso compartilhado + remix, nuvem de tópicos com relevância, sugestões personalizadas |
-| **Catálogo** | `/courses` | Busca pública de cursos com filtros por categoria, dificuldade, avaliações, idiomas disponíveis |
-| **Ingest / Geração** | `/courses/generate` | Fonte de entrada (tema livre, URL, YouTube, texto colado) → pipeline IA com outline → lições por módulo |
+| Área                 | Rota                | O que entrega                                                                                                                    |
+| -------------------- | ------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| **Biblioteca**       | `/dashboard`        | Retomada do último curso em andamento, grade dos cursos ativos, arquivo de pausados, métricas de streak/semana/total             |
+| **Revisar**          | `/review`           | Fila de flashcards com repetição espaçada — rating por dificuldade (again/hard/good/easy), progresso por curso, agenda da semana |
+| **Metas**            | `/goals`            | Meta semanal (default 6 aulas), heatmap dos últimos 90 dias, histórico de 6 semanas, breakdown de tempo investido por curso      |
+| **Descobrir**        | `/discover`         | Feed social: posts de outros alunos, curso compartilhado + remix, nuvem de tópicos com relevância, sugestões personalizadas      |
+| **Catálogo**         | `/courses`          | Busca pública de cursos com filtros por categoria, dificuldade, avaliações, idiomas disponíveis                                  |
+| **Ingest / Geração** | `/courses/generate` | Fonte de entrada (tema livre, URL, YouTube, texto colado) → pipeline IA com outline → lições por módulo                          |
 
 Além disso:
+
 - **Player de lição** em foco mode com dropcap, seções, code blocks, tutor IA em sidepanel, controles de tipografia, marcar-como-concluída
 - **Busca global** (⌘K / Ctrl+K): cursos, aulas, notas, flashcards, ações rápidas — corpus indexado com fuzzy match
 - **Onboarding** em 4 passos (nome, interesses, ritmo, primeiro tópico) que alimenta a primeira geração
@@ -39,25 +40,25 @@ User ─┬─ Enrollment ─── Course ─── Module ─── Lesson ─
       └─ Subscription (Stripe, FREE/PRO)
 ```
 
-Cada **Lesson** tem um dos tipos `THEORY` / `LAB` / `QUIZ` / `PROJECT` e carrega markdown no campo `content` (parser trata `## sections` + ```code blocks``` + dropcap no primeiro parágrafo).
+Cada **Lesson** tem um dos tipos `THEORY` / `LAB` / `QUIZ` / `PROJECT` e carrega markdown no campo `content` (parser trata `## sections` + `code blocks` + dropcap no primeiro parágrafo).
 
 ---
 
 ## Stack técnica
 
-| Camada | Tecnologia |
-|---|---|
-| Framework | **Next.js 16** (App Router, Turbopack, `proxy.ts` no lugar de `middleware.ts`) |
-| TypeScript | strict em todos os arquivos |
-| Banco | PostgreSQL + **Prisma 5** |
-| Auth | Auth.js v5 (Google, GitHub) — em dev, `lib/dev-auth.ts` faz bypass determinístico |
-| UI | Tailwind CSS v4 (`@theme inline`) + shadcn/ui + tokens próprios em `app/globals.css` |
-| Tema | 4 paletas (`warm` / `cool` / `mono` / `forest`) × claro/escuro, seletor na sidebar, persiste em `localStorage` |
-| i18n | **next-intl** com `messages/pt.json` e `messages/en.json` — troca pela sidebar, persiste em cookie via Server Action |
-| IA | Anthropic SDK (Claude Sonnet) + Tavily (pesquisa), output validado com **Zod** (RULE LL-01) |
-| Pagamentos | Stripe |
-| Testes | Vitest + `@testing-library/react` em `__tests__/` organizado por camada |
-| Deploy | Vercel (Fluid Compute por padrão) |
+| Camada     | Tecnologia                                                                                                           |
+| ---------- | -------------------------------------------------------------------------------------------------------------------- |
+| Framework  | **Next.js 16** (App Router, Turbopack, `proxy.ts` no lugar de `middleware.ts`)                                       |
+| TypeScript | strict em todos os arquivos                                                                                          |
+| Banco      | PostgreSQL + **Prisma 5**                                                                                            |
+| Auth       | Auth.js v5 (Google, GitHub) — em dev, `lib/dev-auth.ts` faz bypass determinístico                                    |
+| UI         | Tailwind CSS v4 (`@theme inline`) + shadcn/ui + tokens próprios em `app/globals.css`                                 |
+| Tema       | 4 paletas (`warm` / `cool` / `mono` / `forest`) × claro/escuro, seletor na sidebar, persiste em `localStorage`       |
+| i18n       | **next-intl** com `messages/pt.json` e `messages/en.json` — troca pela sidebar, persiste em cookie via Server Action |
+| IA         | Anthropic SDK (Claude Sonnet) + Tavily (pesquisa), output validado com **Zod** (RULE LL-01)                          |
+| Pagamentos | Stripe                                                                                                               |
+| Testes     | Vitest + `@testing-library/react` em `__tests__/` organizado por camada                                              |
+| Deploy     | Vercel (Fluid Compute por padrão)                                                                                    |
 
 ---
 
@@ -77,15 +78,15 @@ npm install
 cp .env.example .env.local
 ```
 
-| Variável | Descrição | Onde obter |
-|---|---|---|
-| `DATABASE_URL` | PostgreSQL connection string | [Neon](https://neon.tech) (free tier) ou local |
-| `AUTH_SECRET` | Segredo do Auth.js | `openssl rand -base64 32` |
-| `AUTH_GOOGLE_ID` + `AUTH_GOOGLE_SECRET` | OAuth Google | [Google Cloud Console](https://console.cloud.google.com/apis/credentials) |
-| `AUTH_GITHUB_ID` + `AUTH_GITHUB_SECRET` | OAuth GitHub | [GitHub Developer Settings](https://github.com/settings/developers) |
-| `ANTHROPIC_API_KEY` | Geração de conteúdo | [console.anthropic.com](https://console.anthropic.com) |
-| `TAVILY_API_KEY` | Pesquisa web no pipeline | [tavily.com](https://tavily.com) |
-| `STRIPE_SECRET_KEY` + `STRIPE_WEBHOOK_SECRET` | Billing | [Stripe Dashboard](https://dashboard.stripe.com) |
+| Variável                                      | Descrição                    | Onde obter                                                                |
+| --------------------------------------------- | ---------------------------- | ------------------------------------------------------------------------- |
+| `DATABASE_URL`                                | PostgreSQL connection string | [Neon](https://neon.tech) (free tier) ou local                            |
+| `AUTH_SECRET`                                 | Segredo do Auth.js           | `openssl rand -base64 32`                                                 |
+| `AUTH_GOOGLE_ID` + `AUTH_GOOGLE_SECRET`       | OAuth Google                 | [Google Cloud Console](https://console.cloud.google.com/apis/credentials) |
+| `AUTH_GITHUB_ID` + `AUTH_GITHUB_SECRET`       | OAuth GitHub                 | [GitHub Developer Settings](https://github.com/settings/developers)       |
+| `ANTHROPIC_API_KEY`                           | Geração de conteúdo          | [console.anthropic.com](https://console.anthropic.com)                    |
+| `TAVILY_API_KEY`                              | Pesquisa web no pipeline     | [tavily.com](https://tavily.com)                                          |
+| `STRIPE_SECRET_KEY` + `STRIPE_WEBHOOK_SECRET` | Billing                      | [Stripe Dashboard](https://dashboard.stripe.com)                          |
 
 ### 3. Banco e seed
 
@@ -95,6 +96,7 @@ npx prisma db seed
 ```
 
 O seed popula:
+
 - 30 cursos públicos no catálogo
 - 4 cursos ativos no dev user (Kali Linux, Pão & fermentação, Piano clássico, Negociação) com módulos, lições e conteúdo markdown completo para todas as 64 aulas
 - Quiz questions nas lições QUIZ
@@ -184,15 +186,15 @@ CLAUDE.md                zonas: regras de negócio, stack, LL, OMC protocol, aut
 
 O projeto usa um sistema de skills/comandos para enforce consistência:
 
-| Comando | Quando |
-|---|---|
-| `/new-feature` | Iniciar qualquer feature |
-| `/css` | Após mudar `.tsx` ou `globals.css` — audita tokens, focus rings, arbitrary values |
-| `/i18n` | Após mudar `.tsx` com string visível — migra para next-intl (PT + EN) |
-| `/db` | Operações Prisma (validate, migrate) |
-| `/ready` | Checklist pré-PR |
-| `/pr` | Criar Pull Request |
-| `/learn` | Extrair aprendizado pós-implementação |
+| Comando        | Quando                                                                            |
+| -------------- | --------------------------------------------------------------------------------- |
+| `/new-feature` | Iniciar qualquer feature                                                          |
+| `/css`         | Após mudar `.tsx` ou `globals.css` — audita tokens, focus rings, arbitrary values |
+| `/i18n`        | Após mudar `.tsx` com string visível — migra para next-intl (PT + EN)             |
+| `/db`          | Operações Prisma (validate, migrate)                                              |
+| `/ready`       | Checklist pré-PR                                                                  |
+| `/pr`          | Criar Pull Request                                                                |
+| `/learn`       | Extrair aprendizado pós-implementação                                             |
 
 Zona 5 do `CLAUDE.md` dispara esses comandos proativamente — ex: diff contém string hardcoded → `/i18n` roda antes de fechar.
 

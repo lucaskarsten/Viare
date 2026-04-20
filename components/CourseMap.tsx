@@ -54,10 +54,10 @@ export default function CourseMap({ modules, slug }: CourseMapProps) {
         const state: "done" | "current" | "locked" | "open" = l.completed
           ? "done"
           : l.current
-          ? "current"
-          : l.locked || m.locked
-          ? "locked"
-          : "open";
+            ? "current"
+            : l.locked || m.locked
+              ? "locked"
+              : "open";
         nodes.push({ id: l.id, moduleIdx: mi, moduleTitle: m.title, lesson: l, x, y, state });
 
         if (li > 0) {
@@ -133,11 +133,7 @@ export default function CourseMap({ modules, slug }: CourseMapProps) {
       <div className="flex gap-4">
         {/* SVG scroll container */}
         <div className="overflow-x-auto flex-1">
-          <svg
-            width={width * zoom}
-            height={height * zoom}
-            viewBox={`0 0 ${width} ${height}`}
-          >
+          <svg width={width * zoom} height={height * zoom} viewBox={`0 0 ${width} ${height}`}>
             {/* Module column backgrounds */}
             {modules.map((m, mi) => {
               const x = PAD_X + mi * COL_W;
@@ -265,12 +261,11 @@ export default function CourseMap({ modules, slug }: CourseMapProps) {
                       fill: isDone
                         ? "var(--accent)"
                         : isCurrent
-                        ? "color-mix(in oklch, var(--accent) 20%, transparent)"
-                        : isLocked
-                        ? "var(--muted)"
-                        : "var(--card)",
-                      stroke:
-                        isDone || isCurrent ? "var(--accent)" : "var(--border)",
+                          ? "color-mix(in oklch, var(--accent) 20%, transparent)"
+                          : isLocked
+                            ? "var(--muted)"
+                            : "var(--card)",
+                      stroke: isDone || isCurrent ? "var(--accent)" : "var(--border)",
                       strokeWidth: 2,
                     }}
                   />
@@ -281,8 +276,8 @@ export default function CourseMap({ modules, slug }: CourseMapProps) {
                       fill: isDone
                         ? "var(--accent-foreground)"
                         : isLocked
-                        ? "var(--muted-foreground)"
-                        : "var(--foreground)",
+                          ? "var(--muted-foreground)"
+                          : "var(--foreground)",
                       fontSize: 11,
                       fontFamily: "var(--font-mono, monospace)",
                       userSelect: "none",
@@ -320,16 +315,14 @@ export default function CourseMap({ modules, slug }: CourseMapProps) {
               {focusNode.state === "done"
                 ? "Concluída"
                 : focusNode.state === "current"
-                ? "Atual"
-                : focusNode.state === "locked"
-                ? "Bloqueada"
-                : "Disponível"}
+                  ? "Atual"
+                  : focusNode.state === "locked"
+                    ? "Bloqueada"
+                    : "Disponível"}
             </div>
             {focusNode.state !== "locked" && (
               <button
-                onClick={() =>
-                  router.push(`/courses/${slug}/lessons/${focusNode.lesson.id}`)
-                }
+                onClick={() => router.push(`/courses/${slug}/lessons/${focusNode.lesson.id}`)}
                 className="w-full text-[12px] font-medium px-3 py-2 bg-foreground text-background rounded hover:opacity-90 transition-opacity"
               >
                 {focusNode.state === "done" ? "Revisitar →" : "Abrir aula →"}

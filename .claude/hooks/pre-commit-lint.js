@@ -29,10 +29,12 @@ const errors = [
 ].filter(Boolean);
 
 if (errors.length > 0) {
-  console.log(JSON.stringify({
-    continue: false,
-    stopReason: `Pre-commit gate failed:\n\n${errors.join("\n\n")}\n\nFix the issues above before committing.`
-  }));
+  console.log(
+    JSON.stringify({
+      continue: false,
+      stopReason: `Pre-commit gate failed:\n\n${errors.join("\n\n")}\n\nFix the issues above before committing.`,
+    })
+  );
 } else {
   console.log(JSON.stringify({ continue: true }));
 }

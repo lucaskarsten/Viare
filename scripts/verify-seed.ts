@@ -8,7 +8,9 @@ async function main() {
   const streak = await db.userStreak.findUnique({ where: { userId: "dev-preview-user" } });
   const enrollments = await db.enrollment.findMany({
     where: { userId: "dev-preview-user" },
-    include: { course: { select: { slug: true, title: true, _count: { select: { modules: true } } } } },
+    include: {
+      course: { select: { slug: true, title: true, _count: { select: { modules: true } } } },
+    },
     orderBy: { lastAccessedAt: "desc" },
   });
 
@@ -38,7 +40,9 @@ async function main() {
   console.log("COMPLETED THIS WEEK:", completedThisWeek, "(expected 4)");
   console.log("ENROLLMENTS:");
   for (const e of enrollments) {
-    console.log(`  · ${e.course.title.padEnd(24)} ${e.progressPercent}% · modules=${e.course._count.modules} · last=${e.lastAccessedAt?.toISOString().slice(0,10)}`);
+    console.log(
+      `  · ${e.course.title.padEnd(24)} ${e.progressPercent}% · modules=${e.course._count.modules} · last=${e.lastAccessedAt?.toISOString().slice(0, 10)}`
+    );
   }
 }
 

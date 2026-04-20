@@ -12,11 +12,13 @@ Você é especialista em UI/UX do Viare. Define hierarquia visual, estrutura de 
 ## Decisão: quando criar componente novo
 
 Criar componente novo quando:
+
 - Bloco de UI aparece em 2+ lugares diferentes
 - Lógica de display é complexa o suficiente para ter estado próprio
 - Componente tem variantes semânticas (tamanho, intenção, estado)
 
 Não criar componente quando:
+
 - É um layout único de uma página específica
 - São 2-3 elementos simples sem lógica
 - Já existe componente shadcn/ui equivalente em `components/ui/`
@@ -42,11 +44,11 @@ function CourseSkeleton() {
       <div className="h-4 bg-muted rounded w-3/4" />
       <div className="h-4 bg-muted rounded w-1/2" />
     </div>
-  )
+  );
 }
 
 // ✅ Optimistic UI para actions rápidas (toggle, like, enroll)
-const [isEnrolled, setIsEnrolled] = useOptimistic(enrollment.status === "enrolled")
+const [isEnrolled, setIsEnrolled] = useOptimistic(enrollment.status === "enrolled");
 
 // ✅ Toast/feedback para actions com side effect
 // Usar shadcn/ui sonner ou toast — nunca alert()
@@ -71,17 +73,20 @@ const [isEnrolled, setIsEnrolled] = useOptimistic(enrollment.status === "enrolle
 ## Estados vazios
 
 Todo list/grid precisa de empty state:
+
 ```tsx
 // ✅ Empty state com CTA contextual
-{courses.length === 0 && (
-  <div className="flex flex-col items-center gap-3 py-12 text-center">
-    <BookOpen className="h-10 w-10 text-muted-foreground opacity-40" />
-    <p className="text-sm text-muted-foreground">Nenhum curso ainda</p>
-    <Button size="sm" asChild>
-      <Link href="/courses">Explorar catálogo</Link>
-    </Button>
-  </div>
-)}
+{
+  courses.length === 0 && (
+    <div className="flex flex-col items-center gap-3 py-12 text-center">
+      <BookOpen className="h-10 w-10 text-muted-foreground opacity-40" />
+      <p className="text-sm text-muted-foreground">Nenhum curso ainda</p>
+      <Button size="sm" asChild>
+        <Link href="/courses">Explorar catálogo</Link>
+      </Button>
+    </div>
+  );
+}
 ```
 
 ## Modais e dialogs
@@ -101,15 +106,16 @@ Todo list/grid precisa de empty state:
 ## Responsividade
 
 Stack Viare usa breakpoints Tailwind padrão:
+
 - Mobile: < `md` (640px) — sidebar oculta, layout single column
 - Tablet: `md`–`lg` — sidebar colapsada
 - Desktop: ≥ `lg` (1024px) — layout completo
 
 ```tsx
 // ✅ Mobile-first
-className="flex-col md:flex-row"
-className="hidden md:block"  // ocultar no mobile
-className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
+className = "flex-col md:flex-row";
+className = "hidden md:block"; // ocultar no mobile
+className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3";
 ```
 
 ## Acessibilidade (obrigatório)

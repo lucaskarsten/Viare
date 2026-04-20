@@ -35,9 +35,7 @@ export default function FlashcardPlayer({ cards }: Props) {
         onClick={() => setFlipped((f) => !f)}
       >
         <div className="fc-face front">
-          <div className="fc-eye">
-            {t("questionOf", { current: idx + 1, total: cards.length })}
-          </div>
+          <div className="fc-eye">{t("questionOf", { current: idx + 1, total: cards.length })}</div>
           <div className="fc-text">{cards[idx].front}</div>
           <div className="fc-hint">{t("tapToReveal")}</div>
         </div>

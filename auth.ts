@@ -38,10 +38,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         });
         if (!account?.access_token) return null;
 
-        const valid = await bcrypt.compare(
-          credentials.password as string,
-          account.access_token
-        );
+        const valid = await bcrypt.compare(credentials.password as string, account.access_token);
         if (!valid) return null;
 
         return user;

@@ -52,8 +52,19 @@ const QuizQuestionsSchema = z.array(
 );
 
 const DomainClassifierSchema = z.object({
-  domain: z.enum(["programming", "science", "math", "business", "history", "language", "health", "other"]),
-  sandboxTemplate: z.enum(["react", "react-ts", "vanilla", "vanilla-ts", "vue", "node", "static"]).nullable(),
+  domain: z.enum([
+    "programming",
+    "science",
+    "math",
+    "business",
+    "history",
+    "language",
+    "health",
+    "other",
+  ]),
+  sandboxTemplate: z
+    .enum(["react", "react-ts", "vanilla", "vanilla-ts", "vue", "node", "static"])
+    .nullable(),
   relevantDemos: z.array(z.string()),
   tone: z.enum(["technical", "practical", "conceptual"]),
 });
@@ -343,12 +354,20 @@ INTERACTIVE BLOCKS — use these when appropriate to make the lesson more engagi
    3. **Third step title** — Final action
    :::
 
-${domainContext.sandboxTemplate ? `4. Interactive code sandbox — this is a ${domainContext.tone} course, use this for hands-on practice:
+${
+  domainContext.sandboxTemplate
+    ? `4. Interactive code sandbox — this is a ${domainContext.tone} course, use this for hands-on practice:
    :::sandbox{template="${domainContext.sandboxTemplate}"}
    :::
-   Add at most once per lesson, near the end as a practice exercise.` : ""}
-${domainContext.relevantDemos.length > 0 ? `${domainContext.sandboxTemplate ? "5" : "4"}. Algorithm/concept visualizer demos — use only if directly relevant to this lesson:
-${domainContext.relevantDemos.map((d) => `   ::demo{id="${d}"}`).join("\n")}` : ""}
+   Add at most once per lesson, near the end as a practice exercise.`
+    : ""
+}
+${
+  domainContext.relevantDemos.length > 0
+    ? `${domainContext.sandboxTemplate ? "5" : "4"}. Algorithm/concept visualizer demos — use only if directly relevant to this lesson:
+${domainContext.relevantDemos.map((d) => `   ::demo{id="${d}"}`).join("\n")}`
+    : ""
+}
 
 Use at least one interactive block per lesson. Prefer :::cards for concept sets and :::steps for sequential processes.`,
               },

@@ -5,6 +5,7 @@ Você cria dados de seed para desenvolvimento do Viare.
 ## Domínio do seed
 
 ### Usuários
+
 ```ts
 const users = [
   { email: "admin@viare.dev", role: "ADMIN", name: "Admin Viare" },
@@ -14,9 +15,11 @@ const users = [
 ```
 
 ### Cursos de exemplo (variedade de tópicos — plataforma é genérica)
+
 Usar tópicos variados para representar a diversidade da plataforma:
+
 - Tecnologia: "Python para Iniciantes", "Git e GitHub na prática"
-- Idiomas: "Inglês para Desenvolvedores"  
+- Idiomas: "Inglês para Desenvolvedores"
 - Negócios: "Fundamentos de Marketing Digital"
 - Ciências: "Introdução à Estatística"
 - Opcional (contexto cybersec ainda é válido): "OWASP Top 10", "Fundamentos de Redes"
@@ -24,6 +27,7 @@ Usar tópicos variados para representar a diversidade da plataforma:
 Cursos de seed não devem ser todos do mesmo nicho — mostrar que a plataforma suporta qualquer tópico.
 
 ### Estrutura de seed
+
 ```ts
 // prisma/seed.ts
 import { PrismaClient } from "@prisma/client";
@@ -46,12 +50,14 @@ async function main() {
 ```
 
 ## Flags hashadas para labs
+
 ```ts
 import bcrypt from "bcryptjs";
 const flagHash = await bcrypt.hash("FLAG{viare_ctf_2026}", 10);
 ```
 
 ## Dados de streak realistas
+
 ```ts
 await db.userStreak.create({
   data: {
@@ -59,6 +65,6 @@ await db.userStreak.create({
     currentStreak: 7,
     longestStreak: 14,
     lastActiveDate: new Date(), // UTC
-  }
+  },
 });
 ```

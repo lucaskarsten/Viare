@@ -10,9 +10,9 @@ model Example {
   userId    String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  
+
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   @@unique([userId, someField])
   @@index([userId]) // indexar campos usados em where frequente
 }
@@ -21,6 +21,7 @@ model Example {
 ## Query patterns
 
 ### Auth-safe query (RULE-AUTH-03)
+
 ```ts
 // Sempre incluir userId no where para dados de usuário
 db.enrollment.findMany({
@@ -31,6 +32,7 @@ db.enrollment.findMany({
 ```
 
 ### Transaction atômica
+
 ```ts
 // Para operações que devem ser atômicas
 await db.$transaction([
@@ -40,6 +42,7 @@ await db.$transaction([
 ```
 
 ### Upsert pattern
+
 ```ts
 // Para progress (idempotente)
 await db.userProgress.upsert({
@@ -52,6 +55,7 @@ await db.userProgress.upsert({
 ## Anti-patterns
 
 ### N+1
+
 ```ts
 // ❌ N+1
 const courses = await db.course.findMany();
@@ -64,15 +68,17 @@ const courses = await db.course.findMany({ include: { modules: true } });
 ```
 
 ### findMany sem paginação
+
 ```ts
 // ❌ Sem paginação em tabela grande
 db.lesson.findMany({ where: { module: { courseId } } });
 
 // ✅ Com take/skip ou cursor
-db.lesson.findMany({ where: { module: { courseId } }, take: 50, orderBy: { order: 'asc' } });
+db.lesson.findMany({ where: { module: { courseId } }, take: 50, orderBy: { order: "asc" } });
 ```
 
 ## Migrations
+
 ```bash
 npx prisma migrate dev --name add-<feature>  # desenvolvimento
 npx prisma migrate deploy                      # produção

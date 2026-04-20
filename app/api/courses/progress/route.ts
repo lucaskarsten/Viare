@@ -7,9 +7,10 @@ const BodySchema = z.object({ lessonId: z.string() });
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-const FlashcardsSchema = z.array(
-  z.object({ front: z.string().min(1), back: z.string().min(1) })
-).min(1).max(5);
+const FlashcardsSchema = z
+  .array(z.object({ front: z.string().min(1), back: z.string().min(1) }))
+  .min(1)
+  .max(5);
 
 function parseJson(raw: string): unknown {
   const clean = raw.startsWith("```") ? raw.replace(/```json?\n?|```/g, "") : raw;
@@ -24,14 +25,16 @@ async function generateFlashcards(lessonId: string, userId: string, content: str
     const res = await anthropic.messages.create({
       model: "claude-haiku-4-5-20251001",
       max_tokens: 800,
-      messages: [{
-        role: "user",
-        content: `Generate 3-5 flashcards from this lesson content. Return ONLY valid JSON array, no markdown:
+      messages: [
+        {
+          role: "user",
+          content: `Generate 3-5 flashcards from this lesson content. Return ONLY valid JSON array, no markdown:
 [{ "front": "concept or question", "back": "concise answer or definition" }]
 
 Lesson content:
 ${content.slice(0, 6000)}`,
-      }],
+        },
+      ],
     });
     const raw = (res.content[0] as { text: string }).text.trim();
     const cards = FlashcardsSchema.parse(parseJson(raw));
@@ -84,7 +87,8 @@ export async function POST(request: Request) {
     }),
   ]);
 
-  const progressPercent = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+  const progressPercent =
+    totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
   const status = progressPercent === 100 ? "COMPLETED" : "IN_PROGRESS";
 
   await db.enrollment.update({

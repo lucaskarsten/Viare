@@ -1,20 +1,108 @@
 /* --- Course Map (styles-map.css) --- */
-.map-wrap { display: flex; flex-direction: column; gap: 16px; }
-.map-toolbar { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--paper-2); border-radius: var(--vr-radius-lg); }
-.map-legend { display: flex; gap: 20px; flex-wrap: wrap; }
-.ml-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--ink-3); font-family: var(--mono); letter-spacing: 0.02em; }
-.ml-dot { width: 10px; height: 10px; border-radius: 99px; background: var(--rule); display: inline-block; }
-.ml-dot.done { background: var(--ink); }
-.ml-dot.current { background: var(--vr-accent); box-shadow: 0 0 0 3px color-mix(in oklch, var(--vr-accent), transparent 75%); }
-.ml-dot.open { background: none; border: 1.5px solid var(--ink-3); }
-.ml-dot.locked { background: none; border: 1.5px dashed var(--ink-4); }
-.map-canvas { position: relative; background: var(--paper-2); border-radius: var(--vr-radius-lg); overflow: hidden; min-height: 600px; display: grid; grid-template-columns: 1fr auto; }
-.map-scroll { overflow: auto; max-height: 72vh; padding: 8px; }
-.map-svg { display: block; font-family: var(--sans); }
-.map-node { cursor: pointer; transition: opacity .2s; }
-.map-node.dim { opacity: 0.35; }
-.map-node-bg { fill: var(--paper); stroke: var(--ink-3); stroke-width: 1.5; transition: all .15s; }
-.map-node.done .map-node-bg { fill: var(--ink); stroke: var(--ink); }
-.map-node.current .map-node-bg { fill: var(--vr-accent); stroke: var(--vr-accent); }
-.map-node.locked .map-node-bg { fill: var(--paper-2); stroke: var(--ink-4); stroke-dasharray: 3 3; }
-.map-detail { width: 320px; flex-shrink: 0; align-self: start; position: sticky; top: 60px; margin: 60px 20px 20px 0; background: var(--paper); border: 1px solid var(--rule); border-radius: var(--vr-radius-lg); padding: 18px; box-shadow: 0 24px 48px -24px rgba(0,0,0,0.15); z-index: 2; }
+.map-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.map-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: var(--paper-2);
+  border-radius: var(--vr-radius-lg);
+}
+.map-legend {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.ml-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--ink-3);
+  font-family: var(--mono);
+  letter-spacing: 0.02em;
+}
+.ml-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 99px;
+  background: var(--rule);
+  display: inline-block;
+}
+.ml-dot.done {
+  background: var(--ink);
+}
+.ml-dot.current {
+  background: var(--vr-accent);
+  box-shadow: 0 0 0 3px color-mix(in oklch, var(--vr-accent), transparent 75%);
+}
+.ml-dot.open {
+  background: none;
+  border: 1.5px solid var(--ink-3);
+}
+.ml-dot.locked {
+  background: none;
+  border: 1.5px dashed var(--ink-4);
+}
+.map-canvas {
+  position: relative;
+  background: var(--paper-2);
+  border-radius: var(--vr-radius-lg);
+  overflow: hidden;
+  min-height: 600px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+}
+.map-scroll {
+  overflow: auto;
+  max-height: 72vh;
+  padding: 8px;
+}
+.map-svg {
+  display: block;
+  font-family: var(--sans);
+}
+.map-node {
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+.map-node.dim {
+  opacity: 0.35;
+}
+.map-node-bg {
+  fill: var(--paper);
+  stroke: var(--ink-3);
+  stroke-width: 1.5;
+  transition: all 0.15s;
+}
+.map-node.done .map-node-bg {
+  fill: var(--ink);
+  stroke: var(--ink);
+}
+.map-node.current .map-node-bg {
+  fill: var(--vr-accent);
+  stroke: var(--vr-accent);
+}
+.map-node.locked .map-node-bg {
+  fill: var(--paper-2);
+  stroke: var(--ink-4);
+  stroke-dasharray: 3 3;
+}
+.map-detail {
+  width: 320px;
+  flex-shrink: 0;
+  align-self: start;
+  position: sticky;
+  top: 60px;
+  margin: 60px 20px 20px 0;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+  border-radius: var(--vr-radius-lg);
+  padding: 18px;
+  box-shadow: 0 24px 48px -24px rgba(0, 0, 0, 0.15);
+  z-index: 2;
+}

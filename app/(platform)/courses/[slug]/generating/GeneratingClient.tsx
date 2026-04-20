@@ -71,10 +71,7 @@ export default function GeneratingClient({
         setData(json);
         if (json.status === "PUBLISHED" && json.firstLessonId) {
           doneRef.current = true;
-          setTimeout(
-            () => router.push(`/courses/${slug}/lessons/${json.firstLessonId}`),
-            2500
-          );
+          setTimeout(() => router.push(`/courses/${slug}/lessons/${json.firstLessonId}`), 2500);
         }
       } catch {
         // network error — retry next cycle
@@ -89,9 +86,7 @@ export default function GeneratingClient({
   const isFailed = data.status === "DRAFT";
   const isGenerating = !isDone && !isFailed;
   const pct =
-    data.totalLessons > 0
-      ? Math.round((data.completedLessons / data.totalLessons) * 100)
-      : 0;
+    data.totalLessons > 0 ? Math.round((data.completedLessons / data.totalLessons) * 100) : 0;
 
   const allLessons = data.modules.flatMap((m) => m.lessons);
   const activeIndex = allLessons.findIndex((l) => !l.hasContent);
@@ -101,11 +96,7 @@ export default function GeneratingClient({
       {/* ── Header ─────────────────────────────────────────────── */}
       <div className="pb-7 border-b border-border">
         <div className="font-mono text-[11px] tracking-[0.1em] uppercase text-muted-foreground mb-3">
-          {isDone
-            ? "Curso pronto"
-            : isFailed
-            ? "Geração interrompida"
-            : "Gerando curso"}
+          {isDone ? "Curso pronto" : isFailed ? "Geração interrompida" : "Gerando curso"}
         </div>
 
         <div className="flex items-start justify-between gap-8">
@@ -182,8 +173,8 @@ export default function GeneratingClient({
                   {enrichStatus === "loading"
                     ? "Enriquecendo…"
                     : enrichStatus === "done"
-                    ? "✓ Módulos adicionados"
-                    : "Enriquecer com web"}
+                      ? "✓ Módulos adicionados"
+                      : "Enriquecer com web"}
                 </button>
               </div>
             </div>
@@ -191,10 +182,7 @@ export default function GeneratingClient({
           {isFailed && (
             <span className="text-[13px] text-muted-foreground">
               Geração interrompida para revisão.{" "}
-              <a
-                href="/dashboard"
-                className="text-foreground underline hover:no-underline"
-              >
+              <a href="/dashboard" className="text-foreground underline hover:no-underline">
                 Ir à biblioteca
               </a>
             </span>
@@ -217,17 +205,14 @@ export default function GeneratingClient({
                   const isActive = globalIdx === activeIndex;
                   const done = lesson.hasContent;
                   return (
-                    <li
-                      key={lesson.id}
-                      className="flex items-center gap-2 text-[13px]"
-                    >
+                    <li key={lesson.id} className="flex items-center gap-2 text-[13px]">
                       <span
                         className={`shrink-0 font-mono text-[11px] w-4 text-center leading-none ${
                           done
                             ? "text-accent"
                             : isActive
-                            ? "text-foreground"
-                            : "text-muted-foreground/30"
+                              ? "text-foreground"
+                              : "text-muted-foreground/30"
                         }`}
                       >
                         {done ? "✓" : isActive ? "⟳" : "○"}
@@ -237,8 +222,8 @@ export default function GeneratingClient({
                           done
                             ? "text-foreground"
                             : isActive
-                            ? "text-foreground"
-                            : "text-muted-foreground/40"
+                              ? "text-foreground"
+                              : "text-muted-foreground/40"
                         }`}
                       >
                         {lesson.title}

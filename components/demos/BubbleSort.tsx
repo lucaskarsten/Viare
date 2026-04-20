@@ -42,18 +42,15 @@ export default function BubbleSort() {
 
   const step = STEPS[idx];
   const isLast = idx >= STEPS.length - 1;
+  const effectivePlaying = playing && !isLast;
 
   useEffect(() => {
-    if (!playing) return;
-    if (isLast) {
-      setPlaying(false);
-      return;
-    }
+    if (!effectivePlaying) return;
     timer.current = setTimeout(() => setIdx((i) => i + 1), speed);
     return () => {
       if (timer.current) clearTimeout(timer.current);
     };
-  }, [playing, idx, speed, isLast]);
+  }, [effectivePlaying, idx, speed]);
 
   function reset() {
     setPlaying(false);
@@ -62,8 +59,7 @@ export default function BubbleSort() {
 
   function barColor(i: number): string {
     if (step.comparing === null && i >= step.sortedFrom) return "var(--ok)";
-    if (step.comparing?.includes(i))
-      return step.swapped ? "var(--danger)" : "var(--rating-hard)";
+    if (step.comparing?.includes(i)) return step.swapped ? "var(--danger)" : "var(--rating-hard)";
     if (i >= step.sortedFrom) return "color-mix(in oklch, var(--ok), transparent 50%)";
     return "var(--vr-accent)";
   }
@@ -115,7 +111,7 @@ export default function BubbleSort() {
           onClick={() => setPlaying((p) => !p)}
           disabled={isLast}
         >
-          {playing ? "⏸ Pause" : "▶ Play"}
+          {effectivePlaying ? "⏸ Pause" : "▶ Play"}
         </button>
         <button
           className="demo-btn"

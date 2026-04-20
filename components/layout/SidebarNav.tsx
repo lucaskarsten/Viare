@@ -58,9 +58,7 @@ export default function SidebarNav({
 
   function openSearch() {
     document.dispatchEvent(new CustomEvent("open-search"));
-    window.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "k", metaKey: true, bubbles: true })
-    );
+    window.dispatchEvent(new KeyboardEvent("keydown", { key: "k", metaKey: true, bubbles: true }));
   }
 
   async function handleLocaleChange(newLocale: "pt" | "en") {
@@ -76,7 +74,9 @@ export default function SidebarNav({
       >
         <span className="text-[14px]">⌕</span>
         <span className="flex-1 text-left">{t("search")}</span>
-        <span className="font-mono text-[10px] px-1.5 py-0.5 bg-background rounded-[3px] tracking-[0.04em]">⌘K</span>
+        <span className="font-mono text-[10px] px-1.5 py-0.5 bg-background rounded-[3px] tracking-[0.04em]">
+          ⌘K
+        </span>
       </button>
 
       <button
@@ -88,16 +88,40 @@ export default function SidebarNav({
       </button>
 
       <nav className="flex flex-col gap-px">
-        <div className="text-[10px] tracking-[0.12em] uppercase text-muted-foreground px-2 py-1.5 mt-1 font-mono">{t("space")}</div>
-        <NavItem href="/dashboard" active={pathname === "/dashboard"} label={t("library")} count={enrollmentCount || undefined} />
-        <NavItem href="/review" active={pathname.startsWith("/review")} label={t("review")} count={reviewCount || undefined} />
-        <NavItem href="/goals" active={pathname.startsWith("/goals")} label={t("goals")} count={weeklyProgressCount || undefined} />
+        <div className="text-[10px] tracking-[0.12em] uppercase text-muted-foreground px-2 py-1.5 mt-1 font-mono">
+          {t("space")}
+        </div>
+        <NavItem
+          href="/dashboard"
+          active={pathname === "/dashboard"}
+          label={t("library")}
+          count={enrollmentCount || undefined}
+        />
+        <NavItem
+          href="/review"
+          active={pathname.startsWith("/review")}
+          label={t("review")}
+          count={reviewCount || undefined}
+        />
+        <NavItem
+          href="/goals"
+          active={pathname.startsWith("/goals")}
+          label={t("goals")}
+          count={weeklyProgressCount || undefined}
+        />
         <NavItem href="/discover" active={pathname.startsWith("/discover")} label={t("discover")} />
-        <NavItem href="/courses" active={pathname === "/courses"} label={t("catalog")} count={catalogCount || undefined} />
+        <NavItem
+          href="/courses"
+          active={pathname === "/courses"}
+          label={t("catalog")}
+          count={catalogCount || undefined}
+        />
 
         {enrollments.length > 0 && (
           <>
-            <div className="text-[10px] tracking-[0.12em] uppercase text-muted-foreground px-2 py-1.5 mt-6 font-mono">{t("inProgress")}</div>
+            <div className="text-[10px] tracking-[0.12em] uppercase text-muted-foreground px-2 py-1.5 mt-6 font-mono">
+              {t("inProgress")}
+            </div>
             {enrollments.map((enrollment, i) => (
               <NavItem
                 key={enrollment.id}
@@ -129,10 +153,14 @@ export default function SidebarNav({
         </div>
 
         <div className="flex items-center gap-2.5 px-1.5 pt-3.5 border-t border-border">
-          <div className="w-8 h-8 rounded-full bg-accent text-accent-foreground grid place-items-center text-[12px] font-semibold tracking-[0.02em] shrink-0">{initials}</div>
+          <div className="w-8 h-8 rounded-full bg-accent text-accent-foreground grid place-items-center text-[12px] font-semibold tracking-[0.02em] shrink-0">
+            {initials}
+          </div>
           <div>
             <div className="text-[13px] font-medium text-foreground">{displayName}</div>
-            <div className="text-[11px] text-muted-foreground">{t("streakLabel", { streak: currentStreak })}</div>
+            <div className="text-[11px] text-muted-foreground">
+              {t("streakLabel", { streak: currentStreak })}
+            </div>
           </div>
         </div>
       </div>
@@ -163,7 +191,11 @@ function NavItem({
     >
       {dot && <span className="w-2 h-2 rounded-[2px] shrink-0" style={{ background: dot }} />}
       <span className="flex-1">{label}</span>
-      {count !== undefined && <span className="text-[11px] tabular-nums" style={{ color: "var(--ink-4)" }}>{count}</span>}
+      {count !== undefined && (
+        <span className="text-[11px] tabular-nums" style={{ color: "var(--ink-4)" }}>
+          {count}
+        </span>
+      )}
     </Link>
   );
 }
@@ -176,11 +208,11 @@ const PALETTES = [
 ] as const;
 
 function ThemeSelect({ lightLabel, darkLabel }: { lightLabel: string; darkLabel: string }) {
-  const [palette, setPalette] = useState<string>(
-    () => (typeof window !== "undefined" ? (document.documentElement.dataset.palette ?? "cool") : "cool")
+  const [palette, setPalette] = useState<string>(() =>
+    typeof window !== "undefined" ? (document.documentElement.dataset.palette ?? "cool") : "cool"
   );
-  const [dark, setDark] = useState<boolean>(
-    () => (typeof window !== "undefined" ? document.documentElement.classList.contains("dark") : false)
+  const [dark, setDark] = useState<boolean>(() =>
+    typeof window !== "undefined" ? document.documentElement.classList.contains("dark") : false
   );
 
   function applyPalette(p: string) {
@@ -207,7 +239,8 @@ function ThemeSelect({ lightLabel, darkLabel }: { lightLabel: string; darkLabel:
           className="w-3.5 h-3.5 rounded-full cursor-pointer border-0 p-0 transition-transform"
           style={{
             background: p.color,
-            boxShadow: palette === p.id ? `0 0 0 1.5px var(--background), 0 0 0 3px ${p.color}` : "none",
+            boxShadow:
+              palette === p.id ? `0 0 0 1.5px var(--background), 0 0 0 3px ${p.color}` : "none",
             transform: palette === p.id ? "scale(1.15)" : "scale(1)",
           }}
         />
