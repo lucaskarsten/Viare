@@ -1,55 +1,17 @@
 import { auth } from "@/lib/dev-auth";
 import { db } from "@/lib/db";
 import { tavily } from "@tavily/core";
-import Anthropic from "@anthropic-ai/sdk";
-import { z } from "zod";
 import { NextResponse } from "next/server";
+import { checkInputSafety, classifyGeneratedContent, SAFETY_MESSAGES } from "@/lib/content-safety";
+import { toSlug } from "@/lib/slug";
+import { buildResearchQuery } from "@/lib/prompts/language";
+import { generateEnrichModules } from "@/lib/prompts/specs/enrich-modules";
+import { generateTheoryLesson } from "@/lib/prompts/specs/theory";
+import { generateQuiz } from "@/lib/prompts/specs/quiz";
 
 type Params = Promise<{ slug: string }>;
 
 export const maxDuration = 300;
-
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
-
-const NewModulesSchema = z
-  .array(
-    z.object({
-      title: z.string().min(1),
-      description: z.string().min(1),
-      lessons: z
-        .array(z.object({ title: z.string().min(1), type: z.enum(["THEORY", "QUIZ"]) }))
-        .min(1),
-    })
-  )
-  .min(1)
-  .max(2);
-
-const QuizQuestionsSchema = z.array(
-  z.object({
-    question: z.string().min(1),
-    options: z.array(z.string()).length(4),
-    correctIndex: z.number().int().min(0).max(3),
-    explanation: z.string().min(1),
-  })
-);
-
-function toSlug(text: string, suffix?: string): string {
-  const base = text
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^\w\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-    .slice(0, 60)
-    .replace(/^-|-$/g, "");
-  return suffix ? `${base}-${suffix}` : base;
-}
-
-function parseJson(raw: string): unknown {
-  const clean = raw.startsWith("```") ? raw.replace(/```json?\n?|```/g, "") : raw;
-  return JSON.parse(clean.trim());
-}
 
 export async function POST(_req: Request, { params }: { params: Params }) {
   const { slug } = await params;
@@ -77,9 +39,21 @@ export async function POST(_req: Request, { params }: { params: Params }) {
     return new Response("Course is not published", { status: 400 });
   }
 
-  const courseTopic = course.topic ?? toSlug(course.title);
+  // RULE: CONTENT-01 — sanitize course metadata before LLM calls
+  const titleCheck = checkInputSafety(course.title);
+  if (titleCheck.status === "blocked") {
+    return NextResponse.json({ error: SAFETY_MESSAGES[titleCheck.reason] }, { status: 400 });
+  }
+  const topicCheck = checkInputSafety(course.topic);
+  if (topicCheck.status === "blocked") {
+    return NextResponse.json({ error: SAFETY_MESSAGES[topicCheck.reason] }, { status: 400 });
+  }
+
+  const language = course.language ?? "pt";
+  const courseTopic = course.topic || toSlug(course.title);
+
   const tv = tavily({ apiKey: process.env.TAVILY_API_KEY! });
-  const searchResults = await tv.search(`${courseTopic} advanced tutorial learn`, {
+  const searchResults = await tv.search(buildResearchQuery(courseTopic, language), {
     searchDepth: "basic",
     maxResults: 4,
   });
@@ -90,132 +64,99 @@ export async function POST(_req: Request, { params }: { params: Params }) {
   const existingModuleCount = course.modules.length;
   const nextOrder = existingModuleCount;
 
-  const modulesResponse = await anthropic.messages.create({
-    model: "claude-sonnet-4-6",
-    max_tokens: 1000,
-    messages: [
-      {
-        role: "user",
-        content: `You are enriching an existing online course titled "${course.title}".
-
-The course already has ${existingModuleCount} modules. Generate 1-2 NEW modules with additional advanced content that complements what already exists.
-
-Research material:
-${researchContext}
-
-Return valid JSON array only (no markdown):
-[
-  {
-    "title": "Module title",
-    "description": "1-2 sentence description",
-    "lessons": [
-      { "title": "Lesson title", "type": "THEORY" },
-      { "title": "Quiz: Module title", "type": "QUIZ" }
-    ]
-  }
-]
-
-Rules:
-- 1 to 2 new modules only
-- 2 to 3 THEORY lessons per module followed by 1 QUIZ
-- Content must complement the existing course, not repeat basics
-- Return ONLY valid JSON, no markdown fences`,
-      },
-    ],
+  const newModules = await generateEnrichModules({
+    language,
+    courseTitle: course.title,
+    existingModuleCount,
+    researchContext,
   });
 
-  const rawModules = (modulesResponse.content[0] as { text: string }).text.trim();
-  const newModules = NewModulesSchema.parse(parseJson(rawModules));
+  // RULE: COURSE-05 — track created modules for rollback on partial failure
+  const createdModuleIds: string[] = [];
+  const generatedTextParts: string[] = [];
 
-  let addedModules = 0;
-  for (let mi = 0; mi < newModules.length; mi++) {
-    const mod = newModules[mi];
-    const dbModule = await db.module.create({
-      data: {
-        courseId: course.id,
-        slug: toSlug(mod.title, String(nextOrder + mi + 1)),
-        title: mod.title,
-        description: mod.description,
-        order: nextOrder + mi,
-      },
-    });
-
-    for (let li = 0; li < mod.lessons.length; li++) {
-      const lesson = mod.lessons[li];
-      const dbLesson = await db.lesson.create({
+  try {
+    for (let mi = 0; mi < newModules.length; mi++) {
+      const mod = newModules[mi];
+      const dbModule = await db.module.create({
         data: {
-          moduleId: dbModule.id,
-          slug: toSlug(lesson.title, String(li + 1)),
-          title: lesson.title,
-          type: lesson.type,
-          order: li,
+          courseId: course.id,
+          slug: toSlug(mod.title, String(nextOrder + mi + 1)),
+          title: mod.title,
+          description: mod.description,
+          order: nextOrder + mi,
         },
       });
+      createdModuleIds.push(dbModule.id);
 
-      if (lesson.type === "THEORY") {
-        const contentResponse = await anthropic.messages.create({
-          model: "claude-sonnet-4-6",
-          max_tokens: 2000,
-          messages: [
-            {
-              role: "user",
-              content: `Write educational markdown content for the lesson titled "${lesson.title}".
-This lesson is part of module "${mod.title}" in a course titled "${course.title}".
-
-Requirements:
-- Clear, well-structured markdown
-- Include practical examples
-- Use headers, bullet points, and code blocks where relevant
-- 400 to 800 words
-- Educational and informational tone only
-- No introductory meta-text, just the lesson content`,
-            },
-          ],
+      for (let li = 0; li < mod.lessons.length; li++) {
+        const lesson = mod.lessons[li];
+        const dbLesson = await db.lesson.create({
+          data: {
+            moduleId: dbModule.id,
+            slug: toSlug(lesson.title, String(li + 1)),
+            title: lesson.title,
+            type: lesson.type,
+            order: li,
+          },
         });
-        const content = (contentResponse.content[0] as { text: string }).text;
-        await db.lesson.update({ where: { id: dbLesson.id }, data: { content } });
-      } else {
-        const quizResponse = await anthropic.messages.create({
-          model: "claude-sonnet-4-6",
-          max_tokens: 1500,
-          messages: [
-            {
-              role: "user",
-              content: `Generate 5 multiple-choice quiz questions for module "${mod.title}" in a course titled "${course.title}".
 
-Return valid JSON array only (no markdown):
-[
-  {
-    "question": "Question text",
-    "options": ["Option A", "Option B", "Option C", "Option D"],
-    "correctIndex": 0,
-    "explanation": "Why this answer is correct"
-  }
-]
-
-Rules:
-- correctIndex must be 0, 1, 2, or 3
-- Questions based on practical scenarios
-- Return ONLY valid JSON, no markdown fences`,
-            },
-          ],
-        });
-        const rawQuiz = (quizResponse.content[0] as { text: string }).text.trim();
-        const questions = QuizQuestionsSchema.parse(parseJson(rawQuiz));
-        await db.quizQuestion.createMany({
-          data: questions.map((q, idx) => ({
-            lessonId: dbLesson.id,
-            question: q.question,
-            options: q.options,
-            correctIndex: q.correctIndex,
-            explanation: q.explanation,
-            order: idx,
-          })),
-        });
+        if (lesson.type === "THEORY") {
+          const content = await generateTheoryLesson({
+            language,
+            topic: courseTopic,
+            moduleTitle: mod.title,
+            lessonTitle: lesson.title,
+            // Enrich reuses the course's established domain; we don't re-classify.
+            sandboxTemplate: null,
+            relevantDemos: [],
+            tone: "practical",
+          });
+          generatedTextParts.push(content);
+          await db.lesson.update({ where: { id: dbLesson.id }, data: { content } });
+        } else {
+          const questions = await generateQuiz({
+            language,
+            topic: courseTopic,
+            moduleTitle: mod.title,
+          });
+          generatedTextParts.push(questions.map((q) => q.question).join(" "));
+          await db.quizQuestion.createMany({
+            data: questions.map((q, idx) => ({
+              lessonId: dbLesson.id,
+              question: q.question,
+              options: q.options,
+              correctIndex: q.correctIndex,
+              explanation: q.explanation,
+              order: idx,
+            })),
+          });
+        }
       }
     }
-    addedModules++;
-  }
 
-  return NextResponse.json({ addedModules });
+    // RULE: CONTENT-02/03 — classify enriched content before exposing it
+    const allGeneratedText = generatedTextParts.join("\n\n");
+    const classification = classifyGeneratedContent(allGeneratedText);
+
+    if (classification.verdict === "blocked") {
+      await db.module.deleteMany({ where: { id: { in: createdModuleIds } } });
+      return NextResponse.json({ error: SAFETY_MESSAGES.content_blocked }, { status: 422 });
+    }
+
+    if (classification.verdict === "restricted") {
+      await db.course.update({
+        where: { id: course.id },
+        data: { requiresReview: true },
+      });
+    }
+
+    return NextResponse.json({ addedModules: createdModuleIds.length });
+  } catch (err) {
+    if (createdModuleIds.length > 0) {
+      await db.module.deleteMany({ where: { id: { in: createdModuleIds } } }).catch(() => {});
+    }
+    const message = err instanceof Error ? err.message : "Enrichment failed";
+    return NextResponse.json({ error: message }, { status: 500 });
+  }
 }

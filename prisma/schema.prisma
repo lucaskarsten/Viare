@@ -19,19 +19,19 @@ model User {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
 
-  accounts      Account[]
-  sessions      Session[]
-  progress      UserProgress[]
-  achievements  UserAchievement[]
-  streak        UserStreak?
-  subscription  Subscription?
-  enrollments   Enrollment[]
-  courses       Course[]          @relation("CourseAuthor")
-  labAttempts   LabAttempt[]
-  hintReveals   HintReveal[]
-  xp            UserXP?
-  quizAttempts  QuizAttempt[]
-  reviewCards   ReviewCard[]
+  accounts     Account[]
+  sessions     Session[]
+  progress     UserProgress[]
+  achievements UserAchievement[]
+  streak       UserStreak?
+  subscription Subscription?
+  enrollments  Enrollment[]
+  courses      Course[]          @relation("CourseAuthor")
+  labAttempts  LabAttempt[]
+  hintReveals  HintReveal[]
+  xp           UserXP?
+  quizAttempts QuizAttempt[]
+  reviewCards  ReviewCard[]
 }
 
 model Account {
@@ -77,23 +77,24 @@ model Course {
   slug             String         @unique
   title            String
   description      String         @db.Text
-  topic            String         // normalized topic key, e.g. "kali-linux"
+  topic            String // normalized topic key, e.g. "kali-linux"
   category         CourseCategory @default(TECH)
   tags             String[]
   image            String?
   difficulty       Difficulty     @default(MEDIUM)
   estimatedHours   Int?
   status           CourseStatus   @default(DRAFT)
-  sourceType       CourseSource @default(AI_GENERATED)
-  parentCourseId   String?      // set when forked from another course
+  sourceType       CourseSource   @default(AI_GENERATED)
+  parentCourseId   String? // set when forked from another course
   createdById      String
-  avgRating        Float        @default(0)
-  totalRatings     Int          @default(0)
-  totalEnrollments Int          @default(0)
-  generationPrompt String?      @db.Text // original user prompt
-  requiresReview   Boolean      @default(false) // RULE: CONTENT-03 — flagged for manual review
-  createdAt        DateTime     @default(now())
-  updatedAt        DateTime     @updatedAt
+  avgRating        Float          @default(0)
+  totalRatings     Int            @default(0)
+  totalEnrollments Int            @default(0)
+  generationPrompt String?        @db.Text // original user prompt
+  language         String         @default("pt") // ISO 639-1 code used for generation prompts
+  requiresReview   Boolean        @default(false) // RULE: CONTENT-03 — flagged for manual review
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
 
   createdBy    User         @relation("CourseAuthor", fields: [createdById], references: [id])
   parentCourse Course?      @relation("CourseForks", fields: [parentCourseId], references: [id])
@@ -126,7 +127,7 @@ model Lesson {
   type      LessonType
   order     Int        @default(0)
   content   String?    @db.Text // AI-generated markdown content
-  mdxPath   String?             // path for manually-authored MDX lessons
+  mdxPath   String? // path for manually-authored MDX lessons
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
 
@@ -147,7 +148,7 @@ model QuizQuestion {
   id           String   @id @default(cuid())
   lessonId     String
   question     String   @db.Text
-  options      Json     // string[]
+  options      Json // string[]
   correctIndex Int
   explanation  String   @db.Text
   order        Int      @default(0)
@@ -162,8 +163,8 @@ model Lab {
   title       String
   description String     @db.Text
   scenario    String     @db.Text
-  objectives  Json       // string[]
-  hints       Json       // { text: string, cost: number }[]
+  objectives  Json // string[]
+  hints       Json // { text: string, cost: number }[]
   flagHash    String
   difficulty  Difficulty @default(MEDIUM)
   createdAt   DateTime   @default(now())
@@ -229,7 +230,7 @@ model Enrollment {
   status          EnrollmentStatus @default(IN_PROGRESS)
   progressPercent Int              @default(0)
   lastAccessedAt  DateTime?
-  customContext   Json?            // personalization context for pro users
+  customContext   Json? // personalization context for pro users
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
 
@@ -241,11 +242,11 @@ model Enrollment {
 }
 
 model Review {
-  id           String     @id @default(cuid())
-  enrollmentId String     @unique
-  rating       Int        // 1-5
-  comment      String?    @db.Text
-  createdAt    DateTime   @default(now())
+  id           String   @id @default(cuid())
+  enrollmentId String   @unique
+  rating       Int // 1-5
+  comment      String?  @db.Text
+  createdAt    DateTime @default(now())
 
   enrollment Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
 }
@@ -337,7 +338,7 @@ model QuizAttempt {
   lessonId  String
   score     Int
   total     Int
-  answers   Json     // [{ questionId, selectedIndex, correct }]
+  answers   Json // [{ questionId, selectedIndex, correct }]
   createdAt DateTime @default(now())
 
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -368,11 +369,11 @@ model ReviewCard {
 }
 
 model CardReview {
-  id        String     @id @default(cuid())
+  id        String   @id @default(cuid())
   cardId    String
   userId    String
   rating    Int
-  createdAt DateTime   @default(now())
+  createdAt DateTime @default(now())
 
   card ReviewCard @relation(fields: [cardId], references: [id], onDelete: Cascade)
 
