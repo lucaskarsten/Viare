@@ -51,6 +51,14 @@ const QuizQuestionsSchema = z.array(
   })
 );
 
+const DomainClassifierSchema = z.object({
+  domain: z.enum(["programming", "science", "math", "business", "history", "language", "health", "other"]),
+  sandboxTemplate: z.enum(["react", "react-ts", "vanilla", "vanilla-ts", "vue", "node", "static"]).nullable(),
+  relevantDemos: z.array(z.string()),
+  tone: z.enum(["technical", "practical", "conceptual"]),
+});
+type DomainContext = z.infer<typeof DomainClassifierSchema>;
+
 type CourseOutline = z.infer<typeof CourseOutlineSchema>;
 
 function parseJson(raw: string): unknown {
@@ -132,7 +140,33 @@ export async function generateCourse(
         .join("\n\n");
     }
 
-    // 2. Generate outline
+    // 2. Classify domain — RULE: AI-04 — Haiku classifier runs before outline to inject context-aware block instructions
+    const classifierResponse = await anthropic.messages.create({
+      model: "claude-haiku-4-5-20251001",
+      max_tokens: 200,
+      messages: [
+        {
+          role: "user",
+          content: `Classify this course topic for content generation. Return ONLY valid JSON, no markdown.
+
+[TOPIC]
+${topic || "general education"}
+[END]
+
+{"domain":"programming|science|math|business|history|language|health|other","sandboxTemplate":"react|react-ts|vanilla|vanilla-ts|vue|node|static|null","relevantDemos":["bubble-sort","binary-search","css-flexbox"],"tone":"technical|practical|conceptual"}
+
+Rules:
+- sandboxTemplate must be null unless domain is programming
+- relevantDemos is a subset of ["bubble-sort","binary-search","css-flexbox"], only include if directly relevant
+- Return ONLY valid JSON`,
+        },
+      ],
+    });
+    const domainContext: DomainContext = DomainClassifierSchema.parse(
+      parseJson((classifierResponse.content[0] as { text: string }).text)
+    );
+
+    // 3. Generate outline
     // RULE: CONTENT-01 — topic isolated with delimiters, not injected into instructions
     const outlineResponse = await anthropic.messages.create({
       model: "claude-sonnet-4-6",
@@ -309,23 +343,14 @@ INTERACTIVE BLOCKS — use these when appropriate to make the lesson more engagi
    3. **Third step title** — Final action
    :::
 
-4. Interactive code sandbox (use :::sandbox — ONLY for programming lessons where the student should edit and run code):
-   :::sandbox{template="react"}
+${domainContext.sandboxTemplate ? `4. Interactive code sandbox — this is a ${domainContext.tone} course, use this for hands-on practice:
+   :::sandbox{template="${domainContext.sandboxTemplate}"}
    :::
+   Add at most once per lesson, near the end as a practice exercise.` : ""}
+${domainContext.relevantDemos.length > 0 ? `${domainContext.sandboxTemplate ? "5" : "4"}. Algorithm/concept visualizer demos — use only if directly relevant to this lesson:
+${domainContext.relevantDemos.map((d) => `   ::demo{id="${d}"}`).join("\n")}` : ""}
 
-   Available templates: react, react-ts, vanilla, vanilla-ts, vue, node, static.
-   Choose the template that matches the lesson language/framework.
-   Use :::sandbox at most once per lesson, near the end as a practice exercise.
-   Do NOT use for non-programming topics (history, science, business, etc.).
-
-5. Algorithm/concept visualizer demos (use ::demo — for specific visual concepts):
-   ::demo{id="bubble-sort"}
-   ::demo{id="binary-search"}
-   ::demo{id="css-flexbox"}
-
-   Only use a demo id if it directly matches the lesson topic.
-
-Use at least one interactive block per lesson. Prefer :::cards for concept sets and :::steps for sequential processes. Add :::sandbox when teaching programming.`,
+Use at least one interactive block per lesson. Prefer :::cards for concept sets and :::steps for sequential processes.`,
               },
             ],
           });
