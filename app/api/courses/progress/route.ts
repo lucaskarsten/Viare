@@ -1,7 +1,10 @@
+import { after } from "next/server";
+import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/dev-auth";
 import { db } from "@/lib/db";
 import { z } from "zod";
 import { generateFlashcards as generateFlashcardsSpec } from "@/lib/prompts/specs/flashcards";
+import { issueCertificate } from "@/lib/certificates";
 
 const BodySchema = z.object({ lessonId: z.string() });
 
@@ -78,10 +81,22 @@ export async function POST(request: Request) {
     totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
   const status = progressPercent === 100 ? "COMPLETED" : "IN_PROGRESS";
 
-  await db.enrollment.update({
+  const updatedEnrollment = await db.enrollment.update({
     where: { userId_courseId: { userId: session.user.id, courseId } },
     data: { progressPercent, status, lastAccessedAt: new Date() },
   });
+
+  // RULE: CERT-01 — emitir certificado automaticamente ao completar curso
+  if (status === "COMPLETED") {
+    after(async () => {
+      try {
+        await issueCertificate(updatedEnrollment.id);
+        revalidatePath("/certificates");
+      } catch (e) {
+        console.error("[cert-issue]", e);
+      }
+    });
+  }
 
   return Response.json({ progressPercent });
 }

@@ -233,6 +233,7 @@ function ThemeSelect({ lightLabel, darkLabel }: { lightLabel: string; darkLabel:
     <div className="flex items-center gap-2">
       {PALETTES.map((p) => (
         <button
+          suppressHydrationWarning
           key={p.id}
           onClick={() => applyPalette(p.id)}
           title={p.id}
@@ -246,6 +247,7 @@ function ThemeSelect({ lightLabel, darkLabel }: { lightLabel: string; darkLabel:
         />
       ))}
       <button
+        suppressHydrationWarning
         onClick={toggleDark}
         title={dark ? lightLabel : darkLabel}
         className="ml-auto text-[13px] leading-none cursor-pointer border-0 bg-transparent transition-colors hover:text-foreground"
