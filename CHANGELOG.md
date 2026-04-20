@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.3.0](https://github.com/lucaskarsten/Viare/compare/kali-platform-v0.2.0...kali-platform-v0.3.0) (2026-04-20)
+
+
+### Features
+
+* domain classifier (Haiku Step 0) — context-aware sandbox and demo injection per lesson ([c910994](https://github.com/lucaskarsten/Viare/commit/c910994116cf49e331f1d54252a40421fa52ce96))
+* generation prompt — teach AI to emit :::sandbox and ::demo directives ([1c53878](https://github.com/lucaskarsten/Viare/commit/1c538788c80977db6a8421a7d4b411ac80ae1386))
+* interactive demo blocks — BubbleSort, BinarySearch, CssFlexbox visualizers ([49bc033](https://github.com/lucaskarsten/Viare/commit/49bc03339bcf23246fa4e4e7300c3cce5f4a77eb))
+* interactive lesson blocks — callouts, cards, steps, lab redesign, quiz transitions ([e1d49cd](https://github.com/lucaskarsten/Viare/commit/e1d49cd3059898387efd45196b4374ffecaf404f))
+* labs API — GET lab data and POST flag submission with attempt tracking ([79802ab](https://github.com/lucaskarsten/Viare/commit/79802ab542778b46363c76d327ed7a022c081034))
+* lesson page — load lab data for LAB-type lessons via getLabForUser ([b29ae8e](https://github.com/lucaskarsten/Viare/commit/b29ae8e31473a493b9932fe7a44aa0586aad4927))
+* quiz API — POST attempt scoring, persistence, and lesson completion ([4525158](https://github.com/lucaskarsten/Viare/commit/45251587d5a3dc70e63f22501b34bdd7155f2866))
+* review API — GET due cards and SM-2 rating endpoint ([2cc859a](https://github.com/lucaskarsten/Viare/commit/2cc859aafc3558a2f33f7030327cea4bc0ac26c4))
+* Sandpack integration — interactive sandbox blocks in lessons ([604af5b](https://github.com/lucaskarsten/Viare/commit/604af5b6abdd424a16aded230c80eeb5359b27fc))
+* schema — QuizAttempt, ReviewCard, CardReview, LabAttempt, HintReveal, UserXP models ([fd9a43a](https://github.com/lucaskarsten/Viare/commit/fd9a43aa2c0d1940557a0b75e2e8eab8a1872092))
+* SM-2 spaced repetition algorithm and lab utility lib ([e8d4dc5](https://github.com/lucaskarsten/Viare/commit/e8d4dc5b81f6aa1a6a16cb95fd1513dffaaf2037))
+* wire ReviewClient to real API and auto-generate flashcards on lesson complete ([ba4c2ff](https://github.com/lucaskarsten/Viare/commit/ba4c2ff3a13677c11630e4d1304cd32955a1d55c))
+
+
+### Bug Fixes
+
+* resolve all lint errors — BubbleSort effect, unused vars, prettier ([c766f7a](https://github.com/lucaskarsten/Viare/commit/c766f7ad76dd7a1005bac3e35a91c8eb7fd308ed))
+
 ## [0.2.0](https://github.com/lucaskarsten/Viare/compare/kali-platform-v0.1.0...kali-platform-v0.2.0) (2026-04-19)
 
 ### Features
