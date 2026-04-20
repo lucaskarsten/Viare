@@ -1,4 +1,6 @@
 import { PrismaClient } from "@prisma/client";
+import type { SqlDriverAdapterFactory } from "@prisma/client/runtime/client";
+import { PrismaPg } from "@prisma/adapter-pg";
 import { topicToCategory } from "../lib/catalog";
 
 const CATEGORY_MAP: Record<string, "TECH" | "LANG" | "MUSIC" | "CRAFT" | "SCIENCE" | "LIFE"> = {
@@ -10,7 +12,11 @@ const CATEGORY_MAP: Record<string, "TECH" | "LANG" | "MUSIC" | "CRAFT" | "SCIENC
   life: "LIFE",
 };
 
-const db = new PrismaClient();
+const db = new PrismaClient({
+  adapter: new PrismaPg({
+    connectionString: process.env.DATABASE_URL!,
+  }) as unknown as SqlDriverAdapterFactory,
+});
 
 async function main() {
   const courses = await db.course.findMany({ select: { id: true, topic: true } });

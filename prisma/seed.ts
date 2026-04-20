@@ -11,10 +11,16 @@ import {
   ProgressStatus,
   Role,
 } from "@prisma/client";
+import type { SqlDriverAdapterFactory } from "@prisma/client/runtime/client";
+import { PrismaPg } from "@prisma/adapter-pg";
 import { LESSON_CONTENT } from "./lesson-content";
 import { QUIZ_QUESTIONS } from "./quiz-questions";
 
-const db = new PrismaClient();
+const db = new PrismaClient({
+  adapter: new PrismaPg({
+    connectionString: process.env.DATABASE_URL!,
+  }) as unknown as SqlDriverAdapterFactory,
+});
 
 const DEV_USER_ID = "dev-preview-user";
 

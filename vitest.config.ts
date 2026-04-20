@@ -18,6 +18,10 @@ export default defineConfig({
       provider: "v8",
       include: ["app/api/**", "lib/**"],
       exclude: ["lib/db.ts"],
+      thresholds: {
+        lines: 70,
+        functions: 75,
+      },
     },
   },
 });

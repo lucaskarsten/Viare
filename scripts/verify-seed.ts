@@ -1,7 +1,13 @@
 import { config } from "dotenv";
 config({ path: ".env.local" });
 import { PrismaClient } from "@prisma/client";
-const db = new PrismaClient();
+import type { SqlDriverAdapterFactory } from "@prisma/client/runtime/client";
+import { PrismaPg } from "@prisma/adapter-pg";
+const db = new PrismaClient({
+  adapter: new PrismaPg({
+    connectionString: process.env.DATABASE_URL!,
+  }) as unknown as SqlDriverAdapterFactory,
+});
 
 async function main() {
   const dev = await db.user.findUnique({ where: { id: "dev-preview-user" } });

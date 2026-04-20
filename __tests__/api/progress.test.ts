@@ -1,10 +1,24 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { POST } from "@/app/api/courses/progress/route";
 
-// ── Mocks ────────────────────────────────────────────────────────────────────
+vi.mock("next/server", () => ({
+  after: vi.fn(),
+}));
 
-vi.mock("@/auth", () => ({
+vi.mock("next/cache", () => ({
+  revalidatePath: vi.fn(),
+}));
+
+vi.mock("@/lib/dev-auth", () => ({
   auth: vi.fn(),
+}));
+
+vi.mock("@/lib/certificates", () => ({
+  issueCertificate: vi.fn().mockResolvedValue({}),
+}));
+
+vi.mock("@/lib/prompts/specs/flashcards", () => ({
+  generateFlashcards: vi.fn().mockResolvedValue([]),
 }));
 
 vi.mock("@/lib/db", () => ({
@@ -24,7 +38,7 @@ vi.mock("@/lib/db", () => ({
   },
 }));
 
-import { auth } from "@/auth";
+import { auth } from "@/lib/dev-auth";
 import { db } from "@/lib/db";
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -38,7 +52,12 @@ function makeRequest(body: unknown) {
 }
 
 const MOCK_SESSION = { user: { id: "user-1", role: "STUDENT" } };
-const MOCK_LESSON = { id: "lesson-1", module: { courseId: "course-1" } };
+const MOCK_LESSON = {
+  id: "lesson-1",
+  type: "THEORY",
+  content: null,
+  module: { courseId: "course-1", course: { language: "pt" } },
+};
 
 // ── Tests ────────────────────────────────────────────────────────────────────
 
@@ -91,7 +110,7 @@ describe("POST /api/courses/progress", () => {
     vi.mocked(db.userProgress.upsert).mockResolvedValue({} as never);
     vi.mocked(db.lesson.count).mockResolvedValue(10);
     vi.mocked(db.userProgress.count).mockResolvedValue(5);
-    vi.mocked(db.enrollment.update).mockResolvedValue({} as never);
+    vi.mocked(db.enrollment.update).mockResolvedValue({ id: "enrollment-1" } as never);
 
     const res = await POST(makeRequest({ lessonId: "lesson-1" }));
     const body = await res.json();
@@ -108,7 +127,7 @@ describe("POST /api/courses/progress", () => {
     vi.mocked(db.userProgress.upsert).mockResolvedValue({} as never);
     vi.mocked(db.lesson.count).mockResolvedValue(3);
     vi.mocked(db.userProgress.count).mockResolvedValue(2);
-    vi.mocked(db.enrollment.update).mockResolvedValue({} as never);
+    vi.mocked(db.enrollment.update).mockResolvedValue({ id: "e-1" } as never);
 
     const res = await POST(makeRequest({ lessonId: "lesson-1" }));
     const body = await res.json();
@@ -124,7 +143,7 @@ describe("POST /api/courses/progress", () => {
     vi.mocked(db.userProgress.upsert).mockResolvedValue({} as never);
     vi.mocked(db.lesson.count).mockResolvedValue(5);
     vi.mocked(db.userProgress.count).mockResolvedValue(5); // todas concluídas
-    vi.mocked(db.enrollment.update).mockResolvedValue({} as never);
+    vi.mocked(db.enrollment.update).mockResolvedValue({ id: "e-1" } as never);
 
     await POST(makeRequest({ lessonId: "lesson-1" }));
 
@@ -143,7 +162,7 @@ describe("POST /api/courses/progress", () => {
     vi.mocked(db.userProgress.upsert).mockResolvedValue({} as never);
     vi.mocked(db.lesson.count).mockResolvedValue(4);
     vi.mocked(db.userProgress.count).mockResolvedValue(1);
-    vi.mocked(db.enrollment.update).mockResolvedValue({} as never);
+    vi.mocked(db.enrollment.update).mockResolvedValue({ id: "e-1" } as never);
 
     await POST(makeRequest({ lessonId: "lesson-1" }));
 
@@ -163,7 +182,7 @@ describe("POST /api/courses/progress", () => {
     vi.mocked(db.userProgress.upsert).mockResolvedValue({} as never);
     vi.mocked(db.lesson.count).mockResolvedValue(0); // edge case: curso sem lições
     vi.mocked(db.userProgress.count).mockResolvedValue(0);
-    vi.mocked(db.enrollment.update).mockResolvedValue({} as never);
+    vi.mocked(db.enrollment.update).mockResolvedValue({ id: "e-1" } as never);
 
     const res = await POST(makeRequest({ lessonId: "lesson-1" }));
     const body = await res.json();
