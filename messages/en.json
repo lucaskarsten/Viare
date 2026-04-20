@@ -272,18 +272,7 @@
     "enrichButton": "Enrich with web research",
     "enriching": "Searching the web…",
     "enrichDone": "✓ Modules added",
-    "enrichError": "Error enriching course",
-    "mature": {
-      "toggle": "Mature content (18+)",
-      "hint": "Enables topics like sexuality, adult spiritual practices and substances — handled with educational/anthropological rigor.",
-      "modalTitle": "Confirm age",
-      "modalBody": "This content type is generated with an educational framing. No graphic or explicit content is produced. To continue, confirm that you are 18 or older.",
-      "birthDateLabel": "Date of birth",
-      "confirmButton": "Confirm and enable",
-      "cancelButton": "Cancel",
-      "errorAge": "You must be at least 18 years old to access this content.",
-      "errorGeneric": "Error confirming age. Please try again."
-    }
+    "enrichError": "Error enriching course"
   },
   "onboarding": {
     "step": "STEP {current} OF {total}",

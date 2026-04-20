@@ -272,18 +272,7 @@
     "enrichButton": "Enriquecer com pesquisa da web",
     "enriching": "Buscando fontes na web…",
     "enrichDone": "✓ Módulos adicionados",
-    "enrichError": "Erro ao enriquecer",
-    "mature": {
-      "toggle": "Conteúdo maduro (18+)",
-      "hint": "Permite tópicos como sexualidade, práticas espirituais adultas e substâncias — tratados com rigor educacional/antropológico.",
-      "modalTitle": "Confirmar maioridade",
-      "modalBody": "Este tipo de conteúdo é gerado com enquadramento educacional. Nenhum conteúdo gráfico ou explícito é produzido. Para prosseguir, confirme que você tem 18+ anos.",
-      "birthDateLabel": "Data de nascimento",
-      "confirmButton": "Confirmar e ativar",
-      "cancelButton": "Cancelar",
-      "errorAge": "Você precisa ter pelo menos 18 anos para acessar este conteúdo.",
-      "errorGeneric": "Erro ao confirmar idade. Tente novamente."
-    }
+    "enrichError": "Erro ao enriquecer"
   },
   "onboarding": {
     "step": "PASSO {current} DE {total}",

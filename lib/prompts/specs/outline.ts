@@ -3,7 +3,7 @@ import type { IngestSource } from "@/lib/ingest";
 import { callAnthropicJson } from "@/lib/prompts/runner";
 import { CourseOutlineSchema, type CourseOutline } from "@/lib/prompts/schemas";
 import { buildLanguageInstruction } from "@/lib/prompts/language";
-import { antiInjection, matureContentFrame, persona, regras, userData } from "@/lib/prompts/tags";
+import { antiInjection, persona, regras, userData } from "@/lib/prompts/tags";
 
 export interface OutlineInput {
   language: string;
@@ -12,7 +12,6 @@ export interface OutlineInput {
   customContext?: string;
   sourcesContext?: string;
   researchContext?: string;
-  maturityRating?: "GENERAL" | "MATURE";
 }
 
 // RULE: AI-06 — composição mista por scope com count-based constraints
@@ -180,6 +179,12 @@ const outlineTool: Anthropic.Tool = {
       description: { type: "string", description: "2-3 sentence course description" },
       estimatedHours: { type: "integer", minimum: 1, maximum: 60 },
       difficulty: { type: "string", enum: ["EASY", "MEDIUM", "HARD"] },
+      maturityRating: {
+        type: "string",
+        enum: ["GENERAL", "MATURE"],
+        description:
+          "Set to MATURE if the topic inherently involves sexuality, adult spiritual/ritual practices, recreational drugs, graphic violence, or other content appropriate only for adults. Otherwise GENERAL.",
+      },
       tags: {
         type: "array",
         items: { type: "string" },
@@ -212,7 +217,15 @@ const outlineTool: Anthropic.Tool = {
         },
       },
     },
-    required: ["title", "description", "estimatedHours", "difficulty", "tags", "modules"],
+    required: [
+      "title",
+      "description",
+      "estimatedHours",
+      "difficulty",
+      "maturityRating",
+      "tags",
+      "modules",
+    ],
   },
 };
 
@@ -239,6 +252,7 @@ function buildSystemBlocks(): Anthropic.TextBlockParam[] {
         "- estimatedHours is realistic for the total lesson count and scope.",
         "- Tags describe the topic, not the format (avoid tags like 'course' or 'online').",
         "- Module and lesson titles must be concrete, not generic ('Intro to X' is fine, 'Chapter 1' is not).",
+        "- Set maturityRating to MATURE if the topic inherently involves sexuality, adult practices, recreational drugs, graphic violence, or other adult-only content; otherwise GENERAL. Treat MATURE topics with academic/anthropological rigor — do not refuse.",
       ].join("\n")
     ),
     antiInjection(),
@@ -332,11 +346,6 @@ function buildUserMessage(
       "PREVIOUS ATTEMPT FAILED VALIDATION. Fix the following before re-emitting:",
       retryHint
     );
-  }
-
-  // RULE: CONTENT-06 — inject mature frame in user message to preserve system block cache
-  if (input.maturityRating === "MATURE") {
-    parts.push("", matureContentFrame());
   }
 
   return parts.join("\n");

@@ -1,6 +1,5 @@
 import { z } from "zod";
 import { auth } from "@/lib/dev-auth";
-import { db } from "@/lib/db";
 import { generateCourse, type GenerationEvent } from "@/lib/generation";
 import { IngestSourceSchema } from "@/lib/ingest";
 
@@ -19,8 +18,6 @@ export async function POST(request: Request) {
   const VALID_SCOPES = ["OVERVIEW", "COMPLETE", "DEEP"] as const;
   const rawScope = typeof body.scope === "string" ? body.scope.toUpperCase() : "COMPLETE";
   const scope = (VALID_SCOPES as readonly string[]).includes(rawScope) ? rawScope : "COMPLETE";
-  // RULE: CONTENT-07 — mature content requires age confirmation
-  const mature: boolean = body.mature === true;
 
   const SourcesSchema = z.array(IngestSourceSchema).max(5).optional();
   const parseResult = SourcesSchema.safeParse(body.sources);
@@ -32,19 +29,6 @@ export async function POST(request: Request) {
   }
   if (topic && topic.length < 3) {
     return new Response("Topic too short (min 3 chars)", { status: 400 });
-  }
-
-  if (mature) {
-    const user = await db.user.findUnique({
-      where: { id: session.user.id },
-      select: { ageConfirmedAt: true },
-    });
-    if (!user?.ageConfirmedAt) {
-      return Response.json(
-        { error: "É necessário confirmar idade (18+) antes de gerar conteúdo adulto." },
-        { status: 403 }
-      );
-    }
   }
 
   const encoder = new TextEncoder();
@@ -61,16 +45,7 @@ export async function POST(request: Request) {
         }
       }
 
-      await generateCourse(
-        topic,
-        session.user!.id!,
-        customContext,
-        emit,
-        sources,
-        language,
-        scope,
-        mature ? "MATURE" : "GENERAL"
-      );
+      await generateCourse(topic, session.user!.id!, customContext, emit, sources, language, scope);
       if (!cancelled) controller.close();
     },
     cancel() {

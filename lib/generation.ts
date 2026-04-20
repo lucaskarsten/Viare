@@ -165,8 +165,7 @@ export async function generateCourse(
   emit: (event: GenerationEvent) => void,
   sources?: IngestSource[],
   language = "pt",
-  scope = "COMPLETE",
-  maturityRating: "GENERAL" | "MATURE" = "GENERAL"
+  scope = "COMPLETE"
 ) {
   let courseId: string | undefined;
 
@@ -183,15 +182,6 @@ export async function generateCourse(
         emit({ type: "error", message: SAFETY_MESSAGES[contextCheck.reason] });
         return;
       }
-    }
-
-    // RULE: CONTENT-06 — sensitive topics require mature mode; block early to avoid partial generation
-    if (detectSensitiveTopic(topic) && maturityRating !== "MATURE") {
-      emit({
-        type: "error",
-        message: "Este tópico é sensível. Ative o modo adulto (18+) para gerar o curso.",
-      });
-      return;
     }
 
     // 1. Extract source content (if provided) + search
@@ -233,8 +223,11 @@ export async function generateCourse(
       customContext,
       sourcesContext,
       researchContext,
-      maturityRating,
     });
+
+    // RULE: CONTENT-06 — AI classifies maturity; pattern-match is a safety upgrade
+    const maturityRating: "GENERAL" | "MATURE" =
+      outline.maturityRating === "MATURE" || detectSensitiveTopic(topic) ? "MATURE" : "GENERAL";
 
     emit({ type: "outline", outline });
 
