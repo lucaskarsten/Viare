@@ -50,6 +50,17 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (user) {
         token.id = user.id!;
         token.role = (user as { role?: string }).role ?? "STUDENT";
+      } else if (token.id) {
+        const dbUser = await db.user.findUnique({
+          where: { id: token.id as string },
+          select: { id: true, role: true },
+        });
+        if (!dbUser) {
+          token.id = undefined;
+          token.role = undefined;
+        } else {
+          token.role = dbUser.role ?? "STUDENT";
+        }
       }
       return token;
     },
