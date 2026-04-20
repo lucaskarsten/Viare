@@ -111,13 +111,13 @@ const MIXED_CONSTRAINTS: Record<string, CompositionConstraints> = {
   deep: {
     required: {
       CASE_STUDY: { min: 0, max: 3 },
-      PRACTICE: { min: 1, max: 6 },
+      PRACTICE: { min: 1, max: 10 },
       THEORY: { min: 8, max: 28 },
       REFLECTION: { min: 1, max: 4 },
       QUIZ: { min: 3, max: 10 },
       LAB: { min: 0, max: 2 },
     },
-    totalLessons: { min: 18, max: 40 },
+    totalLessons: { min: 18, max: 45 },
     startsWithOneOf: ["CASE_STUDY", "THEORY"],
     endsWithOneOf: ["QUIZ"],
   },
