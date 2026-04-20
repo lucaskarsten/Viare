@@ -15,12 +15,22 @@ export interface OutlineInput {
 }
 
 // RULE: AI-05 — scope controls module/lesson density in the outline
-const SCOPE_CONSTRAINTS: Record<string, { modules: string; lessons: string }> = {
-  overview: { modules: "1 to 2 modules", lessons: "2 THEORY lessons each" },
-  complete: { modules: "3 to 4 modules", lessons: "2 to 3 THEORY lessons each" },
+// RULE: AI-03/AI-05 — scope → module density + expected course hours
+const SCOPE_CONSTRAINTS: Record<string, { modules: string; lessons: string; hours: string }> = {
+  overview: {
+    modules: "1 to 2 modules",
+    lessons: "2 THEORY lessons each",
+    hours: "estimatedHours should be between 1 and 4",
+  },
+  complete: {
+    modules: "3 to 5 modules",
+    lessons: "2 to 3 THEORY lessons each",
+    hours: "estimatedHours should be between 8 and 20",
+  },
   deep: {
-    modules: "4 to 5 modules",
-    lessons: "3 to 4 THEORY lessons each — use elaborate examples and cover edge cases",
+    modules: "6 to 10 modules",
+    lessons: "3 to 4 THEORY lessons each — elaborate examples, edge cases, advanced sub-topics",
+    hours: "estimatedHours should be between 20 and 60",
   },
 };
 
@@ -33,7 +43,7 @@ const outlineTool: Anthropic.Tool = {
     properties: {
       title: { type: "string", description: "Course title" },
       description: { type: "string", description: "2-3 sentence course description" },
-      estimatedHours: { type: "integer", minimum: 2, maximum: 12 },
+      estimatedHours: { type: "integer", minimum: 1, maximum: 60 },
       difficulty: { type: "string", enum: ["EASY", "MEDIUM", "HARD"] },
       tags: {
         type: "array",
@@ -44,7 +54,7 @@ const outlineTool: Anthropic.Tool = {
       modules: {
         type: "array",
         minItems: 1,
-        maxItems: 5,
+        maxItems: 10,
         items: {
           type: "object",
           properties: {
@@ -87,7 +97,7 @@ function buildSystemBlocks(): Anthropic.TextBlockParam[] {
         "- Return metadata via the create_course_outline tool. Never return prose.",
         "- Each module ends with a single QUIZ lesson after 2-4 THEORY lessons.",
         "- Difficulty is one of EASY, MEDIUM, HARD.",
-        "- estimatedHours is realistic for the total lesson count (2-12).",
+        "- estimatedHours is realistic for the total lesson count and scope.",
         "- Tags describe the topic, not the format (avoid tags like 'course' or 'online').",
         "- Module and lesson titles must be concrete, not generic ('Intro to X' is fine, 'Chapter 1' is not).",
       ].join("\n")
@@ -117,6 +127,7 @@ function buildUserMessage(input: OutlineInput): string {
   const theoryLessonsRule = hasSources
     ? "- 2 to 4 THEORY lessons per module, followed by 1 QUIZ lesson"
     : `- ${scopeConstraints.lessons}, followed by 1 QUIZ lesson`;
+  const hoursRule = hasSources ? "" : `- ${scopeConstraints.hours}`;
 
   const parts: string[] = [
     buildLanguageInstruction(input.language),
@@ -141,7 +152,10 @@ function buildUserMessage(input: OutlineInput): string {
 
   parts.push("", "Rules:");
   if (scalingRule) parts.push(scalingRule);
-  parts.push(moduleCountRule, theoryLessonsRule, "- 3 to 6 tags");
+  const rules = [moduleCountRule, theoryLessonsRule];
+  if (hoursRule) rules.push(hoursRule);
+  rules.push("- 3 to 6 tags");
+  parts.push(...rules);
 
   return parts.join("\n");
 }

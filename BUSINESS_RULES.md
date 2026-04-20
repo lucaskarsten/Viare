@@ -40,9 +40,9 @@ const userId = session?.user?.id;
 
 **AI-01** — Todo output de LLM que será parseado como JSON DEVE usar Zod para validação. Nunca `JSON.parse(raw) as T`.
 
-**AI-02** — Contagem de módulos e lições depende do `scope` do curso (ver AI-05 e COURSE-06). `estimatedHours` deve estar entre 2 e 12.
+**AI-02** — Contagem de módulos e lições depende do `scope` do curso (ver AI-05 e COURSE-06).
 
-**AI-03** — `estimatedHours` deve estar entre 2 e 12. Rejeitar valores fora deste range.
+**AI-03** — `estimatedHours` varia por scope: OVERVIEW 1-4h, COMPLETE 8-20h, DEEP 20-60h. Range permitido: 1-60. Acima de 60h indica um plano de estudo multi-curso, não um curso único.
 
 **AI-04** — O lifecycle de geração é: `status: GENERATING` ao criar o curso → gerar conteúdo lição a lição → `status: PUBLISHED` ao finalizar. Em caso de erro no meio: `status: DRAFT`.
 

@@ -38,10 +38,10 @@ export const ModuleShellSchema = z.object({
 export const CourseOutlineSchema = z.object({
   title: z.string().min(1).max(200),
   description: z.string().min(1),
-  estimatedHours: z.number().int().min(2).max(12),
+  estimatedHours: z.number().int().min(1).max(60),
   difficulty: z.enum(["EASY", "MEDIUM", "HARD"]),
   tags: z.array(z.string()).min(1).max(10),
-  modules: z.array(ModuleShellSchema).min(1).max(5),
+  modules: z.array(ModuleShellSchema).min(1).max(10),
 });
 
 export type CourseOutline = z.infer<typeof CourseOutlineSchema>;

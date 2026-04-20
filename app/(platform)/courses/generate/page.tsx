@@ -52,8 +52,8 @@ const SUGGESTIONS = [
 
 const SCOPE_IDS = ["overview", "complete", "deep"] as const;
 type ScopeId = (typeof SCOPE_IDS)[number];
-// RULE: COURSE-06 / AI-05 — estimated hours per scope
-const SCOPE_HOURS: Record<ScopeId, number> = { overview: 60, complete: 180, deep: 360 };
+// RULE: COURSE-06 / AI-05 — estimated generation time per scope (minutes)
+const SCOPE_GEN_MINUTES: Record<ScopeId, number> = { overview: 5, complete: 15, deep: 40 };
 
 const LANGUAGES = [
   { code: "pt", flag: "PT", native: "Português" },
@@ -215,7 +215,7 @@ export default function GeneratePage() {
     }
   }
 
-  const estTime = SCOPE_HOURS[scope];
+  const estTime = SCOPE_GEN_MINUTES[scope];
 
   return (
     <div className="flex flex-col gap-10 pb-20">
@@ -424,19 +424,14 @@ export default function GeneratePage() {
               <button
                 key={id}
                 type="button"
-                className={`flex flex-col items-start px-4 py-2.5 rounded-[var(--radius)] transition-all border cursor-pointer font-[inherit]${
+                className={`text-[13px] px-4 py-2 rounded-[var(--radius)] transition-all border cursor-pointer font-[inherit]${
                   scope === id
                     ? " bg-foreground text-background border-foreground"
                     : " bg-card text-muted-foreground border-border hover:border-foreground/40"
                 }`}
                 onClick={() => setScope(id)}
               >
-                <span className="text-[13px] font-medium">{t(`scope.${id}`)}</span>
-                <span
-                  className={`text-[11px] mt-0.5 ${scope === id ? "text-background/60" : "text-muted-foreground/70"}`}
-                >
-                  {t(`scopeHint.${id}`)}
-                </span>
+                {t(`scope.${id}`)}
               </button>
             ))}
           </div>
