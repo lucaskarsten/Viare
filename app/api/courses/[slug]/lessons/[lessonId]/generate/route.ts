@@ -170,6 +170,10 @@ export async function POST(
     // Lightweight next-lesson trigger — fires after this response is sent.
     // Cron sweeper (Phase 2) is the mandatory safety net if this fails silently.
     after(async () => {
+      if (!process.env.CRON_SECRET) {
+        console.error("[LESSON_CHAIN_BROKEN] CRON_SECRET is not set — next-lesson trigger will fail. Set CRON_SECRET in environment variables.");
+        return;
+      }
       try {
         const next = await db.lesson.findFirst({
           where: { courseId, lessonGenerationStatus: "PENDING" },
@@ -182,12 +186,15 @@ export async function POST(
           process.env.NEXT_PUBLIC_APP_URL ??
           (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
 
-        await fetch(`${baseUrl}/api/courses/${slug}/lessons/${next.id}/generate`, {
+        const res = await fetch(`${baseUrl}/api/courses/${slug}/lessons/${next.id}/generate`, {
           method: "POST",
-          headers: { authorization: `Bearer ${process.env.CRON_SECRET ?? ""}` },
+          headers: { authorization: `Bearer ${process.env.CRON_SECRET}` },
         });
-      } catch {
-        // Cron sweeper reclaims any missed lessons within 2 min
+        if (!res.ok) {
+          console.error("[LESSON_CHAIN_FAILED]", JSON.stringify({ lessonId: next.id, status: res.status }));
+        }
+      } catch (e) {
+        console.error("[LESSON_CHAIN_ERROR]", String(e));
       }
     });
 
