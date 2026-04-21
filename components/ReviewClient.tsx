@@ -6,8 +6,7 @@ function renderMd(text: string): React.ReactNode[] {
   return text.split(/(\*\*[^*]+\*\*|\*[^*]+\*|\n)/g).map((part, i) => {
     if (part.startsWith("**") && part.endsWith("**"))
       return <strong key={i}>{part.slice(2, -2)}</strong>;
-    if (part.startsWith("*") && part.endsWith("*"))
-      return <em key={i}>{part.slice(1, -1)}</em>;
+    if (part.startsWith("*") && part.endsWith("*")) return <em key={i}>{part.slice(1, -1)}</em>;
     if (part === "\n") return <br key={i} />;
     return part;
   });

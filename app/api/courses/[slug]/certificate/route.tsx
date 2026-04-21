@@ -53,8 +53,7 @@ export async function GET(_req: Request, { params }: { params: Params }) {
 
   const userName = user?.name ?? user?.email ?? "Aluno";
   const completionDate = enrollment.updatedAt;
-  const estimatedHours =
-    course.estimatedHours ?? Math.max(1, Math.round((totalLessons * 12) / 60));
+  const estimatedHours = course.estimatedHours ?? Math.max(1, Math.round((totalLessons * 12) / 60));
 
   const buffer = await renderToBuffer(
     <CourseCertificate
