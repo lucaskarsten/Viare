@@ -21,10 +21,11 @@ export async function POST(req: Request, { params }: { params: Promise<{ labId: 
       type: true,
       lesson: {
         select: {
+          lessonGenerationStatus: true,
           module: {
             select: {
               course: {
-                select: { slug: true, id: true, finalizedAt: true },
+                select: { slug: true, id: true },
               },
             },
           },
@@ -45,9 +46,9 @@ export async function POST(req: Request, { params }: { params: Promise<{ labId: 
   const courseId = lab.lesson.module.course.id;
   const courseSlug = lab.lesson.module.course.slug;
 
-  // RULE: LAB-01 — interactive lab completion blocked until course finalizes
-  if (!canConsume(lab.lesson.module.course)) {
-    return Response.json({ reason: "course_not_finalized" }, { status: 409 });
+  // RULE: LAB-01 — interactive lab completion gated on per-lesson READY status
+  if (!canConsume(lab.lesson)) {
+    return Response.json({ reason: "lesson_not_ready" }, { status: 403 });
   }
 
   const enrollment = await db.enrollment.findUnique({
@@ -69,17 +70,18 @@ export async function POST(req: Request, { params }: { params: Promise<{ labId: 
   console.info("[LAB_COMPLETE_INTERACTIVE]", { labId, userId: session.user.id });
 
   const [totalLessons, completedLessons] = await Promise.all([
-    db.lesson.count({ where: { module: { courseId } } }),
+    db.lesson.count({ where: { module: { courseId }, lessonGenerationStatus: "READY" } }),
     db.userProgress.count({
       where: {
         userId: session.user.id,
         status: "COMPLETED",
-        lesson: { module: { courseId } },
+        lesson: { module: { courseId }, lessonGenerationStatus: "READY" },
       },
     }),
   ]);
 
-  const newPercent = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+  const newPercent =
+    totalLessons > 0 ? Math.min(100, Math.round((completedLessons / totalLessons) * 100)) : 0;
   // RULE: PROG-01 — forward-only progress
   const progressPercent = forwardOnlyPercent(enrollment.progressPercent, newPercent);
   const status = progressPercent === 100 ? "COMPLETED" : "IN_PROGRESS";

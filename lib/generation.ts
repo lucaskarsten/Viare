@@ -360,6 +360,7 @@ export async function generateCourse(
               title: lesson.title,
               type: lesson.type,
               order: li,
+              labVariant: lesson.labVariant ?? null,
             },
           })
         )
@@ -524,7 +525,12 @@ export async function resumeCourse(
       include: {
         modules: {
           orderBy: { order: "asc" },
-          include: { lessons: { orderBy: { order: "asc" } } },
+          include: {
+            lessons: {
+              orderBy: { order: "asc" },
+              include: { lab: { select: { id: true } } },
+            },
+          },
         },
       },
     });
@@ -562,8 +568,10 @@ export async function resumeCourse(
         const dbLesson = mod.lessons[li];
         const currentOrdinal = lessonOrdinal++;
 
-        if (dbLesson.content !== null) {
-          generatedTextParts.push(dbLesson.content);
+        const alreadyGenerated =
+          dbLesson.content !== null || (dbLesson.type === "LAB" && dbLesson.lab !== null);
+        if (alreadyGenerated) {
+          if (dbLesson.content !== null) generatedTextParts.push(dbLesson.content);
           continue;
         }
 
@@ -579,7 +587,7 @@ export async function resumeCourse(
           domainContext,
           generatedTextParts,
           maturityRating,
-          labVariant: undefined,
+          labVariant: (dbLesson.labVariant as "CTF" | "INTERACTIVE" | undefined) ?? undefined,
           lessonOrdinal: currentOrdinal,
         });
 

@@ -33,14 +33,20 @@ const INTERACTIVE_LAB = {
   id: "lab-1",
   lessonId: "lesson-1",
   type: "INTERACTIVE",
-  lesson: { module: { course: { slug: "my-course", id: "course-1" } } },
+  lesson: {
+    lessonGenerationStatus: "READY",
+    module: { course: { slug: "my-course", id: "course-1" } },
+  },
 };
 
 const CTF_LAB = {
   id: "lab-2",
   lessonId: "lesson-2",
   type: "CTF",
-  lesson: { module: { course: { slug: "my-course", id: "course-1" } } },
+  lesson: {
+    lessonGenerationStatus: "READY",
+    module: { course: { slug: "my-course", id: "course-1" } },
+  },
 };
 
 function makeRequest() {

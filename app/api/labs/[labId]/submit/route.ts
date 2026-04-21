@@ -42,13 +42,13 @@ export async function POST(req: Request, { params }: { params: Promise<{ labId: 
   });
   if (!enrollment) return new Response("Not enrolled", { status: 403 });
 
-  // RULE: LAB-01 — lab submission blocked until course finalizes
-  const courseForGate = await db.course.findUnique({
-    where: { id: courseId },
-    select: { finalizedAt: true },
+  // RULE: LAB-01 — lab submission gated on per-lesson READY status
+  const lessonForGate = await db.lesson.findUnique({
+    where: { id: lessonId },
+    select: { lessonGenerationStatus: true },
   });
-  if (!courseForGate || !canConsume(courseForGate)) {
-    return Response.json({ reason: "course_not_finalized" }, { status: 409 });
+  if (!lessonForGate || !canConsume(lessonForGate)) {
+    return Response.json({ reason: "lesson_not_ready" }, { status: 403 });
   }
 
   // RULE: LAB-03 — flag validation required before marking complete
@@ -70,13 +70,18 @@ export async function POST(req: Request, { params }: { params: Promise<{ labId: 
     });
 
     const [totalLessons, completedLessons] = await Promise.all([
-      db.lesson.count({ where: { module: { courseId } } }),
+      db.lesson.count({ where: { module: { courseId }, lessonGenerationStatus: "READY" } }),
       db.userProgress.count({
-        where: { userId: session.user.id, status: "COMPLETED", lesson: { module: { courseId } } },
+        where: {
+          userId: session.user.id,
+          status: "COMPLETED",
+          lesson: { module: { courseId }, lessonGenerationStatus: "READY" },
+        },
       }),
     ]);
 
-    const newPercent = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+    const newPercent =
+      totalLessons > 0 ? Math.min(100, Math.round((completedLessons / totalLessons) * 100)) : 0;
     // RULE: PROG-01 — forward-only progress
     const progressPercent = forwardOnlyPercent(enrollment.progressPercent, newPercent);
     const status = progressPercent === 100 ? "COMPLETED" : "IN_PROGRESS";

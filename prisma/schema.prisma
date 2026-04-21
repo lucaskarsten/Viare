@@ -138,6 +138,7 @@ model Lesson {
   slug      String
   title     String
   type      LessonType
+  labVariant String?   // "CTF" | "INTERACTIVE" — only set for LAB type lessons
   order     Int        @default(0)
   content              String?  @db.Text // AI-generated markdown content
   mdxPath              String? // path for manually-authored MDX lessons
@@ -544,5 +545,6 @@ enum LessonGenerationStatus {
   PENDING
   GENERATING
   DONE
+  READY
   FAILED
 }

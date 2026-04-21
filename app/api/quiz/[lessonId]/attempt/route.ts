@@ -20,14 +20,14 @@ export async function POST(request: Request, { params }: { params: Params }) {
   const session = await auth();
   if (!session?.user?.id) return new Response("Unauthorized", { status: 401 });
 
-  // RULE: AG-02 — quiz completion blocked until course finalizes
+  // RULE: AG-02 — quiz completion gated on per-lesson READY status
   const lessonForGate = await db.lesson.findUnique({
     where: { id: lessonId },
-    select: { module: { select: { course: { select: { finalizedAt: true } } } } },
+    select: { lessonGenerationStatus: true },
   });
   if (!lessonForGate) return new Response("Not found", { status: 404 });
-  if (!canConsume(lessonForGate.module.course)) {
-    return Response.json({ reason: "course_not_finalized" }, { status: 409 });
+  if (!canConsume(lessonForGate)) {
+    return Response.json({ reason: "lesson_not_ready" }, { status: 403 });
   }
 
   const body = await request.json();

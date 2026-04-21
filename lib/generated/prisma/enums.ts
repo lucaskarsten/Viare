@@ -136,6 +136,7 @@ export const LessonGenerationStatus = {
   PENDING: "PENDING",
   GENERATING: "GENERATING",
   DONE: "DONE",
+  READY: "READY",
   FAILED: "FAILED",
 } as const;
 

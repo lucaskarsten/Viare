@@ -42,6 +42,7 @@ export type LessonMinAggregateOutputType = {
   slug: string | null;
   title: string | null;
   type: $Enums.LessonType | null;
+  labVariant: string | null;
   order: number | null;
   content: string | null;
   mdxPath: string | null;
@@ -62,6 +63,7 @@ export type LessonMaxAggregateOutputType = {
   slug: string | null;
   title: string | null;
   type: $Enums.LessonType | null;
+  labVariant: string | null;
   order: number | null;
   content: string | null;
   mdxPath: string | null;
@@ -82,6 +84,7 @@ export type LessonCountAggregateOutputType = {
   slug: number;
   title: number;
   type: number;
+  labVariant: number;
   order: number;
   content: number;
   mdxPath: number;
@@ -113,6 +116,7 @@ export type LessonMinAggregateInputType = {
   slug?: true;
   title?: true;
   type?: true;
+  labVariant?: true;
   order?: true;
   content?: true;
   mdxPath?: true;
@@ -133,6 +137,7 @@ export type LessonMaxAggregateInputType = {
   slug?: true;
   title?: true;
   type?: true;
+  labVariant?: true;
   order?: true;
   content?: true;
   mdxPath?: true;
@@ -153,6 +158,7 @@ export type LessonCountAggregateInputType = {
   slug?: true;
   title?: true;
   type?: true;
+  labVariant?: true;
   order?: true;
   content?: true;
   mdxPath?: true;
@@ -261,6 +267,7 @@ export type LessonGroupByOutputType = {
   slug: string;
   title: string;
   type: $Enums.LessonType;
+  labVariant: string | null;
   order: number;
   content: string | null;
   mdxPath: string | null;
@@ -301,6 +308,7 @@ export type LessonWhereInput = {
   slug?: Prisma.StringFilter<"Lesson"> | string;
   title?: Prisma.StringFilter<"Lesson"> | string;
   type?: Prisma.EnumLessonTypeFilter<"Lesson"> | $Enums.LessonType;
+  labVariant?: Prisma.StringNullableFilter<"Lesson"> | string | null;
   order?: Prisma.IntFilter<"Lesson"> | number;
   content?: Prisma.StringNullableFilter<"Lesson"> | string | null;
   mdxPath?: Prisma.StringNullableFilter<"Lesson"> | string | null;
@@ -331,6 +339,7 @@ export type LessonOrderByWithRelationInput = {
   slug?: Prisma.SortOrder;
   title?: Prisma.SortOrder;
   type?: Prisma.SortOrder;
+  labVariant?: Prisma.SortOrderInput | Prisma.SortOrder;
   order?: Prisma.SortOrder;
   content?: Prisma.SortOrderInput | Prisma.SortOrder;
   mdxPath?: Prisma.SortOrderInput | Prisma.SortOrder;
@@ -365,6 +374,7 @@ export type LessonWhereUniqueInput = Prisma.AtLeast<
     slug?: Prisma.StringFilter<"Lesson"> | string;
     title?: Prisma.StringFilter<"Lesson"> | string;
     type?: Prisma.EnumLessonTypeFilter<"Lesson"> | $Enums.LessonType;
+    labVariant?: Prisma.StringNullableFilter<"Lesson"> | string | null;
     order?: Prisma.IntFilter<"Lesson"> | number;
     content?: Prisma.StringNullableFilter<"Lesson"> | string | null;
     mdxPath?: Prisma.StringNullableFilter<"Lesson"> | string | null;
@@ -396,6 +406,7 @@ export type LessonOrderByWithAggregationInput = {
   slug?: Prisma.SortOrder;
   title?: Prisma.SortOrder;
   type?: Prisma.SortOrder;
+  labVariant?: Prisma.SortOrderInput | Prisma.SortOrder;
   order?: Prisma.SortOrder;
   content?: Prisma.SortOrderInput | Prisma.SortOrder;
   mdxPath?: Prisma.SortOrderInput | Prisma.SortOrder;
@@ -424,6 +435,7 @@ export type LessonScalarWhereWithAggregatesInput = {
   slug?: Prisma.StringWithAggregatesFilter<"Lesson"> | string;
   title?: Prisma.StringWithAggregatesFilter<"Lesson"> | string;
   type?: Prisma.EnumLessonTypeWithAggregatesFilter<"Lesson"> | $Enums.LessonType;
+  labVariant?: Prisma.StringNullableWithAggregatesFilter<"Lesson"> | string | null;
   order?: Prisma.IntWithAggregatesFilter<"Lesson"> | number;
   content?: Prisma.StringNullableWithAggregatesFilter<"Lesson"> | string | null;
   mdxPath?: Prisma.StringNullableWithAggregatesFilter<"Lesson"> | string | null;
@@ -445,6 +457,7 @@ export type LessonCreateInput = {
   slug: string;
   title: string;
   type: $Enums.LessonType;
+  labVariant?: string | null;
   order?: number;
   content?: string | null;
   mdxPath?: string | null;
@@ -473,6 +486,7 @@ export type LessonUncheckedCreateInput = {
   slug: string;
   title: string;
   type: $Enums.LessonType;
+  labVariant?: string | null;
   order?: number;
   content?: string | null;
   mdxPath?: string | null;
@@ -499,6 +513,7 @@ export type LessonUpdateInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string;
   title?: Prisma.StringFieldUpdateOperationsInput | string;
   type?: Prisma.EnumLessonTypeFieldUpdateOperationsInput | $Enums.LessonType;
+  labVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   order?: Prisma.IntFieldUpdateOperationsInput | number;
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   mdxPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -529,6 +544,7 @@ export type LessonUncheckedUpdateInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string;
   title?: Prisma.StringFieldUpdateOperationsInput | string;
   type?: Prisma.EnumLessonTypeFieldUpdateOperationsInput | $Enums.LessonType;
+  labVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   order?: Prisma.IntFieldUpdateOperationsInput | number;
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   mdxPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -558,6 +574,7 @@ export type LessonCreateManyInput = {
   slug: string;
   title: string;
   type: $Enums.LessonType;
+  labVariant?: string | null;
   order?: number;
   content?: string | null;
   mdxPath?: string | null;
@@ -577,6 +594,7 @@ export type LessonUpdateManyMutationInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string;
   title?: Prisma.StringFieldUpdateOperationsInput | string;
   type?: Prisma.EnumLessonTypeFieldUpdateOperationsInput | $Enums.LessonType;
+  labVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   order?: Prisma.IntFieldUpdateOperationsInput | number;
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   mdxPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -599,6 +617,7 @@ export type LessonUncheckedUpdateManyInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string;
   title?: Prisma.StringFieldUpdateOperationsInput | string;
   type?: Prisma.EnumLessonTypeFieldUpdateOperationsInput | $Enums.LessonType;
+  labVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   order?: Prisma.IntFieldUpdateOperationsInput | number;
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   mdxPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -636,6 +655,7 @@ export type LessonCountOrderByAggregateInput = {
   slug?: Prisma.SortOrder;
   title?: Prisma.SortOrder;
   type?: Prisma.SortOrder;
+  labVariant?: Prisma.SortOrder;
   order?: Prisma.SortOrder;
   content?: Prisma.SortOrder;
   mdxPath?: Prisma.SortOrder;
@@ -661,6 +681,7 @@ export type LessonMaxOrderByAggregateInput = {
   slug?: Prisma.SortOrder;
   title?: Prisma.SortOrder;
   type?: Prisma.SortOrder;
+  labVariant?: Prisma.SortOrder;
   order?: Prisma.SortOrder;
   content?: Prisma.SortOrder;
   mdxPath?: Prisma.SortOrder;
@@ -681,6 +702,7 @@ export type LessonMinOrderByAggregateInput = {
   slug?: Prisma.SortOrder;
   title?: Prisma.SortOrder;
   type?: Prisma.SortOrder;
+  labVariant?: Prisma.SortOrder;
   order?: Prisma.SortOrder;
   content?: Prisma.SortOrder;
   mdxPath?: Prisma.SortOrder;
@@ -986,6 +1008,7 @@ export type LessonCreateWithoutModuleInput = {
   slug: string;
   title: string;
   type: $Enums.LessonType;
+  labVariant?: string | null;
   order?: number;
   content?: string | null;
   mdxPath?: string | null;
@@ -1012,6 +1035,7 @@ export type LessonUncheckedCreateWithoutModuleInput = {
   slug: string;
   title: string;
   type: $Enums.LessonType;
+  labVariant?: string | null;
   order?: number;
   content?: string | null;
   mdxPath?: string | null;
@@ -1083,6 +1107,7 @@ export type LessonScalarWhereInput = {
   slug?: Prisma.StringFilter<"Lesson"> | string;
   title?: Prisma.StringFilter<"Lesson"> | string;
   type?: Prisma.EnumLessonTypeFilter<"Lesson"> | $Enums.LessonType;
+  labVariant?: Prisma.StringNullableFilter<"Lesson"> | string | null;
   order?: Prisma.IntFilter<"Lesson"> | number;
   content?: Prisma.StringNullableFilter<"Lesson"> | string | null;
   mdxPath?: Prisma.StringNullableFilter<"Lesson"> | string | null;
@@ -1104,6 +1129,7 @@ export type LessonCreateWithoutReflectionsInput = {
   slug: string;
   title: string;
   type: $Enums.LessonType;
+  labVariant?: string | null;
   order?: number;
   content?: string | null;
   mdxPath?: string | null;
@@ -1131,6 +1157,7 @@ export type LessonUncheckedCreateWithoutReflectionsInput = {
   slug: string;
   title: string;
   type: $Enums.LessonType;
+  labVariant?: string | null;
   order?: number;
   content?: string | null;
   mdxPath?: string | null;
@@ -1184,6 +1211,7 @@ export type LessonUpdateWithoutReflectionsInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string;
   title?: Prisma.StringFieldUpdateOperationsInput | string;
   type?: Prisma.EnumLessonTypeFieldUpdateOperationsInput | $Enums.LessonType;
+  labVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   order?: Prisma.IntFieldUpdateOperationsInput | number;
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   mdxPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -1213,6 +1241,7 @@ export type LessonUncheckedUpdateWithoutReflectionsInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string;
   title?: Prisma.StringFieldUpdateOperationsInput | string;
   type?: Prisma.EnumLessonTypeFieldUpdateOperationsInput | $Enums.LessonType;
+  labVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   order?: Prisma.IntFieldUpdateOperationsInput | number;
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   mdxPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -1240,6 +1269,7 @@ export type LessonCreateWithoutQuizQuestionsInput = {
   slug: string;
   title: string;
   type: $Enums.LessonType;
+  labVariant?: string | null;
   order?: number;
   content?: string | null;
   mdxPath?: string | null;
@@ -1267,6 +1297,7 @@ export type LessonUncheckedCreateWithoutQuizQuestionsInput = {
   slug: string;
   title: string;
   type: $Enums.LessonType;
+  labVariant?: string | null;
   order?: number;
   content?: string | null;
   mdxPath?: string | null;
@@ -1320,6 +1351,7 @@ export type LessonUpdateWithoutQuizQuestionsInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string;
   title?: Prisma.StringFieldUpdateOperationsInput | string;
   type?: Prisma.EnumLessonTypeFieldUpdateOperationsInput | $Enums.LessonType;
+  labVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   order?: Prisma.IntFieldUpdateOperationsInput | number;
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   mdxPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -1349,6 +1381,7 @@ export type LessonUncheckedUpdateWithoutQuizQuestionsInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string;
   title?: Prisma.StringFieldUpdateOperationsInput | string;
   type?: Prisma.EnumLessonTypeFieldUpdateOperationsInput | $Enums.LessonType;
+  labVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   order?: Prisma.IntFieldUpdateOperationsInput | number;
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   mdxPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -1376,6 +1409,7 @@ export type LessonCreateWithoutLabInput = {
   slug: string;
   title: string;
   type: $Enums.LessonType;
+  labVariant?: string | null;
   order?: number;
   content?: string | null;
   mdxPath?: string | null;
@@ -1403,6 +1437,7 @@ export type LessonUncheckedCreateWithoutLabInput = {
   slug: string;
   title: string;
   type: $Enums.LessonType;
+  labVariant?: string | null;
   order?: number;
   content?: string | null;
   mdxPath?: string | null;
@@ -1453,6 +1488,7 @@ export type LessonUpdateWithoutLabInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string;
   title?: Prisma.StringFieldUpdateOperationsInput | string;
   type?: Prisma.EnumLessonTypeFieldUpdateOperationsInput | $Enums.LessonType;
+  labVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   order?: Prisma.IntFieldUpdateOperationsInput | number;
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   mdxPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -1482,6 +1518,7 @@ export type LessonUncheckedUpdateWithoutLabInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string;
   title?: Prisma.StringFieldUpdateOperationsInput | string;
   type?: Prisma.EnumLessonTypeFieldUpdateOperationsInput | $Enums.LessonType;
+  labVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   order?: Prisma.IntFieldUpdateOperationsInput | number;
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   mdxPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -1509,6 +1546,7 @@ export type LessonCreateWithoutProjectStepsInput = {
   slug: string;
   title: string;
   type: $Enums.LessonType;
+  labVariant?: string | null;
   order?: number;
   content?: string | null;
   mdxPath?: string | null;
@@ -1536,6 +1574,7 @@ export type LessonUncheckedCreateWithoutProjectStepsInput = {
   slug: string;
   title: string;
   type: $Enums.LessonType;
+  labVariant?: string | null;
   order?: number;
   content?: string | null;
   mdxPath?: string | null;
@@ -1589,6 +1628,7 @@ export type LessonUpdateWithoutProjectStepsInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string;
   title?: Prisma.StringFieldUpdateOperationsInput | string;
   type?: Prisma.EnumLessonTypeFieldUpdateOperationsInput | $Enums.LessonType;
+  labVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   order?: Prisma.IntFieldUpdateOperationsInput | number;
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   mdxPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -1618,6 +1658,7 @@ export type LessonUncheckedUpdateWithoutProjectStepsInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string;
   title?: Prisma.StringFieldUpdateOperationsInput | string;
   type?: Prisma.EnumLessonTypeFieldUpdateOperationsInput | $Enums.LessonType;
+  labVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   order?: Prisma.IntFieldUpdateOperationsInput | number;
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   mdxPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -1645,6 +1686,7 @@ export type LessonCreateWithoutProgressInput = {
   slug: string;
   title: string;
   type: $Enums.LessonType;
+  labVariant?: string | null;
   order?: number;
   content?: string | null;
   mdxPath?: string | null;
@@ -1672,6 +1714,7 @@ export type LessonUncheckedCreateWithoutProgressInput = {
   slug: string;
   title: string;
   type: $Enums.LessonType;
+  labVariant?: string | null;
   order?: number;
   content?: string | null;
   mdxPath?: string | null;
@@ -1725,6 +1768,7 @@ export type LessonUpdateWithoutProgressInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string;
   title?: Prisma.StringFieldUpdateOperationsInput | string;
   type?: Prisma.EnumLessonTypeFieldUpdateOperationsInput | $Enums.LessonType;
+  labVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   order?: Prisma.IntFieldUpdateOperationsInput | number;
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   mdxPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -1754,6 +1798,7 @@ export type LessonUncheckedUpdateWithoutProgressInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string;
   title?: Prisma.StringFieldUpdateOperationsInput | string;
   type?: Prisma.EnumLessonTypeFieldUpdateOperationsInput | $Enums.LessonType;
+  labVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   order?: Prisma.IntFieldUpdateOperationsInput | number;
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   mdxPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -1781,6 +1826,7 @@ export type LessonCreateWithoutQuizAttemptsInput = {
   slug: string;
   title: string;
   type: $Enums.LessonType;
+  labVariant?: string | null;
   order?: number;
   content?: string | null;
   mdxPath?: string | null;
@@ -1808,6 +1854,7 @@ export type LessonUncheckedCreateWithoutQuizAttemptsInput = {
   slug: string;
   title: string;
   type: $Enums.LessonType;
+  labVariant?: string | null;
   order?: number;
   content?: string | null;
   mdxPath?: string | null;
@@ -1861,6 +1908,7 @@ export type LessonUpdateWithoutQuizAttemptsInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string;
   title?: Prisma.StringFieldUpdateOperationsInput | string;
   type?: Prisma.EnumLessonTypeFieldUpdateOperationsInput | $Enums.LessonType;
+  labVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   order?: Prisma.IntFieldUpdateOperationsInput | number;
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   mdxPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -1890,6 +1938,7 @@ export type LessonUncheckedUpdateWithoutQuizAttemptsInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string;
   title?: Prisma.StringFieldUpdateOperationsInput | string;
   type?: Prisma.EnumLessonTypeFieldUpdateOperationsInput | $Enums.LessonType;
+  labVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   order?: Prisma.IntFieldUpdateOperationsInput | number;
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   mdxPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -1917,6 +1966,7 @@ export type LessonCreateWithoutReviewCardsInput = {
   slug: string;
   title: string;
   type: $Enums.LessonType;
+  labVariant?: string | null;
   order?: number;
   content?: string | null;
   mdxPath?: string | null;
@@ -1944,6 +1994,7 @@ export type LessonUncheckedCreateWithoutReviewCardsInput = {
   slug: string;
   title: string;
   type: $Enums.LessonType;
+  labVariant?: string | null;
   order?: number;
   content?: string | null;
   mdxPath?: string | null;
@@ -1997,6 +2048,7 @@ export type LessonUpdateWithoutReviewCardsInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string;
   title?: Prisma.StringFieldUpdateOperationsInput | string;
   type?: Prisma.EnumLessonTypeFieldUpdateOperationsInput | $Enums.LessonType;
+  labVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   order?: Prisma.IntFieldUpdateOperationsInput | number;
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   mdxPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -2026,6 +2078,7 @@ export type LessonUncheckedUpdateWithoutReviewCardsInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string;
   title?: Prisma.StringFieldUpdateOperationsInput | string;
   type?: Prisma.EnumLessonTypeFieldUpdateOperationsInput | $Enums.LessonType;
+  labVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   order?: Prisma.IntFieldUpdateOperationsInput | number;
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   mdxPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -2053,6 +2106,7 @@ export type LessonCreateManyModuleInput = {
   slug: string;
   title: string;
   type: $Enums.LessonType;
+  labVariant?: string | null;
   order?: number;
   content?: string | null;
   mdxPath?: string | null;
@@ -2072,6 +2126,7 @@ export type LessonUpdateWithoutModuleInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string;
   title?: Prisma.StringFieldUpdateOperationsInput | string;
   type?: Prisma.EnumLessonTypeFieldUpdateOperationsInput | $Enums.LessonType;
+  labVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   order?: Prisma.IntFieldUpdateOperationsInput | number;
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   mdxPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -2100,6 +2155,7 @@ export type LessonUncheckedUpdateWithoutModuleInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string;
   title?: Prisma.StringFieldUpdateOperationsInput | string;
   type?: Prisma.EnumLessonTypeFieldUpdateOperationsInput | $Enums.LessonType;
+  labVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   order?: Prisma.IntFieldUpdateOperationsInput | number;
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   mdxPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -2128,6 +2184,7 @@ export type LessonUncheckedUpdateManyWithoutModuleInput = {
   slug?: Prisma.StringFieldUpdateOperationsInput | string;
   title?: Prisma.StringFieldUpdateOperationsInput | string;
   type?: Prisma.EnumLessonTypeFieldUpdateOperationsInput | $Enums.LessonType;
+  labVariant?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   order?: Prisma.IntFieldUpdateOperationsInput | number;
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   mdxPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
@@ -2243,6 +2300,7 @@ export type LessonSelect<
     slug?: boolean;
     title?: boolean;
     type?: boolean;
+    labVariant?: boolean;
     order?: boolean;
     content?: boolean;
     mdxPath?: boolean;
@@ -2277,6 +2335,7 @@ export type LessonSelectCreateManyAndReturn<
     slug?: boolean;
     title?: boolean;
     type?: boolean;
+    labVariant?: boolean;
     order?: boolean;
     content?: boolean;
     mdxPath?: boolean;
@@ -2303,6 +2362,7 @@ export type LessonSelectUpdateManyAndReturn<
     slug?: boolean;
     title?: boolean;
     type?: boolean;
+    labVariant?: boolean;
     order?: boolean;
     content?: boolean;
     mdxPath?: boolean;
@@ -2326,6 +2386,7 @@ export type LessonSelectScalar = {
   slug?: boolean;
   title?: boolean;
   type?: boolean;
+  labVariant?: boolean;
   order?: boolean;
   content?: boolean;
   mdxPath?: boolean;
@@ -2348,6 +2409,7 @@ export type LessonOmit<
   | "slug"
   | "title"
   | "type"
+  | "labVariant"
   | "order"
   | "content"
   | "mdxPath"
@@ -2407,6 +2469,7 @@ export type $LessonPayload<
       slug: string;
       title: string;
       type: $Enums.LessonType;
+      labVariant: string | null;
       order: number;
       content: string | null;
       mdxPath: string | null;
@@ -3058,6 +3121,7 @@ export interface LessonFieldRefs {
   readonly slug: Prisma.FieldRef<"Lesson", "String">;
   readonly title: Prisma.FieldRef<"Lesson", "String">;
   readonly type: Prisma.FieldRef<"Lesson", "LessonType">;
+  readonly labVariant: Prisma.FieldRef<"Lesson", "String">;
   readonly order: Prisma.FieldRef<"Lesson", "Int">;
   readonly content: Prisma.FieldRef<"Lesson", "String">;
   readonly mdxPath: Prisma.FieldRef<"Lesson", "String">;

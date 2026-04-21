@@ -28,14 +28,15 @@ export async function POST(request: Request) {
     where: { id: lessonId },
     select: {
       id: true,
-      module: { select: { courseId: true, course: { select: { finalizedAt: true } } } },
+      lessonGenerationStatus: true,
+      module: { select: { courseId: true } },
     },
   });
   if (!lesson) return new Response("Lesson not found", { status: 404 });
 
-  // RULE: AG-01 — reflection progress blocked until course finalizes
-  if (!canConsume(lesson.module.course)) {
-    return Response.json({ reason: "course_not_finalized" }, { status: 409 });
+  // RULE: AG-01 — reflection progress gated on per-lesson READY status
+  if (!canConsume(lesson)) {
+    return Response.json({ reason: "lesson_not_ready" }, { status: 403 });
   }
 
   const enrollment = await db.enrollment.findUnique({

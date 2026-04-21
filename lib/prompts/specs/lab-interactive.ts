@@ -189,15 +189,25 @@ export async function generateInteractiveLab(ctx: {
   const configSchemaShape = describeConfigSchema(templateId);
   const tool = buildCtfLabTool(template.description, configSchemaShape);
 
-  const raw = await callAnthropicJson({
+  const callArgs = {
     specName: "lab-interactive",
-    model: "claude-sonnet-4-6",
+    model: "claude-sonnet-4-6" as const,
     maxTokens: 3000,
     system: buildSystemBlocks(template.description),
     userMessage: buildUserMessage(ctx, templateId, template.description, configSchemaShape),
     tool,
     schema: InteractiveLabOutputSchema,
-  });
+  };
+
+  let raw: InteractiveLabOutput;
+  try {
+    raw = await callAnthropicJson(callArgs);
+  } catch (err) {
+    // Model occasionally omits `config` from tool response despite being required — retry once.
+    const isConfigMissing = err instanceof Error && err.message.includes('"config"');
+    if (!isConfigMissing) throw err;
+    raw = await callAnthropicJson(callArgs);
+  }
 
   // RULE: AI-01 — additionally validate config against the template's own configSchema
   // Note: configSchema is already defined with .strict() in the registry (RULE LAB-05)

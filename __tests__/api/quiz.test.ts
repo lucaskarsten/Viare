@@ -42,7 +42,7 @@ describe("POST /api/quiz/[lessonId]/attempt", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(db.lesson.findUnique).mockResolvedValue({
-      module: { course: { finalizedAt: new Date() } },
+      lessonGenerationStatus: "READY",
     } as never);
     vi.mocked(db.quizAttempt.create).mockResolvedValue({} as never);
     vi.mocked(db.userProgress.upsert).mockResolvedValue({} as never);

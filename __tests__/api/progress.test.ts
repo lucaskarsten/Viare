@@ -56,6 +56,7 @@ const MOCK_LESSON = {
   id: "lesson-1",
   type: "THEORY",
   content: null,
+  lessonGenerationStatus: "READY",
   module: { courseId: "course-1", course: { language: "pt" } },
 };
 

@@ -1,6 +1,7 @@
 import { auth } from "@/lib/dev-auth";
 import { db } from "@/lib/db";
 import { generateSingleLesson } from "@/lib/generation";
+import { classifyGeneratedContent } from "@/lib/content-safety";
 import { after } from "next/server";
 
 export const runtime = "nodejs";
@@ -46,6 +47,7 @@ export async function POST(
       id: true,
       title: true,
       type: true,
+      labVariant: true,
       courseId: true,
       module: { select: { title: true, order: true } },
     },
@@ -61,7 +63,7 @@ export async function POST(
     const existing = await db.lesson.findFirst({
       where: {
         idempotencyKey,
-        lessonGenerationStatus: "DONE",
+        lessonGenerationStatus: "READY",
         updatedAt: { gte: new Date(Date.now() - 60_000) },
       },
       select: { id: true },
@@ -143,15 +145,24 @@ export async function POST(
       moduleTitle: lesson.module.title,
       lessonTitle: lesson.title,
       maturityRating: course.maturityRating as "GENERAL" | "MATURE",
+      labVariant: (lesson.labVariant as "CTF" | "INTERACTIVE" | undefined) ?? undefined,
       lessonOrdinal,
     });
+
+    // RULE: CS-01 — classify inline; clean→READY, blocked→FAILED; exceptions rethrow into catch
+    const generated = await db.lesson.findUnique({
+      where: { id: lessonId },
+      select: { content: true },
+    });
+    const classifyResult = classifyGeneratedContent(generated?.content ?? "");
+    const isSafe = classifyResult.verdict === "clean";
 
     await db.lesson.update({
       where: { id: lessonId },
       data: {
-        lessonGenerationStatus: "DONE",
+        lessonGenerationStatus: isSafe ? "READY" : "FAILED",
         claimedAt: null,
-        lastGenerationError: null,
+        lastGenerationError: isSafe ? null : `content_safety_${classifyResult.verdict}`,
         ...(idempotencyKey ? { idempotencyKey } : {}),
       },
     });

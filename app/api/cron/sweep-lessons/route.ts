@@ -108,11 +108,11 @@ export async function GET(req: Request) {
       }
     }
 
-    // 6. Auto-finalize when every lesson is DONE (finalize endpoint created in Phase 3)
-    const notDoneCount = await db.lesson.count({
-      where: { courseId: course.id, lessonGenerationStatus: { not: "DONE" } },
+    // 6. Auto-finalize when every lesson is READY
+    const notReadyCount = await db.lesson.count({
+      where: { courseId: course.id, lessonGenerationStatus: { not: "READY" } },
     });
-    if (notDoneCount === 0) {
+    if (notReadyCount === 0) {
       finalizeUrls.push(`${baseUrl}/api/courses/${course.slug}/finalize`);
     } else {
       // All-FAILED terminal state: no PENDING/GENERATING lessons remain but some are FAILED.

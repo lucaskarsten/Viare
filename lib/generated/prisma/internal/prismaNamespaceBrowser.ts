@@ -199,6 +199,7 @@ export const LessonScalarFieldEnum = {
   slug: "slug",
   title: "title",
   type: "type",
+  labVariant: "labVariant",
   order: "order",
   content: "content",
   mdxPath: "mdxPath",

@@ -24,7 +24,8 @@ import { db } from "@/lib/db";
 const MOCK_SESSION = { user: { id: "user-1", role: "STUDENT" } };
 const MOCK_LESSON = {
   id: "lesson-1",
-  module: { courseId: "course-1", course: { finalizedAt: new Date() } },
+  lessonGenerationStatus: "READY",
+  module: { courseId: "course-1" },
 };
 const LONG_CONTENT = "a".repeat(50);
 

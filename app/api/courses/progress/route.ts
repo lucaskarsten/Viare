@@ -49,16 +49,17 @@ export async function POST(request: Request) {
       id: true,
       type: true,
       content: true,
+      lessonGenerationStatus: true,
       module: {
-        select: { courseId: true, course: { select: { language: true, finalizedAt: true } } },
+        select: { courseId: true, course: { select: { language: true } } },
       },
     },
   });
   if (!lesson) return new Response("Lesson not found", { status: 404 });
 
-  // RULE: AG-01 — progress writes blocked until course finalizes
-  if (!canConsume(lesson.module.course)) {
-    return Response.json({ reason: "course_not_finalized" }, { status: 409 });
+  // RULE: AG-01 — progress writes gated on per-lesson READY status
+  if (!canConsume(lesson)) {
+    return Response.json({ reason: "lesson_not_ready" }, { status: 403 });
   }
 
   const courseId = lesson.module.courseId;
@@ -80,13 +81,18 @@ export async function POST(request: Request) {
   }
 
   const [totalLessons, completedLessons] = await Promise.all([
-    db.lesson.count({ where: { module: { courseId } } }),
+    db.lesson.count({ where: { module: { courseId }, lessonGenerationStatus: "READY" } }),
     db.userProgress.count({
-      where: { userId: session.user.id, status: "COMPLETED", lesson: { module: { courseId } } },
+      where: {
+        userId: session.user.id,
+        status: "COMPLETED",
+        lesson: { module: { courseId }, lessonGenerationStatus: "READY" },
+      },
     }),
   ]);
 
-  const newPercent = totalLessons > 0 ? Math.round((completedLessons / totalLessons) * 100) : 0;
+  const newPercent =
+    totalLessons > 0 ? Math.min(100, Math.round((completedLessons / totalLessons) * 100)) : 0;
   // RULE: PROG-01 — forward-only progress
   const progressPercent = forwardOnlyPercent(enrollment.progressPercent, newPercent);
   const status = progressPercent === 100 ? "COMPLETED" : "IN_PROGRESS";
