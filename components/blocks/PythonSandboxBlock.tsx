@@ -1,58 +1,66 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 
-interface PyodideInterface {
-  runPythonAsync(code: string): Promise<unknown>;
-  setStdout(opts: { batched: (s: string) => void }): void;
-  setStderr(opts: { batched: (s: string) => void }): void;
-}
-
-declare global {
-  interface Window {
-    loadPyodide?: (opts: { indexURL: string }) => Promise<PyodideInterface>;
-  }
-}
-
-const PYODIDE_CDN = "https://cdn.jsdelivr.net/pyodide/v0.27.0/full/";
-const DEFAULT_CODE = 'print("Olá, mundo!")';
+const TIMEOUT_MS = 15_000;
 
 interface Props {
   initialCode?: string;
 }
 
 export default function PythonSandboxBlock({ initialCode }: Props) {
-  const [code, setCode] = useState(initialCode ?? DEFAULT_CODE);
+  const [code, setCode] = useState(initialCode ?? 'print("Olá, mundo!")');
   const [output, setOutput] = useState("");
-  const [pyodideReady, setPyodideReady] = useState(false);
   const [running, setRunning] = useState(false);
-  const pyRef = useRef<PyodideInterface | null>(null);
+  const workerRef = useRef<Worker | null>(null);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => {
-    const script = document.createElement("script");
-    script.src = `${PYODIDE_CDN}pyodide.js`;
-    script.onload = async () => {
-      if (!window.loadPyodide) return;
-      pyRef.current = await window.loadPyodide({ indexURL: PYODIDE_CDN });
-      setPyodideReady(true);
-    };
-    document.head.appendChild(script);
-    return () => script.remove();
-  }, []);
-
-  async function run() {
-    const py = pyRef.current;
-    if (!py) return;
-    setRunning(true);
-    const lines: string[] = [];
-    py.setStdout({ batched: (s) => lines.push(s) });
-    py.setStderr({ batched: (s) => lines.push(`Erro: ${s}`) });
-    try {
-      await py.runPythonAsync(code);
-    } catch (e) {
-      lines.push(`Erro: ${String(e)}`);
+  function getWorker(): Worker {
+    if (!workerRef.current) {
+      workerRef.current = new Worker("/pyodide-worker.js");
     }
-    setOutput(lines.join("\n") || "(sem saída)");
+    return workerRef.current;
+  }
+
+  function terminateWorker() {
+    workerRef.current?.terminate();
+    workerRef.current = null;
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+  }
+
+  function run() {
+    setRunning(true);
+    setOutput("Carregando Python…");
+    const worker = getWorker();
+    const id = Date.now();
+
+    worker.onmessage = (e) => {
+      if (e.data.id !== id) return;
+      clearTimeout(timeoutRef.current!);
+      terminateWorker();
+      setOutput(e.data.error ? `Erro: ${e.data.error}` : e.data.output);
+      setRunning(false);
+    };
+
+    worker.onerror = (e) => {
+      clearTimeout(timeoutRef.current!);
+      terminateWorker();
+      setOutput(`Erro: ${e.message || "falha no worker"}`);
+      setRunning(false);
+    };
+
+    timeoutRef.current = setTimeout(() => {
+      terminateWorker();
+      setOutput("Erro: tempo de execução excedido (15s)");
+      setRunning(false);
+    }, TIMEOUT_MS);
+
+    worker.postMessage({ id, code });
+  }
+
+  function stop() {
+    terminateWorker();
+    setOutput("Execução interrompida.");
     setRunning(false);
   }
 
@@ -65,9 +73,15 @@ export default function PythonSandboxBlock({ initialCode }: Props) {
         spellCheck={false}
         rows={8}
       />
-      <button className="python-sandbox-run" onClick={run} disabled={!pyodideReady || running}>
-        {running ? "Executando…" : pyodideReady ? "▶ Executar" : "Carregando Python…"}
-      </button>
+      {running ? (
+        <button className="python-sandbox-run" onClick={stop}>
+          Parar
+        </button>
+      ) : (
+        <button className="python-sandbox-run" onClick={run}>
+          ▶ Executar
+        </button>
+      )}
       {output && <pre className="python-sandbox-output">{output}</pre>}
     </div>
   );
