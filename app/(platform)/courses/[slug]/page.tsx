@@ -233,6 +233,15 @@ export default async function CoursePage({ params }: { params: Params }) {
                 <strong className="font-medium tabular-nums text-foreground">{moduleCount}</strong>
               </li>
             </ul>
+            {progressPct === 100 && (
+              <a
+                href={`/api/courses/${slug}/certificate`}
+                download={`certificado-${slug}.pdf`}
+                className="mt-5 w-full text-center text-[13px] px-3 py-2 rounded border border-border text-muted-foreground no-underline hover:text-foreground hover:border-foreground/30 transition-colors block"
+              >
+                Baixar Certificado
+              </a>
+            )}
           </aside>
         </div>
       </div>

@@ -156,6 +156,15 @@ export default async function LessonPage({ params }: { params: Params }) {
       ? await getLabForUser(lesson.lab.id, session.user.id)
       : null;
 
+  const flashcards =
+    lesson.type === "THEORY"
+      ? await db.reviewCard.findMany({
+          where: { userId: session.user.id, lessonId },
+          orderBy: { createdAt: "asc" },
+          select: { front: true, back: true },
+        })
+      : [];
+
   // REFLECTION-type lessons render via ReflectionBlock (no markdown body, custom UX).
   if (lesson.type === "REFLECTION") {
     const t = await getTranslations("lesson");
@@ -307,7 +316,7 @@ export default async function LessonPage({ params }: { params: Params }) {
       prevLessonHref={prevLessonHref}
       nextLessonHref={nextLessonHref}
       quizQuestions={quizQuestions}
-      flashcards={[]}
+      flashcards={flashcards}
       summaryPoints={summaryPoints}
       lab={labData}
       isPro={userIsPro}

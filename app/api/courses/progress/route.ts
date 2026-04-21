@@ -77,7 +77,10 @@ export async function POST(request: Request) {
   });
 
   if (lesson.type === "THEORY" && lesson.content) {
-    void generateFlashcards(lessonId, session.user.id, lesson.content, language);
+    const _content = lesson.content;
+    after(async () => {
+      await generateFlashcards(lessonId, session.user.id, _content, language);
+    });
   }
 
   const [totalLessons, completedLessons] = await Promise.all([
