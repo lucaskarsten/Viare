@@ -13,6 +13,7 @@ vi.mock("@/lib/db", () => ({
     labAttempt: { create: vi.fn(), count: vi.fn() },
     userProgress: { upsert: vi.fn(), count: vi.fn() },
     lesson: { count: vi.fn() },
+    course: { findUnique: vi.fn() },
   },
 }));
 
@@ -50,6 +51,7 @@ describe("LAB-01 — flagHash isolation", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(auth).mockResolvedValue(SESSION as never);
+    vi.mocked(db.course.findUnique).mockResolvedValue({ finalizedAt: new Date() } as never);
   });
 
   it("GET /labs/[labId]: campo flagHash ausente no JSON retornado", async () => {

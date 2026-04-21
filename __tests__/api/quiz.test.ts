@@ -9,6 +9,7 @@ vi.mock("@/lib/dev-auth", () => ({
 
 vi.mock("@/lib/db", () => ({
   db: {
+    lesson: { findUnique: vi.fn() },
     quizQuestion: { findMany: vi.fn() },
     quizAttempt: { create: vi.fn() },
     userProgress: { upsert: vi.fn() },
@@ -40,6 +41,9 @@ function makeRequest(body: unknown) {
 describe("POST /api/quiz/[lessonId]/attempt", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.mocked(db.lesson.findUnique).mockResolvedValue({
+      module: { course: { finalizedAt: new Date() } },
+    } as never);
     vi.mocked(db.quizAttempt.create).mockResolvedValue({} as never);
     vi.mocked(db.userProgress.upsert).mockResolvedValue({} as never);
   });

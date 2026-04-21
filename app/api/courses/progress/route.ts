@@ -6,6 +6,7 @@ import { z } from "zod";
 import { generateFlashcards as generateFlashcardsSpec } from "@/lib/prompts/specs/flashcards";
 import { issueCertificate } from "@/lib/certificates";
 import { forwardOnlyPercent } from "@/lib/progress";
+import { canConsume } from "@/lib/access/lesson-gate";
 
 const BodySchema = z.object({ lessonId: z.string() });
 
@@ -48,10 +49,17 @@ export async function POST(request: Request) {
       id: true,
       type: true,
       content: true,
-      module: { select: { courseId: true, course: { select: { language: true } } } },
+      module: {
+        select: { courseId: true, course: { select: { language: true, finalizedAt: true } } },
+      },
     },
   });
   if (!lesson) return new Response("Lesson not found", { status: 404 });
+
+  // RULE: AG-01 — progress writes blocked until course finalizes
+  if (!canConsume(lesson.module.course)) {
+    return Response.json({ reason: "course_not_finalized" }, { status: 409 });
+  }
 
   const courseId = lesson.module.courseId;
   const language = lesson.module.course.language ?? "pt";

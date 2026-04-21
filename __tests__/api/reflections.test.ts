@@ -22,7 +22,10 @@ import { db } from "@/lib/db";
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 const MOCK_SESSION = { user: { id: "user-1", role: "STUDENT" } };
-const MOCK_LESSON = { id: "lesson-1", module: { courseId: "course-1" } };
+const MOCK_LESSON = {
+  id: "lesson-1",
+  module: { courseId: "course-1", course: { finalizedAt: new Date() } },
+};
 const LONG_CONTENT = "a".repeat(50);
 
 function makePostRequest(body: unknown) {

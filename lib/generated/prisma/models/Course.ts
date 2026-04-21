@@ -31,6 +31,7 @@ export type CourseAvgAggregateOutputType = {
   totalRatings: number | null;
   totalEnrollments: number | null;
   enrichCount: number | null;
+  generatingLessonCount: number | null;
 };
 
 export type CourseSumAggregateOutputType = {
@@ -39,6 +40,7 @@ export type CourseSumAggregateOutputType = {
   totalRatings: number | null;
   totalEnrollments: number | null;
   enrichCount: number | null;
+  generatingLessonCount: number | null;
 };
 
 export type CourseMinAggregateOutputType = {
@@ -65,6 +67,8 @@ export type CourseMinAggregateOutputType = {
   requiresReview: boolean | null;
   maturityRating: $Enums.MaturityRating | null;
   reviewReason: $Enums.ReviewReason | null;
+  generatingLessonCount: number | null;
+  finalizedAt: Date | null;
   createdAt: Date | null;
   updatedAt: Date | null;
 };
@@ -93,6 +97,8 @@ export type CourseMaxAggregateOutputType = {
   requiresReview: boolean | null;
   maturityRating: $Enums.MaturityRating | null;
   reviewReason: $Enums.ReviewReason | null;
+  generatingLessonCount: number | null;
+  finalizedAt: Date | null;
   createdAt: Date | null;
   updatedAt: Date | null;
 };
@@ -122,6 +128,8 @@ export type CourseCountAggregateOutputType = {
   requiresReview: number;
   maturityRating: number;
   reviewReason: number;
+  generatingLessonCount: number;
+  finalizedAt: number;
   createdAt: number;
   updatedAt: number;
   _all: number;
@@ -133,6 +141,7 @@ export type CourseAvgAggregateInputType = {
   totalRatings?: true;
   totalEnrollments?: true;
   enrichCount?: true;
+  generatingLessonCount?: true;
 };
 
 export type CourseSumAggregateInputType = {
@@ -141,6 +150,7 @@ export type CourseSumAggregateInputType = {
   totalRatings?: true;
   totalEnrollments?: true;
   enrichCount?: true;
+  generatingLessonCount?: true;
 };
 
 export type CourseMinAggregateInputType = {
@@ -167,6 +177,8 @@ export type CourseMinAggregateInputType = {
   requiresReview?: true;
   maturityRating?: true;
   reviewReason?: true;
+  generatingLessonCount?: true;
+  finalizedAt?: true;
   createdAt?: true;
   updatedAt?: true;
 };
@@ -195,6 +207,8 @@ export type CourseMaxAggregateInputType = {
   requiresReview?: true;
   maturityRating?: true;
   reviewReason?: true;
+  generatingLessonCount?: true;
+  finalizedAt?: true;
   createdAt?: true;
   updatedAt?: true;
 };
@@ -224,6 +238,8 @@ export type CourseCountAggregateInputType = {
   requiresReview?: true;
   maturityRating?: true;
   reviewReason?: true;
+  generatingLessonCount?: true;
+  finalizedAt?: true;
   createdAt?: true;
   updatedAt?: true;
   _all?: true;
@@ -341,6 +357,8 @@ export type CourseGroupByOutputType = {
   requiresReview: boolean;
   maturityRating: $Enums.MaturityRating;
   reviewReason: $Enums.ReviewReason | null;
+  generatingLessonCount: number;
+  finalizedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
   _count: CourseCountAggregateOutputType | null;
@@ -390,6 +408,8 @@ export type CourseWhereInput = {
   requiresReview?: Prisma.BoolFilter<"Course"> | boolean;
   maturityRating?: Prisma.EnumMaturityRatingFilter<"Course"> | $Enums.MaturityRating;
   reviewReason?: Prisma.EnumReviewReasonNullableFilter<"Course"> | $Enums.ReviewReason | null;
+  generatingLessonCount?: Prisma.IntFilter<"Course"> | number;
+  finalizedAt?: Prisma.DateTimeNullableFilter<"Course"> | Date | string | null;
   createdAt?: Prisma.DateTimeFilter<"Course"> | Date | string;
   updatedAt?: Prisma.DateTimeFilter<"Course"> | Date | string;
   createdBy?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>;
@@ -428,6 +448,8 @@ export type CourseOrderByWithRelationInput = {
   requiresReview?: Prisma.SortOrder;
   maturityRating?: Prisma.SortOrder;
   reviewReason?: Prisma.SortOrderInput | Prisma.SortOrder;
+  generatingLessonCount?: Prisma.SortOrder;
+  finalizedAt?: Prisma.SortOrderInput | Prisma.SortOrder;
   createdAt?: Prisma.SortOrder;
   updatedAt?: Prisma.SortOrder;
   createdBy?: Prisma.UserOrderByWithRelationInput;
@@ -467,6 +489,8 @@ export type CourseWhereUniqueInput = Prisma.AtLeast<
     requiresReview?: Prisma.BoolFilter<"Course"> | boolean;
     maturityRating?: Prisma.EnumMaturityRatingFilter<"Course"> | $Enums.MaturityRating;
     reviewReason?: Prisma.EnumReviewReasonNullableFilter<"Course"> | $Enums.ReviewReason | null;
+    generatingLessonCount?: Prisma.IntFilter<"Course"> | number;
+    finalizedAt?: Prisma.DateTimeNullableFilter<"Course"> | Date | string | null;
     createdAt?: Prisma.DateTimeFilter<"Course"> | Date | string;
     updatedAt?: Prisma.DateTimeFilter<"Course"> | Date | string;
     createdBy?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>;
@@ -507,6 +531,8 @@ export type CourseOrderByWithAggregationInput = {
   requiresReview?: Prisma.SortOrder;
   maturityRating?: Prisma.SortOrder;
   reviewReason?: Prisma.SortOrderInput | Prisma.SortOrder;
+  generatingLessonCount?: Prisma.SortOrder;
+  finalizedAt?: Prisma.SortOrderInput | Prisma.SortOrder;
   createdAt?: Prisma.SortOrder;
   updatedAt?: Prisma.SortOrder;
   _count?: Prisma.CourseCountOrderByAggregateInput;
@@ -547,6 +573,8 @@ export type CourseScalarWhereWithAggregatesInput = {
     | Prisma.EnumReviewReasonNullableWithAggregatesFilter<"Course">
     | $Enums.ReviewReason
     | null;
+  generatingLessonCount?: Prisma.IntWithAggregatesFilter<"Course"> | number;
+  finalizedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Course"> | Date | string | null;
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Course"> | Date | string;
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Course"> | Date | string;
 };
@@ -574,6 +602,8 @@ export type CourseCreateInput = {
   requiresReview?: boolean;
   maturityRating?: $Enums.MaturityRating;
   reviewReason?: $Enums.ReviewReason | null;
+  generatingLessonCount?: number;
+  finalizedAt?: Date | string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   createdBy: Prisma.UserCreateNestedOneWithoutCoursesInput;
@@ -609,6 +639,8 @@ export type CourseUncheckedCreateInput = {
   requiresReview?: boolean;
   maturityRating?: $Enums.MaturityRating;
   reviewReason?: $Enums.ReviewReason | null;
+  generatingLessonCount?: number;
+  finalizedAt?: Date | string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   forks?: Prisma.CourseUncheckedCreateNestedManyWithoutParentCourseInput;
@@ -643,6 +675,8 @@ export type CourseUpdateInput = {
     | Prisma.NullableEnumReviewReasonFieldUpdateOperationsInput
     | $Enums.ReviewReason
     | null;
+  generatingLessonCount?: Prisma.IntFieldUpdateOperationsInput | number;
+  finalizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   createdBy?: Prisma.UserUpdateOneRequiredWithoutCoursesNestedInput;
@@ -681,6 +715,8 @@ export type CourseUncheckedUpdateInput = {
     | Prisma.NullableEnumReviewReasonFieldUpdateOperationsInput
     | $Enums.ReviewReason
     | null;
+  generatingLessonCount?: Prisma.IntFieldUpdateOperationsInput | number;
+  finalizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   forks?: Prisma.CourseUncheckedUpdateManyWithoutParentCourseNestedInput;
@@ -714,6 +750,8 @@ export type CourseCreateManyInput = {
   requiresReview?: boolean;
   maturityRating?: $Enums.MaturityRating;
   reviewReason?: $Enums.ReviewReason | null;
+  generatingLessonCount?: number;
+  finalizedAt?: Date | string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
 };
@@ -744,6 +782,8 @@ export type CourseUpdateManyMutationInput = {
     | Prisma.NullableEnumReviewReasonFieldUpdateOperationsInput
     | $Enums.ReviewReason
     | null;
+  generatingLessonCount?: Prisma.IntFieldUpdateOperationsInput | number;
+  finalizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
 };
@@ -776,6 +816,8 @@ export type CourseUncheckedUpdateManyInput = {
     | Prisma.NullableEnumReviewReasonFieldUpdateOperationsInput
     | $Enums.ReviewReason
     | null;
+  generatingLessonCount?: Prisma.IntFieldUpdateOperationsInput | number;
+  finalizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
 };
@@ -828,6 +870,8 @@ export type CourseCountOrderByAggregateInput = {
   requiresReview?: Prisma.SortOrder;
   maturityRating?: Prisma.SortOrder;
   reviewReason?: Prisma.SortOrder;
+  generatingLessonCount?: Prisma.SortOrder;
+  finalizedAt?: Prisma.SortOrder;
   createdAt?: Prisma.SortOrder;
   updatedAt?: Prisma.SortOrder;
 };
@@ -838,6 +882,7 @@ export type CourseAvgOrderByAggregateInput = {
   totalRatings?: Prisma.SortOrder;
   totalEnrollments?: Prisma.SortOrder;
   enrichCount?: Prisma.SortOrder;
+  generatingLessonCount?: Prisma.SortOrder;
 };
 
 export type CourseMaxOrderByAggregateInput = {
@@ -864,6 +909,8 @@ export type CourseMaxOrderByAggregateInput = {
   requiresReview?: Prisma.SortOrder;
   maturityRating?: Prisma.SortOrder;
   reviewReason?: Prisma.SortOrder;
+  generatingLessonCount?: Prisma.SortOrder;
+  finalizedAt?: Prisma.SortOrder;
   createdAt?: Prisma.SortOrder;
   updatedAt?: Prisma.SortOrder;
 };
@@ -892,6 +939,8 @@ export type CourseMinOrderByAggregateInput = {
   requiresReview?: Prisma.SortOrder;
   maturityRating?: Prisma.SortOrder;
   reviewReason?: Prisma.SortOrder;
+  generatingLessonCount?: Prisma.SortOrder;
+  finalizedAt?: Prisma.SortOrder;
   createdAt?: Prisma.SortOrder;
   updatedAt?: Prisma.SortOrder;
 };
@@ -902,6 +951,7 @@ export type CourseSumOrderByAggregateInput = {
   totalRatings?: Prisma.SortOrder;
   totalEnrollments?: Prisma.SortOrder;
   enrichCount?: Prisma.SortOrder;
+  generatingLessonCount?: Prisma.SortOrder;
 };
 
 export type CourseScalarRelationFilter = {
@@ -1267,6 +1317,8 @@ export type CourseCreateWithoutCreatedByInput = {
   requiresReview?: boolean;
   maturityRating?: $Enums.MaturityRating;
   reviewReason?: $Enums.ReviewReason | null;
+  generatingLessonCount?: number;
+  finalizedAt?: Date | string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   parentCourse?: Prisma.CourseCreateNestedOneWithoutForksInput;
@@ -1300,6 +1352,8 @@ export type CourseUncheckedCreateWithoutCreatedByInput = {
   requiresReview?: boolean;
   maturityRating?: $Enums.MaturityRating;
   reviewReason?: $Enums.ReviewReason | null;
+  generatingLessonCount?: number;
+  finalizedAt?: Date | string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   forks?: Prisma.CourseUncheckedCreateNestedManyWithoutParentCourseInput;
@@ -1377,6 +1431,8 @@ export type CourseScalarWhereInput = {
   requiresReview?: Prisma.BoolFilter<"Course"> | boolean;
   maturityRating?: Prisma.EnumMaturityRatingFilter<"Course"> | $Enums.MaturityRating;
   reviewReason?: Prisma.EnumReviewReasonNullableFilter<"Course"> | $Enums.ReviewReason | null;
+  generatingLessonCount?: Prisma.IntFilter<"Course"> | number;
+  finalizedAt?: Prisma.DateTimeNullableFilter<"Course"> | Date | string | null;
   createdAt?: Prisma.DateTimeFilter<"Course"> | Date | string;
   updatedAt?: Prisma.DateTimeFilter<"Course"> | Date | string;
 };
@@ -1404,6 +1460,8 @@ export type CourseCreateWithoutForksInput = {
   requiresReview?: boolean;
   maturityRating?: $Enums.MaturityRating;
   reviewReason?: $Enums.ReviewReason | null;
+  generatingLessonCount?: number;
+  finalizedAt?: Date | string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   createdBy: Prisma.UserCreateNestedOneWithoutCoursesInput;
@@ -1438,6 +1496,8 @@ export type CourseUncheckedCreateWithoutForksInput = {
   requiresReview?: boolean;
   maturityRating?: $Enums.MaturityRating;
   reviewReason?: $Enums.ReviewReason | null;
+  generatingLessonCount?: number;
+  finalizedAt?: Date | string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   modules?: Prisma.ModuleUncheckedCreateNestedManyWithoutCourseInput;
@@ -1476,6 +1536,8 @@ export type CourseCreateWithoutParentCourseInput = {
   requiresReview?: boolean;
   maturityRating?: $Enums.MaturityRating;
   reviewReason?: $Enums.ReviewReason | null;
+  generatingLessonCount?: number;
+  finalizedAt?: Date | string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   createdBy: Prisma.UserCreateNestedOneWithoutCoursesInput;
@@ -1509,6 +1571,8 @@ export type CourseUncheckedCreateWithoutParentCourseInput = {
   requiresReview?: boolean;
   maturityRating?: $Enums.MaturityRating;
   reviewReason?: $Enums.ReviewReason | null;
+  generatingLessonCount?: number;
+  finalizedAt?: Date | string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   forks?: Prisma.CourseUncheckedCreateNestedManyWithoutParentCourseInput;
@@ -1576,6 +1640,8 @@ export type CourseUpdateWithoutForksInput = {
     | Prisma.NullableEnumReviewReasonFieldUpdateOperationsInput
     | $Enums.ReviewReason
     | null;
+  generatingLessonCount?: Prisma.IntFieldUpdateOperationsInput | number;
+  finalizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   createdBy?: Prisma.UserUpdateOneRequiredWithoutCoursesNestedInput;
@@ -1613,6 +1679,8 @@ export type CourseUncheckedUpdateWithoutForksInput = {
     | Prisma.NullableEnumReviewReasonFieldUpdateOperationsInput
     | $Enums.ReviewReason
     | null;
+  generatingLessonCount?: Prisma.IntFieldUpdateOperationsInput | number;
+  finalizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   modules?: Prisma.ModuleUncheckedUpdateManyWithoutCourseNestedInput;
@@ -1671,6 +1739,8 @@ export type CourseCreateWithoutModulesInput = {
   requiresReview?: boolean;
   maturityRating?: $Enums.MaturityRating;
   reviewReason?: $Enums.ReviewReason | null;
+  generatingLessonCount?: number;
+  finalizedAt?: Date | string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   createdBy: Prisma.UserCreateNestedOneWithoutCoursesInput;
@@ -1705,6 +1775,8 @@ export type CourseUncheckedCreateWithoutModulesInput = {
   requiresReview?: boolean;
   maturityRating?: $Enums.MaturityRating;
   reviewReason?: $Enums.ReviewReason | null;
+  generatingLessonCount?: number;
+  finalizedAt?: Date | string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   forks?: Prisma.CourseUncheckedCreateNestedManyWithoutParentCourseInput;
@@ -1766,6 +1838,8 @@ export type CourseUpdateWithoutModulesInput = {
     | Prisma.NullableEnumReviewReasonFieldUpdateOperationsInput
     | $Enums.ReviewReason
     | null;
+  generatingLessonCount?: Prisma.IntFieldUpdateOperationsInput | number;
+  finalizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   createdBy?: Prisma.UserUpdateOneRequiredWithoutCoursesNestedInput;
@@ -1803,6 +1877,8 @@ export type CourseUncheckedUpdateWithoutModulesInput = {
     | Prisma.NullableEnumReviewReasonFieldUpdateOperationsInput
     | $Enums.ReviewReason
     | null;
+  generatingLessonCount?: Prisma.IntFieldUpdateOperationsInput | number;
+  finalizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   forks?: Prisma.CourseUncheckedUpdateManyWithoutParentCourseNestedInput;
@@ -1833,6 +1909,8 @@ export type CourseCreateWithoutEnrollmentsInput = {
   requiresReview?: boolean;
   maturityRating?: $Enums.MaturityRating;
   reviewReason?: $Enums.ReviewReason | null;
+  generatingLessonCount?: number;
+  finalizedAt?: Date | string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   createdBy: Prisma.UserCreateNestedOneWithoutCoursesInput;
@@ -1867,6 +1945,8 @@ export type CourseUncheckedCreateWithoutEnrollmentsInput = {
   requiresReview?: boolean;
   maturityRating?: $Enums.MaturityRating;
   reviewReason?: $Enums.ReviewReason | null;
+  generatingLessonCount?: number;
+  finalizedAt?: Date | string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   forks?: Prisma.CourseUncheckedCreateNestedManyWithoutParentCourseInput;
@@ -1928,6 +2008,8 @@ export type CourseUpdateWithoutEnrollmentsInput = {
     | Prisma.NullableEnumReviewReasonFieldUpdateOperationsInput
     | $Enums.ReviewReason
     | null;
+  generatingLessonCount?: Prisma.IntFieldUpdateOperationsInput | number;
+  finalizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   createdBy?: Prisma.UserUpdateOneRequiredWithoutCoursesNestedInput;
@@ -1965,6 +2047,8 @@ export type CourseUncheckedUpdateWithoutEnrollmentsInput = {
     | Prisma.NullableEnumReviewReasonFieldUpdateOperationsInput
     | $Enums.ReviewReason
     | null;
+  generatingLessonCount?: Prisma.IntFieldUpdateOperationsInput | number;
+  finalizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   forks?: Prisma.CourseUncheckedUpdateManyWithoutParentCourseNestedInput;
@@ -1995,6 +2079,8 @@ export type CourseCreateWithoutCertificatesInput = {
   requiresReview?: boolean;
   maturityRating?: $Enums.MaturityRating;
   reviewReason?: $Enums.ReviewReason | null;
+  generatingLessonCount?: number;
+  finalizedAt?: Date | string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   createdBy: Prisma.UserCreateNestedOneWithoutCoursesInput;
@@ -2029,6 +2115,8 @@ export type CourseUncheckedCreateWithoutCertificatesInput = {
   requiresReview?: boolean;
   maturityRating?: $Enums.MaturityRating;
   reviewReason?: $Enums.ReviewReason | null;
+  generatingLessonCount?: number;
+  finalizedAt?: Date | string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   forks?: Prisma.CourseUncheckedCreateNestedManyWithoutParentCourseInput;
@@ -2090,6 +2178,8 @@ export type CourseUpdateWithoutCertificatesInput = {
     | Prisma.NullableEnumReviewReasonFieldUpdateOperationsInput
     | $Enums.ReviewReason
     | null;
+  generatingLessonCount?: Prisma.IntFieldUpdateOperationsInput | number;
+  finalizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   createdBy?: Prisma.UserUpdateOneRequiredWithoutCoursesNestedInput;
@@ -2127,6 +2217,8 @@ export type CourseUncheckedUpdateWithoutCertificatesInput = {
     | Prisma.NullableEnumReviewReasonFieldUpdateOperationsInput
     | $Enums.ReviewReason
     | null;
+  generatingLessonCount?: Prisma.IntFieldUpdateOperationsInput | number;
+  finalizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   forks?: Prisma.CourseUncheckedUpdateManyWithoutParentCourseNestedInput;
@@ -2158,6 +2250,8 @@ export type CourseCreateManyCreatedByInput = {
   requiresReview?: boolean;
   maturityRating?: $Enums.MaturityRating;
   reviewReason?: $Enums.ReviewReason | null;
+  generatingLessonCount?: number;
+  finalizedAt?: Date | string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
 };
@@ -2188,6 +2282,8 @@ export type CourseUpdateWithoutCreatedByInput = {
     | Prisma.NullableEnumReviewReasonFieldUpdateOperationsInput
     | $Enums.ReviewReason
     | null;
+  generatingLessonCount?: Prisma.IntFieldUpdateOperationsInput | number;
+  finalizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   parentCourse?: Prisma.CourseUpdateOneWithoutForksNestedInput;
@@ -2224,6 +2320,8 @@ export type CourseUncheckedUpdateWithoutCreatedByInput = {
     | Prisma.NullableEnumReviewReasonFieldUpdateOperationsInput
     | $Enums.ReviewReason
     | null;
+  generatingLessonCount?: Prisma.IntFieldUpdateOperationsInput | number;
+  finalizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   forks?: Prisma.CourseUncheckedUpdateManyWithoutParentCourseNestedInput;
@@ -2259,6 +2357,8 @@ export type CourseUncheckedUpdateManyWithoutCreatedByInput = {
     | Prisma.NullableEnumReviewReasonFieldUpdateOperationsInput
     | $Enums.ReviewReason
     | null;
+  generatingLessonCount?: Prisma.IntFieldUpdateOperationsInput | number;
+  finalizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
 };
@@ -2287,6 +2387,8 @@ export type CourseCreateManyParentCourseInput = {
   requiresReview?: boolean;
   maturityRating?: $Enums.MaturityRating;
   reviewReason?: $Enums.ReviewReason | null;
+  generatingLessonCount?: number;
+  finalizedAt?: Date | string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
 };
@@ -2317,6 +2419,8 @@ export type CourseUpdateWithoutParentCourseInput = {
     | Prisma.NullableEnumReviewReasonFieldUpdateOperationsInput
     | $Enums.ReviewReason
     | null;
+  generatingLessonCount?: Prisma.IntFieldUpdateOperationsInput | number;
+  finalizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   createdBy?: Prisma.UserUpdateOneRequiredWithoutCoursesNestedInput;
@@ -2353,6 +2457,8 @@ export type CourseUncheckedUpdateWithoutParentCourseInput = {
     | Prisma.NullableEnumReviewReasonFieldUpdateOperationsInput
     | $Enums.ReviewReason
     | null;
+  generatingLessonCount?: Prisma.IntFieldUpdateOperationsInput | number;
+  finalizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   forks?: Prisma.CourseUncheckedUpdateManyWithoutParentCourseNestedInput;
@@ -2388,6 +2494,8 @@ export type CourseUncheckedUpdateManyWithoutParentCourseInput = {
     | Prisma.NullableEnumReviewReasonFieldUpdateOperationsInput
     | $Enums.ReviewReason
     | null;
+  generatingLessonCount?: Prisma.IntFieldUpdateOperationsInput | number;
+  finalizedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
 };
@@ -2488,6 +2596,8 @@ export type CourseSelect<
     requiresReview?: boolean;
     maturityRating?: boolean;
     reviewReason?: boolean;
+    generatingLessonCount?: boolean;
+    finalizedAt?: boolean;
     createdAt?: boolean;
     updatedAt?: boolean;
     createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>;
@@ -2529,6 +2639,8 @@ export type CourseSelectCreateManyAndReturn<
     requiresReview?: boolean;
     maturityRating?: boolean;
     reviewReason?: boolean;
+    generatingLessonCount?: boolean;
+    finalizedAt?: boolean;
     createdAt?: boolean;
     updatedAt?: boolean;
     createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>;
@@ -2565,6 +2677,8 @@ export type CourseSelectUpdateManyAndReturn<
     requiresReview?: boolean;
     maturityRating?: boolean;
     reviewReason?: boolean;
+    generatingLessonCount?: boolean;
+    finalizedAt?: boolean;
     createdAt?: boolean;
     updatedAt?: boolean;
     createdBy?: boolean | Prisma.UserDefaultArgs<ExtArgs>;
@@ -2598,6 +2712,8 @@ export type CourseSelectScalar = {
   requiresReview?: boolean;
   maturityRating?: boolean;
   reviewReason?: boolean;
+  generatingLessonCount?: boolean;
+  finalizedAt?: boolean;
   createdAt?: boolean;
   updatedAt?: boolean;
 };
@@ -2629,6 +2745,8 @@ export type CourseOmit<
   | "requiresReview"
   | "maturityRating"
   | "reviewReason"
+  | "generatingLessonCount"
+  | "finalizedAt"
   | "createdAt"
   | "updatedAt",
   ExtArgs["result"]["course"]
@@ -2695,6 +2813,8 @@ export type $CoursePayload<
       requiresReview: boolean;
       maturityRating: $Enums.MaturityRating;
       reviewReason: $Enums.ReviewReason | null;
+      generatingLessonCount: number;
+      finalizedAt: Date | null;
       createdAt: Date;
       updatedAt: Date;
     },
@@ -3333,6 +3453,8 @@ export interface CourseFieldRefs {
   readonly requiresReview: Prisma.FieldRef<"Course", "Boolean">;
   readonly maturityRating: Prisma.FieldRef<"Course", "MaturityRating">;
   readonly reviewReason: Prisma.FieldRef<"Course", "ReviewReason">;
+  readonly generatingLessonCount: Prisma.FieldRef<"Course", "Int">;
+  readonly finalizedAt: Prisma.FieldRef<"Course", "DateTime">;
   readonly createdAt: Prisma.FieldRef<"Course", "DateTime">;
   readonly updatedAt: Prisma.FieldRef<"Course", "DateTime">;
 }

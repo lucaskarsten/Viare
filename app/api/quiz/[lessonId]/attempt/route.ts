@@ -2,6 +2,7 @@ import { auth } from "@/lib/dev-auth";
 import { db } from "@/lib/db";
 import { z } from "zod";
 import { NextResponse } from "next/server";
+import { canConsume } from "@/lib/access/lesson-gate";
 
 type Params = Promise<{ lessonId: string }>;
 
@@ -18,6 +19,16 @@ export async function POST(request: Request, { params }: { params: Params }) {
   const { lessonId } = await params;
   const session = await auth();
   if (!session?.user?.id) return new Response("Unauthorized", { status: 401 });
+
+  // RULE: AG-02 — quiz completion blocked until course finalizes
+  const lessonForGate = await db.lesson.findUnique({
+    where: { id: lessonId },
+    select: { module: { select: { course: { select: { finalizedAt: true } } } } },
+  });
+  if (!lessonForGate) return new Response("Not found", { status: 404 });
+  if (!canConsume(lessonForGate.module.course)) {
+    return Response.json({ reason: "course_not_finalized" }, { status: 409 });
+  }
 
   const body = await request.json();
   const parsed = BodySchema.safeParse(body);

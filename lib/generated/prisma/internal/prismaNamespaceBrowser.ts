@@ -169,6 +169,8 @@ export const CourseScalarFieldEnum = {
   requiresReview: "requiresReview",
   maturityRating: "maturityRating",
   reviewReason: "reviewReason",
+  generatingLessonCount: "generatingLessonCount",
+  finalizedAt: "finalizedAt",
   createdAt: "createdAt",
   updatedAt: "updatedAt",
 } as const;
@@ -193,6 +195,7 @@ export type ModuleScalarFieldEnum =
 export const LessonScalarFieldEnum = {
   id: "id",
   moduleId: "moduleId",
+  courseId: "courseId",
   slug: "slug",
   title: "title",
   type: "type",
@@ -200,6 +203,11 @@ export const LessonScalarFieldEnum = {
   content: "content",
   mdxPath: "mdxPath",
   generationFailed: "generationFailed",
+  lessonGenerationStatus: "lessonGenerationStatus",
+  claimedAt: "claimedAt",
+  generationAttempts: "generationAttempts",
+  lastGenerationError: "lastGenerationError",
+  idempotencyKey: "idempotencyKey",
   createdAt: "createdAt",
   updatedAt: "updatedAt",
 } as const;

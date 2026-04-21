@@ -2,6 +2,7 @@ import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/dev-auth";
 import { db } from "@/lib/db";
 import { forwardOnlyPercent } from "@/lib/progress";
+import { canConsume } from "@/lib/access/lesson-gate";
 
 export async function POST(req: Request, { params }: { params: Promise<{ labId: string }> }) {
   // RULE: AUTH-01 — userId from session only
@@ -23,7 +24,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ labId: 
           module: {
             select: {
               course: {
-                select: { slug: true, id: true },
+                select: { slug: true, id: true, finalizedAt: true },
               },
             },
           },
@@ -43,6 +44,11 @@ export async function POST(req: Request, { params }: { params: Promise<{ labId: 
 
   const courseId = lab.lesson.module.course.id;
   const courseSlug = lab.lesson.module.course.slug;
+
+  // RULE: LAB-01 — interactive lab completion blocked until course finalizes
+  if (!canConsume(lab.lesson.module.course)) {
+    return Response.json({ reason: "course_not_finalized" }, { status: 409 });
+  }
 
   const enrollment = await db.enrollment.findUnique({
     where: { userId_courseId: { userId: session.user.id, courseId } },

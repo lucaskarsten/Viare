@@ -14,6 +14,7 @@ vi.mock("@/lib/db", () => ({
     labAttempt: { create: vi.fn(), count: vi.fn() },
     userProgress: { upsert: vi.fn(), count: vi.fn() },
     lesson: { count: vi.fn() },
+    course: { findUnique: vi.fn() },
   },
 }));
 
@@ -46,6 +47,7 @@ function setupBase(correct: boolean) {
     id: "enrollment-1",
     progressPercent: 0,
   } as never);
+  vi.mocked(db.course.findUnique).mockResolvedValue({ finalizedAt: new Date() } as never);
   vi.mocked(validateFlag).mockResolvedValue(correct);
   vi.mocked(db.labAttempt.create).mockResolvedValue({} as never);
   vi.mocked(db.labAttempt.count).mockResolvedValue(1);

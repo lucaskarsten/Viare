@@ -101,6 +101,9 @@ model Course {
   requiresReview   Boolean        @default(false) // RULE: CONTENT-03 — flagged for manual review
   maturityRating   MaturityRating @default(GENERAL) // RULE: CONTENT-06 — maturity classification for age gate
   reviewReason     ReviewReason?  // RULE: CONTENT-03/CONTENT-09 — reason requiresReview was flagged
+  // Lesson-chunked generation tracking
+  generatingLessonCount Int       @default(0) // advisory mutex counter; reconciled by Cron every 2 min
+  finalizedAt           DateTime? // set after content-safety pass; gates all consumption surfaces
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
 
@@ -131,15 +134,21 @@ model Module {
 model Lesson {
   id        String     @id @default(cuid())
   moduleId  String
+  courseId  String? // denormalized from module.courseId; backfilled on migration, set on all new lessons
   slug      String
   title     String
   type      LessonType
   order     Int        @default(0)
-  content         String?  @db.Text // AI-generated markdown content
-  mdxPath         String? // path for manually-authored MDX lessons
-  generationFailed Boolean @default(false) // RULE: CONTENT-06 — set when model refused mature topic after retry
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  content              String?  @db.Text // AI-generated markdown content
+  mdxPath              String? // path for manually-authored MDX lessons
+  generationFailed     Boolean  @default(false) // RULE: CONTENT-06 — set when model refused mature topic after retry
+  lessonGenerationStatus LessonGenerationStatus @default(PENDING)
+  claimedAt              DateTime? // set when a producer starts generating; cleared on DONE/FAILED
+  generationAttempts     Int       @default(0)
+  lastGenerationError    String?
+  idempotencyKey         String?   @unique // client-supplied key for dedup within 60s
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
 
   module        Module         @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   progress      UserProgress[]
@@ -151,6 +160,7 @@ model Lesson {
   reflections   ReflectionResponse[]
 
   @@unique([moduleId, slug])
+  @@index([courseId, lessonGenerationStatus])
 }
 
 model ReflectionResponse {
@@ -528,4 +538,11 @@ enum MaturityRating {
 enum ReviewReason {
   CONTENT_RESTRICTED
   GENERATION_INCOMPLETE
+}
+
+enum LessonGenerationStatus {
+  PENDING
+  GENERATING
+  DONE
+  FAILED
 }

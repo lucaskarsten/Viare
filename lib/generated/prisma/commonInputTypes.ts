@@ -373,6 +373,19 @@ export type EnumLessonTypeFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumLessonTypeFilter<$PrismaModel> | $Enums.LessonType;
 };
 
+export type EnumLessonGenerationStatusFilter<$PrismaModel = never> = {
+  equals?:
+    | $Enums.LessonGenerationStatus
+    | Prisma.EnumLessonGenerationStatusFieldRefInput<$PrismaModel>;
+  in?:
+    | $Enums.LessonGenerationStatus[]
+    | Prisma.ListEnumLessonGenerationStatusFieldRefInput<$PrismaModel>;
+  notIn?:
+    | $Enums.LessonGenerationStatus[]
+    | Prisma.ListEnumLessonGenerationStatusFieldRefInput<$PrismaModel>;
+  not?: Prisma.NestedEnumLessonGenerationStatusFilter<$PrismaModel> | $Enums.LessonGenerationStatus;
+};
+
 export type EnumLessonTypeWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.LessonType | Prisma.EnumLessonTypeFieldRefInput<$PrismaModel>;
   in?: $Enums.LessonType[] | Prisma.ListEnumLessonTypeFieldRefInput<$PrismaModel>;
@@ -381,6 +394,24 @@ export type EnumLessonTypeWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>;
   _min?: Prisma.NestedEnumLessonTypeFilter<$PrismaModel>;
   _max?: Prisma.NestedEnumLessonTypeFilter<$PrismaModel>;
+};
+
+export type EnumLessonGenerationStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?:
+    | $Enums.LessonGenerationStatus
+    | Prisma.EnumLessonGenerationStatusFieldRefInput<$PrismaModel>;
+  in?:
+    | $Enums.LessonGenerationStatus[]
+    | Prisma.ListEnumLessonGenerationStatusFieldRefInput<$PrismaModel>;
+  notIn?:
+    | $Enums.LessonGenerationStatus[]
+    | Prisma.ListEnumLessonGenerationStatusFieldRefInput<$PrismaModel>;
+  not?:
+    | Prisma.NestedEnumLessonGenerationStatusWithAggregatesFilter<$PrismaModel>
+    | $Enums.LessonGenerationStatus;
+  _count?: Prisma.NestedIntFilter<$PrismaModel>;
+  _min?: Prisma.NestedEnumLessonGenerationStatusFilter<$PrismaModel>;
+  _max?: Prisma.NestedEnumLessonGenerationStatusFilter<$PrismaModel>;
 };
 
 export type JsonFilter<$PrismaModel = never> =
@@ -996,6 +1027,19 @@ export type NestedEnumLessonTypeFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumLessonTypeFilter<$PrismaModel> | $Enums.LessonType;
 };
 
+export type NestedEnumLessonGenerationStatusFilter<$PrismaModel = never> = {
+  equals?:
+    | $Enums.LessonGenerationStatus
+    | Prisma.EnumLessonGenerationStatusFieldRefInput<$PrismaModel>;
+  in?:
+    | $Enums.LessonGenerationStatus[]
+    | Prisma.ListEnumLessonGenerationStatusFieldRefInput<$PrismaModel>;
+  notIn?:
+    | $Enums.LessonGenerationStatus[]
+    | Prisma.ListEnumLessonGenerationStatusFieldRefInput<$PrismaModel>;
+  not?: Prisma.NestedEnumLessonGenerationStatusFilter<$PrismaModel> | $Enums.LessonGenerationStatus;
+};
+
 export type NestedEnumLessonTypeWithAggregatesFilter<$PrismaModel = never> = {
   equals?: $Enums.LessonType | Prisma.EnumLessonTypeFieldRefInput<$PrismaModel>;
   in?: $Enums.LessonType[] | Prisma.ListEnumLessonTypeFieldRefInput<$PrismaModel>;
@@ -1004,6 +1048,24 @@ export type NestedEnumLessonTypeWithAggregatesFilter<$PrismaModel = never> = {
   _count?: Prisma.NestedIntFilter<$PrismaModel>;
   _min?: Prisma.NestedEnumLessonTypeFilter<$PrismaModel>;
   _max?: Prisma.NestedEnumLessonTypeFilter<$PrismaModel>;
+};
+
+export type NestedEnumLessonGenerationStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?:
+    | $Enums.LessonGenerationStatus
+    | Prisma.EnumLessonGenerationStatusFieldRefInput<$PrismaModel>;
+  in?:
+    | $Enums.LessonGenerationStatus[]
+    | Prisma.ListEnumLessonGenerationStatusFieldRefInput<$PrismaModel>;
+  notIn?:
+    | $Enums.LessonGenerationStatus[]
+    | Prisma.ListEnumLessonGenerationStatusFieldRefInput<$PrismaModel>;
+  not?:
+    | Prisma.NestedEnumLessonGenerationStatusWithAggregatesFilter<$PrismaModel>
+    | $Enums.LessonGenerationStatus;
+  _count?: Prisma.NestedIntFilter<$PrismaModel>;
+  _min?: Prisma.NestedEnumLessonGenerationStatusFilter<$PrismaModel>;
+  _max?: Prisma.NestedEnumLessonGenerationStatusFilter<$PrismaModel>;
 };
 
 export type NestedJsonFilter<$PrismaModel = never> =

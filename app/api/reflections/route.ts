@@ -1,6 +1,7 @@
 import { auth } from "@/lib/dev-auth";
 import { db } from "@/lib/db";
 import { z } from "zod";
+import { canConsume } from "@/lib/access/lesson-gate";
 
 const PostBodySchema = z.object({
   lessonId: z.string().min(1),
@@ -25,9 +26,17 @@ export async function POST(request: Request) {
 
   const lesson = await db.lesson.findUnique({
     where: { id: lessonId },
-    select: { id: true, module: { select: { courseId: true } } },
+    select: {
+      id: true,
+      module: { select: { courseId: true, course: { select: { finalizedAt: true } } } },
+    },
   });
   if (!lesson) return new Response("Lesson not found", { status: 404 });
+
+  // RULE: AG-01 — reflection progress blocked until course finalizes
+  if (!canConsume(lesson.module.course)) {
+    return Response.json({ reason: "course_not_finalized" }, { status: 409 });
+  }
 
   const enrollment = await db.enrollment.findUnique({
     where: {

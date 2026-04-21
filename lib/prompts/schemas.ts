@@ -16,7 +16,8 @@ export const DomainClassifierSchema = z.object({
   ]),
   sandboxTemplate: z
     .enum(["react", "react-ts", "vanilla", "vanilla-ts", "vue", "node", "static"])
-    .nullable(),
+    .nullable()
+    .catch(null),
   relevantDemos: z.array(z.string()),
   tone: z.enum(["technical", "practical", "conceptual"]),
   suggestedEmphasis: z.enum(["practice", "case_study", "balanced"]).default("balanced"),

@@ -3,6 +3,7 @@ import { auth } from "@/lib/dev-auth";
 import { db } from "@/lib/db";
 import { validateFlag } from "@/lib/lab";
 import { forwardOnlyPercent } from "@/lib/progress";
+import { canConsume } from "@/lib/access/lesson-gate";
 
 const SubmitSchema = z.object({
   flag: z.string().min(1),
@@ -40,6 +41,15 @@ export async function POST(req: Request, { params }: { params: Promise<{ labId: 
     where: { userId_courseId: { userId: session.user.id, courseId } },
   });
   if (!enrollment) return new Response("Not enrolled", { status: 403 });
+
+  // RULE: LAB-01 — lab submission blocked until course finalizes
+  const courseForGate = await db.course.findUnique({
+    where: { id: courseId },
+    select: { finalizedAt: true },
+  });
+  if (!courseForGate || !canConsume(courseForGate)) {
+    return Response.json({ reason: "course_not_finalized" }, { status: 409 });
+  }
 
   // RULE: LAB-03 — flag validation required before marking complete
   const correct = await validateFlag(flag, lab.flagHash);

@@ -469,6 +469,50 @@ export async function generateCourse(
   }
 }
 
+// ─── Single-lesson generation (Phase 1: lesson-chunked pipeline) ─────────────
+
+export type SingleLessonInput = {
+  lessonId: string;
+  lessonType: string;
+  language: string;
+  topic: string;
+  moduleTitle: string;
+  lessonTitle: string;
+  maturityRating?: "GENERAL" | "MATURE";
+  labVariant?: "CTF" | "INTERACTIVE";
+  lessonOrdinal: number;
+};
+
+// Generates content for a single lesson and persists it to the DB.
+// Callers own LessonGenerationStatus transitions and generatingLessonCount mutations.
+export async function generateSingleLesson(input: SingleLessonInput): Promise<void> {
+  const domainContext = await classifyDomain({ topic: input.topic });
+
+  const generator = LESSON_GENERATORS[input.lessonType] ?? LESSON_GENERATORS.THEORY!;
+  if (!LESSON_GENERATORS[input.lessonType]) {
+    console.warn(
+      JSON.stringify({
+        msg: "lesson_generator_missing_fallback_theory",
+        type: input.lessonType,
+        lessonId: input.lessonId,
+      })
+    );
+  }
+
+  await generator({
+    language: input.language,
+    topic: input.topic,
+    moduleTitle: input.moduleTitle,
+    lessonTitle: input.lessonTitle,
+    lessonId: input.lessonId,
+    domainContext,
+    generatedTextParts: [],
+    maturityRating: input.maturityRating,
+    labVariant: input.labVariant,
+    lessonOrdinal: input.lessonOrdinal,
+  });
+}
+
 export async function resumeCourse(
   courseId: string,
   userId: string,

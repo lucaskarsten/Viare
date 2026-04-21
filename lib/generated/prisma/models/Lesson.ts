@@ -27,15 +27,18 @@ export type AggregateLesson = {
 
 export type LessonAvgAggregateOutputType = {
   order: number | null;
+  generationAttempts: number | null;
 };
 
 export type LessonSumAggregateOutputType = {
   order: number | null;
+  generationAttempts: number | null;
 };
 
 export type LessonMinAggregateOutputType = {
   id: string | null;
   moduleId: string | null;
+  courseId: string | null;
   slug: string | null;
   title: string | null;
   type: $Enums.LessonType | null;
@@ -43,6 +46,11 @@ export type LessonMinAggregateOutputType = {
   content: string | null;
   mdxPath: string | null;
   generationFailed: boolean | null;
+  lessonGenerationStatus: $Enums.LessonGenerationStatus | null;
+  claimedAt: Date | null;
+  generationAttempts: number | null;
+  lastGenerationError: string | null;
+  idempotencyKey: string | null;
   createdAt: Date | null;
   updatedAt: Date | null;
 };
@@ -50,6 +58,7 @@ export type LessonMinAggregateOutputType = {
 export type LessonMaxAggregateOutputType = {
   id: string | null;
   moduleId: string | null;
+  courseId: string | null;
   slug: string | null;
   title: string | null;
   type: $Enums.LessonType | null;
@@ -57,6 +66,11 @@ export type LessonMaxAggregateOutputType = {
   content: string | null;
   mdxPath: string | null;
   generationFailed: boolean | null;
+  lessonGenerationStatus: $Enums.LessonGenerationStatus | null;
+  claimedAt: Date | null;
+  generationAttempts: number | null;
+  lastGenerationError: string | null;
+  idempotencyKey: string | null;
   createdAt: Date | null;
   updatedAt: Date | null;
 };
@@ -64,6 +78,7 @@ export type LessonMaxAggregateOutputType = {
 export type LessonCountAggregateOutputType = {
   id: number;
   moduleId: number;
+  courseId: number;
   slug: number;
   title: number;
   type: number;
@@ -71,6 +86,11 @@ export type LessonCountAggregateOutputType = {
   content: number;
   mdxPath: number;
   generationFailed: number;
+  lessonGenerationStatus: number;
+  claimedAt: number;
+  generationAttempts: number;
+  lastGenerationError: number;
+  idempotencyKey: number;
   createdAt: number;
   updatedAt: number;
   _all: number;
@@ -78,15 +98,18 @@ export type LessonCountAggregateOutputType = {
 
 export type LessonAvgAggregateInputType = {
   order?: true;
+  generationAttempts?: true;
 };
 
 export type LessonSumAggregateInputType = {
   order?: true;
+  generationAttempts?: true;
 };
 
 export type LessonMinAggregateInputType = {
   id?: true;
   moduleId?: true;
+  courseId?: true;
   slug?: true;
   title?: true;
   type?: true;
@@ -94,6 +117,11 @@ export type LessonMinAggregateInputType = {
   content?: true;
   mdxPath?: true;
   generationFailed?: true;
+  lessonGenerationStatus?: true;
+  claimedAt?: true;
+  generationAttempts?: true;
+  lastGenerationError?: true;
+  idempotencyKey?: true;
   createdAt?: true;
   updatedAt?: true;
 };
@@ -101,6 +129,7 @@ export type LessonMinAggregateInputType = {
 export type LessonMaxAggregateInputType = {
   id?: true;
   moduleId?: true;
+  courseId?: true;
   slug?: true;
   title?: true;
   type?: true;
@@ -108,6 +137,11 @@ export type LessonMaxAggregateInputType = {
   content?: true;
   mdxPath?: true;
   generationFailed?: true;
+  lessonGenerationStatus?: true;
+  claimedAt?: true;
+  generationAttempts?: true;
+  lastGenerationError?: true;
+  idempotencyKey?: true;
   createdAt?: true;
   updatedAt?: true;
 };
@@ -115,6 +149,7 @@ export type LessonMaxAggregateInputType = {
 export type LessonCountAggregateInputType = {
   id?: true;
   moduleId?: true;
+  courseId?: true;
   slug?: true;
   title?: true;
   type?: true;
@@ -122,6 +157,11 @@ export type LessonCountAggregateInputType = {
   content?: true;
   mdxPath?: true;
   generationFailed?: true;
+  lessonGenerationStatus?: true;
+  claimedAt?: true;
+  generationAttempts?: true;
+  lastGenerationError?: true;
+  idempotencyKey?: true;
   createdAt?: true;
   updatedAt?: true;
   _all?: true;
@@ -217,6 +257,7 @@ export type LessonGroupByArgs<
 export type LessonGroupByOutputType = {
   id: string;
   moduleId: string;
+  courseId: string | null;
   slug: string;
   title: string;
   type: $Enums.LessonType;
@@ -224,6 +265,11 @@ export type LessonGroupByOutputType = {
   content: string | null;
   mdxPath: string | null;
   generationFailed: boolean;
+  lessonGenerationStatus: $Enums.LessonGenerationStatus;
+  claimedAt: Date | null;
+  generationAttempts: number;
+  lastGenerationError: string | null;
+  idempotencyKey: string | null;
   createdAt: Date;
   updatedAt: Date;
   _count: LessonCountAggregateOutputType | null;
@@ -251,6 +297,7 @@ export type LessonWhereInput = {
   NOT?: Prisma.LessonWhereInput | Prisma.LessonWhereInput[];
   id?: Prisma.StringFilter<"Lesson"> | string;
   moduleId?: Prisma.StringFilter<"Lesson"> | string;
+  courseId?: Prisma.StringNullableFilter<"Lesson"> | string | null;
   slug?: Prisma.StringFilter<"Lesson"> | string;
   title?: Prisma.StringFilter<"Lesson"> | string;
   type?: Prisma.EnumLessonTypeFilter<"Lesson"> | $Enums.LessonType;
@@ -258,6 +305,13 @@ export type LessonWhereInput = {
   content?: Prisma.StringNullableFilter<"Lesson"> | string | null;
   mdxPath?: Prisma.StringNullableFilter<"Lesson"> | string | null;
   generationFailed?: Prisma.BoolFilter<"Lesson"> | boolean;
+  lessonGenerationStatus?:
+    | Prisma.EnumLessonGenerationStatusFilter<"Lesson">
+    | $Enums.LessonGenerationStatus;
+  claimedAt?: Prisma.DateTimeNullableFilter<"Lesson"> | Date | string | null;
+  generationAttempts?: Prisma.IntFilter<"Lesson"> | number;
+  lastGenerationError?: Prisma.StringNullableFilter<"Lesson"> | string | null;
+  idempotencyKey?: Prisma.StringNullableFilter<"Lesson"> | string | null;
   createdAt?: Prisma.DateTimeFilter<"Lesson"> | Date | string;
   updatedAt?: Prisma.DateTimeFilter<"Lesson"> | Date | string;
   module?: Prisma.XOR<Prisma.ModuleScalarRelationFilter, Prisma.ModuleWhereInput>;
@@ -273,6 +327,7 @@ export type LessonWhereInput = {
 export type LessonOrderByWithRelationInput = {
   id?: Prisma.SortOrder;
   moduleId?: Prisma.SortOrder;
+  courseId?: Prisma.SortOrderInput | Prisma.SortOrder;
   slug?: Prisma.SortOrder;
   title?: Prisma.SortOrder;
   type?: Prisma.SortOrder;
@@ -280,6 +335,11 @@ export type LessonOrderByWithRelationInput = {
   content?: Prisma.SortOrderInput | Prisma.SortOrder;
   mdxPath?: Prisma.SortOrderInput | Prisma.SortOrder;
   generationFailed?: Prisma.SortOrder;
+  lessonGenerationStatus?: Prisma.SortOrder;
+  claimedAt?: Prisma.SortOrderInput | Prisma.SortOrder;
+  generationAttempts?: Prisma.SortOrder;
+  lastGenerationError?: Prisma.SortOrderInput | Prisma.SortOrder;
+  idempotencyKey?: Prisma.SortOrderInput | Prisma.SortOrder;
   createdAt?: Prisma.SortOrder;
   updatedAt?: Prisma.SortOrder;
   module?: Prisma.ModuleOrderByWithRelationInput;
@@ -295,11 +355,13 @@ export type LessonOrderByWithRelationInput = {
 export type LessonWhereUniqueInput = Prisma.AtLeast<
   {
     id?: string;
+    idempotencyKey?: string;
     moduleId_slug?: Prisma.LessonModuleIdSlugCompoundUniqueInput;
     AND?: Prisma.LessonWhereInput | Prisma.LessonWhereInput[];
     OR?: Prisma.LessonWhereInput[];
     NOT?: Prisma.LessonWhereInput | Prisma.LessonWhereInput[];
     moduleId?: Prisma.StringFilter<"Lesson"> | string;
+    courseId?: Prisma.StringNullableFilter<"Lesson"> | string | null;
     slug?: Prisma.StringFilter<"Lesson"> | string;
     title?: Prisma.StringFilter<"Lesson"> | string;
     type?: Prisma.EnumLessonTypeFilter<"Lesson"> | $Enums.LessonType;
@@ -307,6 +369,12 @@ export type LessonWhereUniqueInput = Prisma.AtLeast<
     content?: Prisma.StringNullableFilter<"Lesson"> | string | null;
     mdxPath?: Prisma.StringNullableFilter<"Lesson"> | string | null;
     generationFailed?: Prisma.BoolFilter<"Lesson"> | boolean;
+    lessonGenerationStatus?:
+      | Prisma.EnumLessonGenerationStatusFilter<"Lesson">
+      | $Enums.LessonGenerationStatus;
+    claimedAt?: Prisma.DateTimeNullableFilter<"Lesson"> | Date | string | null;
+    generationAttempts?: Prisma.IntFilter<"Lesson"> | number;
+    lastGenerationError?: Prisma.StringNullableFilter<"Lesson"> | string | null;
     createdAt?: Prisma.DateTimeFilter<"Lesson"> | Date | string;
     updatedAt?: Prisma.DateTimeFilter<"Lesson"> | Date | string;
     module?: Prisma.XOR<Prisma.ModuleScalarRelationFilter, Prisma.ModuleWhereInput>;
@@ -318,12 +386,13 @@ export type LessonWhereUniqueInput = Prisma.AtLeast<
     projectSteps?: Prisma.ProjectStepListRelationFilter;
     reflections?: Prisma.ReflectionResponseListRelationFilter;
   },
-  "id" | "moduleId_slug"
+  "id" | "idempotencyKey" | "moduleId_slug"
 >;
 
 export type LessonOrderByWithAggregationInput = {
   id?: Prisma.SortOrder;
   moduleId?: Prisma.SortOrder;
+  courseId?: Prisma.SortOrderInput | Prisma.SortOrder;
   slug?: Prisma.SortOrder;
   title?: Prisma.SortOrder;
   type?: Prisma.SortOrder;
@@ -331,6 +400,11 @@ export type LessonOrderByWithAggregationInput = {
   content?: Prisma.SortOrderInput | Prisma.SortOrder;
   mdxPath?: Prisma.SortOrderInput | Prisma.SortOrder;
   generationFailed?: Prisma.SortOrder;
+  lessonGenerationStatus?: Prisma.SortOrder;
+  claimedAt?: Prisma.SortOrderInput | Prisma.SortOrder;
+  generationAttempts?: Prisma.SortOrder;
+  lastGenerationError?: Prisma.SortOrderInput | Prisma.SortOrder;
+  idempotencyKey?: Prisma.SortOrderInput | Prisma.SortOrder;
   createdAt?: Prisma.SortOrder;
   updatedAt?: Prisma.SortOrder;
   _count?: Prisma.LessonCountOrderByAggregateInput;
@@ -346,6 +420,7 @@ export type LessonScalarWhereWithAggregatesInput = {
   NOT?: Prisma.LessonScalarWhereWithAggregatesInput | Prisma.LessonScalarWhereWithAggregatesInput[];
   id?: Prisma.StringWithAggregatesFilter<"Lesson"> | string;
   moduleId?: Prisma.StringWithAggregatesFilter<"Lesson"> | string;
+  courseId?: Prisma.StringNullableWithAggregatesFilter<"Lesson"> | string | null;
   slug?: Prisma.StringWithAggregatesFilter<"Lesson"> | string;
   title?: Prisma.StringWithAggregatesFilter<"Lesson"> | string;
   type?: Prisma.EnumLessonTypeWithAggregatesFilter<"Lesson"> | $Enums.LessonType;
@@ -353,12 +428,20 @@ export type LessonScalarWhereWithAggregatesInput = {
   content?: Prisma.StringNullableWithAggregatesFilter<"Lesson"> | string | null;
   mdxPath?: Prisma.StringNullableWithAggregatesFilter<"Lesson"> | string | null;
   generationFailed?: Prisma.BoolWithAggregatesFilter<"Lesson"> | boolean;
+  lessonGenerationStatus?:
+    | Prisma.EnumLessonGenerationStatusWithAggregatesFilter<"Lesson">
+    | $Enums.LessonGenerationStatus;
+  claimedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Lesson"> | Date | string | null;
+  generationAttempts?: Prisma.IntWithAggregatesFilter<"Lesson"> | number;
+  lastGenerationError?: Prisma.StringNullableWithAggregatesFilter<"Lesson"> | string | null;
+  idempotencyKey?: Prisma.StringNullableWithAggregatesFilter<"Lesson"> | string | null;
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Lesson"> | Date | string;
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Lesson"> | Date | string;
 };
 
 export type LessonCreateInput = {
   id?: string;
+  courseId?: string | null;
   slug: string;
   title: string;
   type: $Enums.LessonType;
@@ -366,6 +449,11 @@ export type LessonCreateInput = {
   content?: string | null;
   mdxPath?: string | null;
   generationFailed?: boolean;
+  lessonGenerationStatus?: $Enums.LessonGenerationStatus;
+  claimedAt?: Date | string | null;
+  generationAttempts?: number;
+  lastGenerationError?: string | null;
+  idempotencyKey?: string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   module: Prisma.ModuleCreateNestedOneWithoutLessonsInput;
@@ -381,6 +469,7 @@ export type LessonCreateInput = {
 export type LessonUncheckedCreateInput = {
   id?: string;
   moduleId: string;
+  courseId?: string | null;
   slug: string;
   title: string;
   type: $Enums.LessonType;
@@ -388,6 +477,11 @@ export type LessonUncheckedCreateInput = {
   content?: string | null;
   mdxPath?: string | null;
   generationFailed?: boolean;
+  lessonGenerationStatus?: $Enums.LessonGenerationStatus;
+  claimedAt?: Date | string | null;
+  generationAttempts?: number;
+  lastGenerationError?: string | null;
+  idempotencyKey?: string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   progress?: Prisma.UserProgressUncheckedCreateNestedManyWithoutLessonInput;
@@ -401,6 +495,7 @@ export type LessonUncheckedCreateInput = {
 
 export type LessonUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
+  courseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   slug?: Prisma.StringFieldUpdateOperationsInput | string;
   title?: Prisma.StringFieldUpdateOperationsInput | string;
   type?: Prisma.EnumLessonTypeFieldUpdateOperationsInput | $Enums.LessonType;
@@ -408,6 +503,13 @@ export type LessonUpdateInput = {
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   mdxPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   generationFailed?: Prisma.BoolFieldUpdateOperationsInput | boolean;
+  lessonGenerationStatus?:
+    | Prisma.EnumLessonGenerationStatusFieldUpdateOperationsInput
+    | $Enums.LessonGenerationStatus;
+  claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+  generationAttempts?: Prisma.IntFieldUpdateOperationsInput | number;
+  lastGenerationError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   module?: Prisma.ModuleUpdateOneRequiredWithoutLessonsNestedInput;
@@ -423,6 +525,7 @@ export type LessonUpdateInput = {
 export type LessonUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   moduleId?: Prisma.StringFieldUpdateOperationsInput | string;
+  courseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   slug?: Prisma.StringFieldUpdateOperationsInput | string;
   title?: Prisma.StringFieldUpdateOperationsInput | string;
   type?: Prisma.EnumLessonTypeFieldUpdateOperationsInput | $Enums.LessonType;
@@ -430,6 +533,13 @@ export type LessonUncheckedUpdateInput = {
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   mdxPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   generationFailed?: Prisma.BoolFieldUpdateOperationsInput | boolean;
+  lessonGenerationStatus?:
+    | Prisma.EnumLessonGenerationStatusFieldUpdateOperationsInput
+    | $Enums.LessonGenerationStatus;
+  claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+  generationAttempts?: Prisma.IntFieldUpdateOperationsInput | number;
+  lastGenerationError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   progress?: Prisma.UserProgressUncheckedUpdateManyWithoutLessonNestedInput;
@@ -444,6 +554,7 @@ export type LessonUncheckedUpdateInput = {
 export type LessonCreateManyInput = {
   id?: string;
   moduleId: string;
+  courseId?: string | null;
   slug: string;
   title: string;
   type: $Enums.LessonType;
@@ -451,12 +562,18 @@ export type LessonCreateManyInput = {
   content?: string | null;
   mdxPath?: string | null;
   generationFailed?: boolean;
+  lessonGenerationStatus?: $Enums.LessonGenerationStatus;
+  claimedAt?: Date | string | null;
+  generationAttempts?: number;
+  lastGenerationError?: string | null;
+  idempotencyKey?: string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
 };
 
 export type LessonUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
+  courseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   slug?: Prisma.StringFieldUpdateOperationsInput | string;
   title?: Prisma.StringFieldUpdateOperationsInput | string;
   type?: Prisma.EnumLessonTypeFieldUpdateOperationsInput | $Enums.LessonType;
@@ -464,6 +581,13 @@ export type LessonUpdateManyMutationInput = {
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   mdxPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   generationFailed?: Prisma.BoolFieldUpdateOperationsInput | boolean;
+  lessonGenerationStatus?:
+    | Prisma.EnumLessonGenerationStatusFieldUpdateOperationsInput
+    | $Enums.LessonGenerationStatus;
+  claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+  generationAttempts?: Prisma.IntFieldUpdateOperationsInput | number;
+  lastGenerationError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
 };
@@ -471,6 +595,7 @@ export type LessonUpdateManyMutationInput = {
 export type LessonUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   moduleId?: Prisma.StringFieldUpdateOperationsInput | string;
+  courseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   slug?: Prisma.StringFieldUpdateOperationsInput | string;
   title?: Prisma.StringFieldUpdateOperationsInput | string;
   type?: Prisma.EnumLessonTypeFieldUpdateOperationsInput | $Enums.LessonType;
@@ -478,6 +603,13 @@ export type LessonUncheckedUpdateManyInput = {
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   mdxPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   generationFailed?: Prisma.BoolFieldUpdateOperationsInput | boolean;
+  lessonGenerationStatus?:
+    | Prisma.EnumLessonGenerationStatusFieldUpdateOperationsInput
+    | $Enums.LessonGenerationStatus;
+  claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+  generationAttempts?: Prisma.IntFieldUpdateOperationsInput | number;
+  lastGenerationError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
 };
@@ -500,6 +632,7 @@ export type LessonModuleIdSlugCompoundUniqueInput = {
 export type LessonCountOrderByAggregateInput = {
   id?: Prisma.SortOrder;
   moduleId?: Prisma.SortOrder;
+  courseId?: Prisma.SortOrder;
   slug?: Prisma.SortOrder;
   title?: Prisma.SortOrder;
   type?: Prisma.SortOrder;
@@ -507,17 +640,24 @@ export type LessonCountOrderByAggregateInput = {
   content?: Prisma.SortOrder;
   mdxPath?: Prisma.SortOrder;
   generationFailed?: Prisma.SortOrder;
+  lessonGenerationStatus?: Prisma.SortOrder;
+  claimedAt?: Prisma.SortOrder;
+  generationAttempts?: Prisma.SortOrder;
+  lastGenerationError?: Prisma.SortOrder;
+  idempotencyKey?: Prisma.SortOrder;
   createdAt?: Prisma.SortOrder;
   updatedAt?: Prisma.SortOrder;
 };
 
 export type LessonAvgOrderByAggregateInput = {
   order?: Prisma.SortOrder;
+  generationAttempts?: Prisma.SortOrder;
 };
 
 export type LessonMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder;
   moduleId?: Prisma.SortOrder;
+  courseId?: Prisma.SortOrder;
   slug?: Prisma.SortOrder;
   title?: Prisma.SortOrder;
   type?: Prisma.SortOrder;
@@ -525,6 +665,11 @@ export type LessonMaxOrderByAggregateInput = {
   content?: Prisma.SortOrder;
   mdxPath?: Prisma.SortOrder;
   generationFailed?: Prisma.SortOrder;
+  lessonGenerationStatus?: Prisma.SortOrder;
+  claimedAt?: Prisma.SortOrder;
+  generationAttempts?: Prisma.SortOrder;
+  lastGenerationError?: Prisma.SortOrder;
+  idempotencyKey?: Prisma.SortOrder;
   createdAt?: Prisma.SortOrder;
   updatedAt?: Prisma.SortOrder;
 };
@@ -532,6 +677,7 @@ export type LessonMaxOrderByAggregateInput = {
 export type LessonMinOrderByAggregateInput = {
   id?: Prisma.SortOrder;
   moduleId?: Prisma.SortOrder;
+  courseId?: Prisma.SortOrder;
   slug?: Prisma.SortOrder;
   title?: Prisma.SortOrder;
   type?: Prisma.SortOrder;
@@ -539,12 +685,18 @@ export type LessonMinOrderByAggregateInput = {
   content?: Prisma.SortOrder;
   mdxPath?: Prisma.SortOrder;
   generationFailed?: Prisma.SortOrder;
+  lessonGenerationStatus?: Prisma.SortOrder;
+  claimedAt?: Prisma.SortOrder;
+  generationAttempts?: Prisma.SortOrder;
+  lastGenerationError?: Prisma.SortOrder;
+  idempotencyKey?: Prisma.SortOrder;
   createdAt?: Prisma.SortOrder;
   updatedAt?: Prisma.SortOrder;
 };
 
 export type LessonSumOrderByAggregateInput = {
   order?: Prisma.SortOrder;
+  generationAttempts?: Prisma.SortOrder;
 };
 
 export type LessonScalarRelationFilter = {
@@ -640,6 +792,10 @@ export type LessonUncheckedUpdateManyWithoutModuleNestedInput = {
 
 export type EnumLessonTypeFieldUpdateOperationsInput = {
   set?: $Enums.LessonType;
+};
+
+export type EnumLessonGenerationStatusFieldUpdateOperationsInput = {
+  set?: $Enums.LessonGenerationStatus;
 };
 
 export type LessonCreateNestedOneWithoutReflectionsInput = {
@@ -826,6 +982,7 @@ export type LessonUpdateOneRequiredWithoutReviewCardsNestedInput = {
 
 export type LessonCreateWithoutModuleInput = {
   id?: string;
+  courseId?: string | null;
   slug: string;
   title: string;
   type: $Enums.LessonType;
@@ -833,6 +990,11 @@ export type LessonCreateWithoutModuleInput = {
   content?: string | null;
   mdxPath?: string | null;
   generationFailed?: boolean;
+  lessonGenerationStatus?: $Enums.LessonGenerationStatus;
+  claimedAt?: Date | string | null;
+  generationAttempts?: number;
+  lastGenerationError?: string | null;
+  idempotencyKey?: string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   progress?: Prisma.UserProgressCreateNestedManyWithoutLessonInput;
@@ -846,6 +1008,7 @@ export type LessonCreateWithoutModuleInput = {
 
 export type LessonUncheckedCreateWithoutModuleInput = {
   id?: string;
+  courseId?: string | null;
   slug: string;
   title: string;
   type: $Enums.LessonType;
@@ -853,6 +1016,11 @@ export type LessonUncheckedCreateWithoutModuleInput = {
   content?: string | null;
   mdxPath?: string | null;
   generationFailed?: boolean;
+  lessonGenerationStatus?: $Enums.LessonGenerationStatus;
+  claimedAt?: Date | string | null;
+  generationAttempts?: number;
+  lastGenerationError?: string | null;
+  idempotencyKey?: string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   progress?: Prisma.UserProgressUncheckedCreateNestedManyWithoutLessonInput;
@@ -911,6 +1079,7 @@ export type LessonScalarWhereInput = {
   NOT?: Prisma.LessonScalarWhereInput | Prisma.LessonScalarWhereInput[];
   id?: Prisma.StringFilter<"Lesson"> | string;
   moduleId?: Prisma.StringFilter<"Lesson"> | string;
+  courseId?: Prisma.StringNullableFilter<"Lesson"> | string | null;
   slug?: Prisma.StringFilter<"Lesson"> | string;
   title?: Prisma.StringFilter<"Lesson"> | string;
   type?: Prisma.EnumLessonTypeFilter<"Lesson"> | $Enums.LessonType;
@@ -918,12 +1087,20 @@ export type LessonScalarWhereInput = {
   content?: Prisma.StringNullableFilter<"Lesson"> | string | null;
   mdxPath?: Prisma.StringNullableFilter<"Lesson"> | string | null;
   generationFailed?: Prisma.BoolFilter<"Lesson"> | boolean;
+  lessonGenerationStatus?:
+    | Prisma.EnumLessonGenerationStatusFilter<"Lesson">
+    | $Enums.LessonGenerationStatus;
+  claimedAt?: Prisma.DateTimeNullableFilter<"Lesson"> | Date | string | null;
+  generationAttempts?: Prisma.IntFilter<"Lesson"> | number;
+  lastGenerationError?: Prisma.StringNullableFilter<"Lesson"> | string | null;
+  idempotencyKey?: Prisma.StringNullableFilter<"Lesson"> | string | null;
   createdAt?: Prisma.DateTimeFilter<"Lesson"> | Date | string;
   updatedAt?: Prisma.DateTimeFilter<"Lesson"> | Date | string;
 };
 
 export type LessonCreateWithoutReflectionsInput = {
   id?: string;
+  courseId?: string | null;
   slug: string;
   title: string;
   type: $Enums.LessonType;
@@ -931,6 +1108,11 @@ export type LessonCreateWithoutReflectionsInput = {
   content?: string | null;
   mdxPath?: string | null;
   generationFailed?: boolean;
+  lessonGenerationStatus?: $Enums.LessonGenerationStatus;
+  claimedAt?: Date | string | null;
+  generationAttempts?: number;
+  lastGenerationError?: string | null;
+  idempotencyKey?: string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   module: Prisma.ModuleCreateNestedOneWithoutLessonsInput;
@@ -945,6 +1127,7 @@ export type LessonCreateWithoutReflectionsInput = {
 export type LessonUncheckedCreateWithoutReflectionsInput = {
   id?: string;
   moduleId: string;
+  courseId?: string | null;
   slug: string;
   title: string;
   type: $Enums.LessonType;
@@ -952,6 +1135,11 @@ export type LessonUncheckedCreateWithoutReflectionsInput = {
   content?: string | null;
   mdxPath?: string | null;
   generationFailed?: boolean;
+  lessonGenerationStatus?: $Enums.LessonGenerationStatus;
+  claimedAt?: Date | string | null;
+  generationAttempts?: number;
+  lastGenerationError?: string | null;
+  idempotencyKey?: string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   progress?: Prisma.UserProgressUncheckedCreateNestedManyWithoutLessonInput;
@@ -992,6 +1180,7 @@ export type LessonUpdateToOneWithWhereWithoutReflectionsInput = {
 
 export type LessonUpdateWithoutReflectionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
+  courseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   slug?: Prisma.StringFieldUpdateOperationsInput | string;
   title?: Prisma.StringFieldUpdateOperationsInput | string;
   type?: Prisma.EnumLessonTypeFieldUpdateOperationsInput | $Enums.LessonType;
@@ -999,6 +1188,13 @@ export type LessonUpdateWithoutReflectionsInput = {
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   mdxPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   generationFailed?: Prisma.BoolFieldUpdateOperationsInput | boolean;
+  lessonGenerationStatus?:
+    | Prisma.EnumLessonGenerationStatusFieldUpdateOperationsInput
+    | $Enums.LessonGenerationStatus;
+  claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+  generationAttempts?: Prisma.IntFieldUpdateOperationsInput | number;
+  lastGenerationError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   module?: Prisma.ModuleUpdateOneRequiredWithoutLessonsNestedInput;
@@ -1013,6 +1209,7 @@ export type LessonUpdateWithoutReflectionsInput = {
 export type LessonUncheckedUpdateWithoutReflectionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   moduleId?: Prisma.StringFieldUpdateOperationsInput | string;
+  courseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   slug?: Prisma.StringFieldUpdateOperationsInput | string;
   title?: Prisma.StringFieldUpdateOperationsInput | string;
   type?: Prisma.EnumLessonTypeFieldUpdateOperationsInput | $Enums.LessonType;
@@ -1020,6 +1217,13 @@ export type LessonUncheckedUpdateWithoutReflectionsInput = {
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   mdxPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   generationFailed?: Prisma.BoolFieldUpdateOperationsInput | boolean;
+  lessonGenerationStatus?:
+    | Prisma.EnumLessonGenerationStatusFieldUpdateOperationsInput
+    | $Enums.LessonGenerationStatus;
+  claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+  generationAttempts?: Prisma.IntFieldUpdateOperationsInput | number;
+  lastGenerationError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   progress?: Prisma.UserProgressUncheckedUpdateManyWithoutLessonNestedInput;
@@ -1032,6 +1236,7 @@ export type LessonUncheckedUpdateWithoutReflectionsInput = {
 
 export type LessonCreateWithoutQuizQuestionsInput = {
   id?: string;
+  courseId?: string | null;
   slug: string;
   title: string;
   type: $Enums.LessonType;
@@ -1039,6 +1244,11 @@ export type LessonCreateWithoutQuizQuestionsInput = {
   content?: string | null;
   mdxPath?: string | null;
   generationFailed?: boolean;
+  lessonGenerationStatus?: $Enums.LessonGenerationStatus;
+  claimedAt?: Date | string | null;
+  generationAttempts?: number;
+  lastGenerationError?: string | null;
+  idempotencyKey?: string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   module: Prisma.ModuleCreateNestedOneWithoutLessonsInput;
@@ -1053,6 +1263,7 @@ export type LessonCreateWithoutQuizQuestionsInput = {
 export type LessonUncheckedCreateWithoutQuizQuestionsInput = {
   id?: string;
   moduleId: string;
+  courseId?: string | null;
   slug: string;
   title: string;
   type: $Enums.LessonType;
@@ -1060,6 +1271,11 @@ export type LessonUncheckedCreateWithoutQuizQuestionsInput = {
   content?: string | null;
   mdxPath?: string | null;
   generationFailed?: boolean;
+  lessonGenerationStatus?: $Enums.LessonGenerationStatus;
+  claimedAt?: Date | string | null;
+  generationAttempts?: number;
+  lastGenerationError?: string | null;
+  idempotencyKey?: string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   progress?: Prisma.UserProgressUncheckedCreateNestedManyWithoutLessonInput;
@@ -1100,6 +1316,7 @@ export type LessonUpdateToOneWithWhereWithoutQuizQuestionsInput = {
 
 export type LessonUpdateWithoutQuizQuestionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
+  courseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   slug?: Prisma.StringFieldUpdateOperationsInput | string;
   title?: Prisma.StringFieldUpdateOperationsInput | string;
   type?: Prisma.EnumLessonTypeFieldUpdateOperationsInput | $Enums.LessonType;
@@ -1107,6 +1324,13 @@ export type LessonUpdateWithoutQuizQuestionsInput = {
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   mdxPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   generationFailed?: Prisma.BoolFieldUpdateOperationsInput | boolean;
+  lessonGenerationStatus?:
+    | Prisma.EnumLessonGenerationStatusFieldUpdateOperationsInput
+    | $Enums.LessonGenerationStatus;
+  claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+  generationAttempts?: Prisma.IntFieldUpdateOperationsInput | number;
+  lastGenerationError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   module?: Prisma.ModuleUpdateOneRequiredWithoutLessonsNestedInput;
@@ -1121,6 +1345,7 @@ export type LessonUpdateWithoutQuizQuestionsInput = {
 export type LessonUncheckedUpdateWithoutQuizQuestionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   moduleId?: Prisma.StringFieldUpdateOperationsInput | string;
+  courseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   slug?: Prisma.StringFieldUpdateOperationsInput | string;
   title?: Prisma.StringFieldUpdateOperationsInput | string;
   type?: Prisma.EnumLessonTypeFieldUpdateOperationsInput | $Enums.LessonType;
@@ -1128,6 +1353,13 @@ export type LessonUncheckedUpdateWithoutQuizQuestionsInput = {
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   mdxPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   generationFailed?: Prisma.BoolFieldUpdateOperationsInput | boolean;
+  lessonGenerationStatus?:
+    | Prisma.EnumLessonGenerationStatusFieldUpdateOperationsInput
+    | $Enums.LessonGenerationStatus;
+  claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+  generationAttempts?: Prisma.IntFieldUpdateOperationsInput | number;
+  lastGenerationError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   progress?: Prisma.UserProgressUncheckedUpdateManyWithoutLessonNestedInput;
@@ -1140,6 +1372,7 @@ export type LessonUncheckedUpdateWithoutQuizQuestionsInput = {
 
 export type LessonCreateWithoutLabInput = {
   id?: string;
+  courseId?: string | null;
   slug: string;
   title: string;
   type: $Enums.LessonType;
@@ -1147,6 +1380,11 @@ export type LessonCreateWithoutLabInput = {
   content?: string | null;
   mdxPath?: string | null;
   generationFailed?: boolean;
+  lessonGenerationStatus?: $Enums.LessonGenerationStatus;
+  claimedAt?: Date | string | null;
+  generationAttempts?: number;
+  lastGenerationError?: string | null;
+  idempotencyKey?: string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   module: Prisma.ModuleCreateNestedOneWithoutLessonsInput;
@@ -1161,6 +1399,7 @@ export type LessonCreateWithoutLabInput = {
 export type LessonUncheckedCreateWithoutLabInput = {
   id?: string;
   moduleId: string;
+  courseId?: string | null;
   slug: string;
   title: string;
   type: $Enums.LessonType;
@@ -1168,6 +1407,11 @@ export type LessonUncheckedCreateWithoutLabInput = {
   content?: string | null;
   mdxPath?: string | null;
   generationFailed?: boolean;
+  lessonGenerationStatus?: $Enums.LessonGenerationStatus;
+  claimedAt?: Date | string | null;
+  generationAttempts?: number;
+  lastGenerationError?: string | null;
+  idempotencyKey?: string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   progress?: Prisma.UserProgressUncheckedCreateNestedManyWithoutLessonInput;
@@ -1205,6 +1449,7 @@ export type LessonUpdateToOneWithWhereWithoutLabInput = {
 
 export type LessonUpdateWithoutLabInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
+  courseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   slug?: Prisma.StringFieldUpdateOperationsInput | string;
   title?: Prisma.StringFieldUpdateOperationsInput | string;
   type?: Prisma.EnumLessonTypeFieldUpdateOperationsInput | $Enums.LessonType;
@@ -1212,6 +1457,13 @@ export type LessonUpdateWithoutLabInput = {
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   mdxPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   generationFailed?: Prisma.BoolFieldUpdateOperationsInput | boolean;
+  lessonGenerationStatus?:
+    | Prisma.EnumLessonGenerationStatusFieldUpdateOperationsInput
+    | $Enums.LessonGenerationStatus;
+  claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+  generationAttempts?: Prisma.IntFieldUpdateOperationsInput | number;
+  lastGenerationError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   module?: Prisma.ModuleUpdateOneRequiredWithoutLessonsNestedInput;
@@ -1226,6 +1478,7 @@ export type LessonUpdateWithoutLabInput = {
 export type LessonUncheckedUpdateWithoutLabInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   moduleId?: Prisma.StringFieldUpdateOperationsInput | string;
+  courseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   slug?: Prisma.StringFieldUpdateOperationsInput | string;
   title?: Prisma.StringFieldUpdateOperationsInput | string;
   type?: Prisma.EnumLessonTypeFieldUpdateOperationsInput | $Enums.LessonType;
@@ -1233,6 +1486,13 @@ export type LessonUncheckedUpdateWithoutLabInput = {
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   mdxPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   generationFailed?: Prisma.BoolFieldUpdateOperationsInput | boolean;
+  lessonGenerationStatus?:
+    | Prisma.EnumLessonGenerationStatusFieldUpdateOperationsInput
+    | $Enums.LessonGenerationStatus;
+  claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+  generationAttempts?: Prisma.IntFieldUpdateOperationsInput | number;
+  lastGenerationError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   progress?: Prisma.UserProgressUncheckedUpdateManyWithoutLessonNestedInput;
@@ -1245,6 +1505,7 @@ export type LessonUncheckedUpdateWithoutLabInput = {
 
 export type LessonCreateWithoutProjectStepsInput = {
   id?: string;
+  courseId?: string | null;
   slug: string;
   title: string;
   type: $Enums.LessonType;
@@ -1252,6 +1513,11 @@ export type LessonCreateWithoutProjectStepsInput = {
   content?: string | null;
   mdxPath?: string | null;
   generationFailed?: boolean;
+  lessonGenerationStatus?: $Enums.LessonGenerationStatus;
+  claimedAt?: Date | string | null;
+  generationAttempts?: number;
+  lastGenerationError?: string | null;
+  idempotencyKey?: string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   module: Prisma.ModuleCreateNestedOneWithoutLessonsInput;
@@ -1266,6 +1532,7 @@ export type LessonCreateWithoutProjectStepsInput = {
 export type LessonUncheckedCreateWithoutProjectStepsInput = {
   id?: string;
   moduleId: string;
+  courseId?: string | null;
   slug: string;
   title: string;
   type: $Enums.LessonType;
@@ -1273,6 +1540,11 @@ export type LessonUncheckedCreateWithoutProjectStepsInput = {
   content?: string | null;
   mdxPath?: string | null;
   generationFailed?: boolean;
+  lessonGenerationStatus?: $Enums.LessonGenerationStatus;
+  claimedAt?: Date | string | null;
+  generationAttempts?: number;
+  lastGenerationError?: string | null;
+  idempotencyKey?: string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   progress?: Prisma.UserProgressUncheckedCreateNestedManyWithoutLessonInput;
@@ -1313,6 +1585,7 @@ export type LessonUpdateToOneWithWhereWithoutProjectStepsInput = {
 
 export type LessonUpdateWithoutProjectStepsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
+  courseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   slug?: Prisma.StringFieldUpdateOperationsInput | string;
   title?: Prisma.StringFieldUpdateOperationsInput | string;
   type?: Prisma.EnumLessonTypeFieldUpdateOperationsInput | $Enums.LessonType;
@@ -1320,6 +1593,13 @@ export type LessonUpdateWithoutProjectStepsInput = {
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   mdxPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   generationFailed?: Prisma.BoolFieldUpdateOperationsInput | boolean;
+  lessonGenerationStatus?:
+    | Prisma.EnumLessonGenerationStatusFieldUpdateOperationsInput
+    | $Enums.LessonGenerationStatus;
+  claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+  generationAttempts?: Prisma.IntFieldUpdateOperationsInput | number;
+  lastGenerationError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   module?: Prisma.ModuleUpdateOneRequiredWithoutLessonsNestedInput;
@@ -1334,6 +1614,7 @@ export type LessonUpdateWithoutProjectStepsInput = {
 export type LessonUncheckedUpdateWithoutProjectStepsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   moduleId?: Prisma.StringFieldUpdateOperationsInput | string;
+  courseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   slug?: Prisma.StringFieldUpdateOperationsInput | string;
   title?: Prisma.StringFieldUpdateOperationsInput | string;
   type?: Prisma.EnumLessonTypeFieldUpdateOperationsInput | $Enums.LessonType;
@@ -1341,6 +1622,13 @@ export type LessonUncheckedUpdateWithoutProjectStepsInput = {
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   mdxPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   generationFailed?: Prisma.BoolFieldUpdateOperationsInput | boolean;
+  lessonGenerationStatus?:
+    | Prisma.EnumLessonGenerationStatusFieldUpdateOperationsInput
+    | $Enums.LessonGenerationStatus;
+  claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+  generationAttempts?: Prisma.IntFieldUpdateOperationsInput | number;
+  lastGenerationError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   progress?: Prisma.UserProgressUncheckedUpdateManyWithoutLessonNestedInput;
@@ -1353,6 +1641,7 @@ export type LessonUncheckedUpdateWithoutProjectStepsInput = {
 
 export type LessonCreateWithoutProgressInput = {
   id?: string;
+  courseId?: string | null;
   slug: string;
   title: string;
   type: $Enums.LessonType;
@@ -1360,6 +1649,11 @@ export type LessonCreateWithoutProgressInput = {
   content?: string | null;
   mdxPath?: string | null;
   generationFailed?: boolean;
+  lessonGenerationStatus?: $Enums.LessonGenerationStatus;
+  claimedAt?: Date | string | null;
+  generationAttempts?: number;
+  lastGenerationError?: string | null;
+  idempotencyKey?: string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   module: Prisma.ModuleCreateNestedOneWithoutLessonsInput;
@@ -1374,6 +1668,7 @@ export type LessonCreateWithoutProgressInput = {
 export type LessonUncheckedCreateWithoutProgressInput = {
   id?: string;
   moduleId: string;
+  courseId?: string | null;
   slug: string;
   title: string;
   type: $Enums.LessonType;
@@ -1381,6 +1676,11 @@ export type LessonUncheckedCreateWithoutProgressInput = {
   content?: string | null;
   mdxPath?: string | null;
   generationFailed?: boolean;
+  lessonGenerationStatus?: $Enums.LessonGenerationStatus;
+  claimedAt?: Date | string | null;
+  generationAttempts?: number;
+  lastGenerationError?: string | null;
+  idempotencyKey?: string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   quizQuestions?: Prisma.QuizQuestionUncheckedCreateNestedManyWithoutLessonInput;
@@ -1421,6 +1721,7 @@ export type LessonUpdateToOneWithWhereWithoutProgressInput = {
 
 export type LessonUpdateWithoutProgressInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
+  courseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   slug?: Prisma.StringFieldUpdateOperationsInput | string;
   title?: Prisma.StringFieldUpdateOperationsInput | string;
   type?: Prisma.EnumLessonTypeFieldUpdateOperationsInput | $Enums.LessonType;
@@ -1428,6 +1729,13 @@ export type LessonUpdateWithoutProgressInput = {
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   mdxPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   generationFailed?: Prisma.BoolFieldUpdateOperationsInput | boolean;
+  lessonGenerationStatus?:
+    | Prisma.EnumLessonGenerationStatusFieldUpdateOperationsInput
+    | $Enums.LessonGenerationStatus;
+  claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+  generationAttempts?: Prisma.IntFieldUpdateOperationsInput | number;
+  lastGenerationError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   module?: Prisma.ModuleUpdateOneRequiredWithoutLessonsNestedInput;
@@ -1442,6 +1750,7 @@ export type LessonUpdateWithoutProgressInput = {
 export type LessonUncheckedUpdateWithoutProgressInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   moduleId?: Prisma.StringFieldUpdateOperationsInput | string;
+  courseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   slug?: Prisma.StringFieldUpdateOperationsInput | string;
   title?: Prisma.StringFieldUpdateOperationsInput | string;
   type?: Prisma.EnumLessonTypeFieldUpdateOperationsInput | $Enums.LessonType;
@@ -1449,6 +1758,13 @@ export type LessonUncheckedUpdateWithoutProgressInput = {
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   mdxPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   generationFailed?: Prisma.BoolFieldUpdateOperationsInput | boolean;
+  lessonGenerationStatus?:
+    | Prisma.EnumLessonGenerationStatusFieldUpdateOperationsInput
+    | $Enums.LessonGenerationStatus;
+  claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+  generationAttempts?: Prisma.IntFieldUpdateOperationsInput | number;
+  lastGenerationError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   quizQuestions?: Prisma.QuizQuestionUncheckedUpdateManyWithoutLessonNestedInput;
@@ -1461,6 +1777,7 @@ export type LessonUncheckedUpdateWithoutProgressInput = {
 
 export type LessonCreateWithoutQuizAttemptsInput = {
   id?: string;
+  courseId?: string | null;
   slug: string;
   title: string;
   type: $Enums.LessonType;
@@ -1468,6 +1785,11 @@ export type LessonCreateWithoutQuizAttemptsInput = {
   content?: string | null;
   mdxPath?: string | null;
   generationFailed?: boolean;
+  lessonGenerationStatus?: $Enums.LessonGenerationStatus;
+  claimedAt?: Date | string | null;
+  generationAttempts?: number;
+  lastGenerationError?: string | null;
+  idempotencyKey?: string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   module: Prisma.ModuleCreateNestedOneWithoutLessonsInput;
@@ -1482,6 +1804,7 @@ export type LessonCreateWithoutQuizAttemptsInput = {
 export type LessonUncheckedCreateWithoutQuizAttemptsInput = {
   id?: string;
   moduleId: string;
+  courseId?: string | null;
   slug: string;
   title: string;
   type: $Enums.LessonType;
@@ -1489,6 +1812,11 @@ export type LessonUncheckedCreateWithoutQuizAttemptsInput = {
   content?: string | null;
   mdxPath?: string | null;
   generationFailed?: boolean;
+  lessonGenerationStatus?: $Enums.LessonGenerationStatus;
+  claimedAt?: Date | string | null;
+  generationAttempts?: number;
+  lastGenerationError?: string | null;
+  idempotencyKey?: string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   progress?: Prisma.UserProgressUncheckedCreateNestedManyWithoutLessonInput;
@@ -1529,6 +1857,7 @@ export type LessonUpdateToOneWithWhereWithoutQuizAttemptsInput = {
 
 export type LessonUpdateWithoutQuizAttemptsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
+  courseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   slug?: Prisma.StringFieldUpdateOperationsInput | string;
   title?: Prisma.StringFieldUpdateOperationsInput | string;
   type?: Prisma.EnumLessonTypeFieldUpdateOperationsInput | $Enums.LessonType;
@@ -1536,6 +1865,13 @@ export type LessonUpdateWithoutQuizAttemptsInput = {
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   mdxPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   generationFailed?: Prisma.BoolFieldUpdateOperationsInput | boolean;
+  lessonGenerationStatus?:
+    | Prisma.EnumLessonGenerationStatusFieldUpdateOperationsInput
+    | $Enums.LessonGenerationStatus;
+  claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+  generationAttempts?: Prisma.IntFieldUpdateOperationsInput | number;
+  lastGenerationError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   module?: Prisma.ModuleUpdateOneRequiredWithoutLessonsNestedInput;
@@ -1550,6 +1886,7 @@ export type LessonUpdateWithoutQuizAttemptsInput = {
 export type LessonUncheckedUpdateWithoutQuizAttemptsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   moduleId?: Prisma.StringFieldUpdateOperationsInput | string;
+  courseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   slug?: Prisma.StringFieldUpdateOperationsInput | string;
   title?: Prisma.StringFieldUpdateOperationsInput | string;
   type?: Prisma.EnumLessonTypeFieldUpdateOperationsInput | $Enums.LessonType;
@@ -1557,6 +1894,13 @@ export type LessonUncheckedUpdateWithoutQuizAttemptsInput = {
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   mdxPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   generationFailed?: Prisma.BoolFieldUpdateOperationsInput | boolean;
+  lessonGenerationStatus?:
+    | Prisma.EnumLessonGenerationStatusFieldUpdateOperationsInput
+    | $Enums.LessonGenerationStatus;
+  claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+  generationAttempts?: Prisma.IntFieldUpdateOperationsInput | number;
+  lastGenerationError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   progress?: Prisma.UserProgressUncheckedUpdateManyWithoutLessonNestedInput;
@@ -1569,6 +1913,7 @@ export type LessonUncheckedUpdateWithoutQuizAttemptsInput = {
 
 export type LessonCreateWithoutReviewCardsInput = {
   id?: string;
+  courseId?: string | null;
   slug: string;
   title: string;
   type: $Enums.LessonType;
@@ -1576,6 +1921,11 @@ export type LessonCreateWithoutReviewCardsInput = {
   content?: string | null;
   mdxPath?: string | null;
   generationFailed?: boolean;
+  lessonGenerationStatus?: $Enums.LessonGenerationStatus;
+  claimedAt?: Date | string | null;
+  generationAttempts?: number;
+  lastGenerationError?: string | null;
+  idempotencyKey?: string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   module: Prisma.ModuleCreateNestedOneWithoutLessonsInput;
@@ -1590,6 +1940,7 @@ export type LessonCreateWithoutReviewCardsInput = {
 export type LessonUncheckedCreateWithoutReviewCardsInput = {
   id?: string;
   moduleId: string;
+  courseId?: string | null;
   slug: string;
   title: string;
   type: $Enums.LessonType;
@@ -1597,6 +1948,11 @@ export type LessonUncheckedCreateWithoutReviewCardsInput = {
   content?: string | null;
   mdxPath?: string | null;
   generationFailed?: boolean;
+  lessonGenerationStatus?: $Enums.LessonGenerationStatus;
+  claimedAt?: Date | string | null;
+  generationAttempts?: number;
+  lastGenerationError?: string | null;
+  idempotencyKey?: string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
   progress?: Prisma.UserProgressUncheckedCreateNestedManyWithoutLessonInput;
@@ -1637,6 +1993,7 @@ export type LessonUpdateToOneWithWhereWithoutReviewCardsInput = {
 
 export type LessonUpdateWithoutReviewCardsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
+  courseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   slug?: Prisma.StringFieldUpdateOperationsInput | string;
   title?: Prisma.StringFieldUpdateOperationsInput | string;
   type?: Prisma.EnumLessonTypeFieldUpdateOperationsInput | $Enums.LessonType;
@@ -1644,6 +2001,13 @@ export type LessonUpdateWithoutReviewCardsInput = {
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   mdxPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   generationFailed?: Prisma.BoolFieldUpdateOperationsInput | boolean;
+  lessonGenerationStatus?:
+    | Prisma.EnumLessonGenerationStatusFieldUpdateOperationsInput
+    | $Enums.LessonGenerationStatus;
+  claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+  generationAttempts?: Prisma.IntFieldUpdateOperationsInput | number;
+  lastGenerationError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   module?: Prisma.ModuleUpdateOneRequiredWithoutLessonsNestedInput;
@@ -1658,6 +2022,7 @@ export type LessonUpdateWithoutReviewCardsInput = {
 export type LessonUncheckedUpdateWithoutReviewCardsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
   moduleId?: Prisma.StringFieldUpdateOperationsInput | string;
+  courseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   slug?: Prisma.StringFieldUpdateOperationsInput | string;
   title?: Prisma.StringFieldUpdateOperationsInput | string;
   type?: Prisma.EnumLessonTypeFieldUpdateOperationsInput | $Enums.LessonType;
@@ -1665,6 +2030,13 @@ export type LessonUncheckedUpdateWithoutReviewCardsInput = {
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   mdxPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   generationFailed?: Prisma.BoolFieldUpdateOperationsInput | boolean;
+  lessonGenerationStatus?:
+    | Prisma.EnumLessonGenerationStatusFieldUpdateOperationsInput
+    | $Enums.LessonGenerationStatus;
+  claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+  generationAttempts?: Prisma.IntFieldUpdateOperationsInput | number;
+  lastGenerationError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   progress?: Prisma.UserProgressUncheckedUpdateManyWithoutLessonNestedInput;
@@ -1677,6 +2049,7 @@ export type LessonUncheckedUpdateWithoutReviewCardsInput = {
 
 export type LessonCreateManyModuleInput = {
   id?: string;
+  courseId?: string | null;
   slug: string;
   title: string;
   type: $Enums.LessonType;
@@ -1684,12 +2057,18 @@ export type LessonCreateManyModuleInput = {
   content?: string | null;
   mdxPath?: string | null;
   generationFailed?: boolean;
+  lessonGenerationStatus?: $Enums.LessonGenerationStatus;
+  claimedAt?: Date | string | null;
+  generationAttempts?: number;
+  lastGenerationError?: string | null;
+  idempotencyKey?: string | null;
   createdAt?: Date | string;
   updatedAt?: Date | string;
 };
 
 export type LessonUpdateWithoutModuleInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
+  courseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   slug?: Prisma.StringFieldUpdateOperationsInput | string;
   title?: Prisma.StringFieldUpdateOperationsInput | string;
   type?: Prisma.EnumLessonTypeFieldUpdateOperationsInput | $Enums.LessonType;
@@ -1697,6 +2076,13 @@ export type LessonUpdateWithoutModuleInput = {
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   mdxPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   generationFailed?: Prisma.BoolFieldUpdateOperationsInput | boolean;
+  lessonGenerationStatus?:
+    | Prisma.EnumLessonGenerationStatusFieldUpdateOperationsInput
+    | $Enums.LessonGenerationStatus;
+  claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+  generationAttempts?: Prisma.IntFieldUpdateOperationsInput | number;
+  lastGenerationError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   progress?: Prisma.UserProgressUpdateManyWithoutLessonNestedInput;
@@ -1710,6 +2096,7 @@ export type LessonUpdateWithoutModuleInput = {
 
 export type LessonUncheckedUpdateWithoutModuleInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
+  courseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   slug?: Prisma.StringFieldUpdateOperationsInput | string;
   title?: Prisma.StringFieldUpdateOperationsInput | string;
   type?: Prisma.EnumLessonTypeFieldUpdateOperationsInput | $Enums.LessonType;
@@ -1717,6 +2104,13 @@ export type LessonUncheckedUpdateWithoutModuleInput = {
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   mdxPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   generationFailed?: Prisma.BoolFieldUpdateOperationsInput | boolean;
+  lessonGenerationStatus?:
+    | Prisma.EnumLessonGenerationStatusFieldUpdateOperationsInput
+    | $Enums.LessonGenerationStatus;
+  claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+  generationAttempts?: Prisma.IntFieldUpdateOperationsInput | number;
+  lastGenerationError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   progress?: Prisma.UserProgressUncheckedUpdateManyWithoutLessonNestedInput;
@@ -1730,6 +2124,7 @@ export type LessonUncheckedUpdateWithoutModuleInput = {
 
 export type LessonUncheckedUpdateManyWithoutModuleInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string;
+  courseId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   slug?: Prisma.StringFieldUpdateOperationsInput | string;
   title?: Prisma.StringFieldUpdateOperationsInput | string;
   type?: Prisma.EnumLessonTypeFieldUpdateOperationsInput | $Enums.LessonType;
@@ -1737,6 +2132,13 @@ export type LessonUncheckedUpdateManyWithoutModuleInput = {
   content?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   mdxPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   generationFailed?: Prisma.BoolFieldUpdateOperationsInput | boolean;
+  lessonGenerationStatus?:
+    | Prisma.EnumLessonGenerationStatusFieldUpdateOperationsInput
+    | $Enums.LessonGenerationStatus;
+  claimedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null;
+  generationAttempts?: Prisma.IntFieldUpdateOperationsInput | number;
+  lastGenerationError?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
+  idempotencyKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null;
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string;
 };
@@ -1837,6 +2239,7 @@ export type LessonSelect<
   {
     id?: boolean;
     moduleId?: boolean;
+    courseId?: boolean;
     slug?: boolean;
     title?: boolean;
     type?: boolean;
@@ -1844,6 +2247,11 @@ export type LessonSelect<
     content?: boolean;
     mdxPath?: boolean;
     generationFailed?: boolean;
+    lessonGenerationStatus?: boolean;
+    claimedAt?: boolean;
+    generationAttempts?: boolean;
+    lastGenerationError?: boolean;
+    idempotencyKey?: boolean;
     createdAt?: boolean;
     updatedAt?: boolean;
     module?: boolean | Prisma.ModuleDefaultArgs<ExtArgs>;
@@ -1865,6 +2273,7 @@ export type LessonSelectCreateManyAndReturn<
   {
     id?: boolean;
     moduleId?: boolean;
+    courseId?: boolean;
     slug?: boolean;
     title?: boolean;
     type?: boolean;
@@ -1872,6 +2281,11 @@ export type LessonSelectCreateManyAndReturn<
     content?: boolean;
     mdxPath?: boolean;
     generationFailed?: boolean;
+    lessonGenerationStatus?: boolean;
+    claimedAt?: boolean;
+    generationAttempts?: boolean;
+    lastGenerationError?: boolean;
+    idempotencyKey?: boolean;
     createdAt?: boolean;
     updatedAt?: boolean;
     module?: boolean | Prisma.ModuleDefaultArgs<ExtArgs>;
@@ -1885,6 +2299,7 @@ export type LessonSelectUpdateManyAndReturn<
   {
     id?: boolean;
     moduleId?: boolean;
+    courseId?: boolean;
     slug?: boolean;
     title?: boolean;
     type?: boolean;
@@ -1892,6 +2307,11 @@ export type LessonSelectUpdateManyAndReturn<
     content?: boolean;
     mdxPath?: boolean;
     generationFailed?: boolean;
+    lessonGenerationStatus?: boolean;
+    claimedAt?: boolean;
+    generationAttempts?: boolean;
+    lastGenerationError?: boolean;
+    idempotencyKey?: boolean;
     createdAt?: boolean;
     updatedAt?: boolean;
     module?: boolean | Prisma.ModuleDefaultArgs<ExtArgs>;
@@ -1902,6 +2322,7 @@ export type LessonSelectUpdateManyAndReturn<
 export type LessonSelectScalar = {
   id?: boolean;
   moduleId?: boolean;
+  courseId?: boolean;
   slug?: boolean;
   title?: boolean;
   type?: boolean;
@@ -1909,6 +2330,11 @@ export type LessonSelectScalar = {
   content?: boolean;
   mdxPath?: boolean;
   generationFailed?: boolean;
+  lessonGenerationStatus?: boolean;
+  claimedAt?: boolean;
+  generationAttempts?: boolean;
+  lastGenerationError?: boolean;
+  idempotencyKey?: boolean;
   createdAt?: boolean;
   updatedAt?: boolean;
 };
@@ -1918,6 +2344,7 @@ export type LessonOmit<
 > = runtime.Types.Extensions.GetOmit<
   | "id"
   | "moduleId"
+  | "courseId"
   | "slug"
   | "title"
   | "type"
@@ -1925,6 +2352,11 @@ export type LessonOmit<
   | "content"
   | "mdxPath"
   | "generationFailed"
+  | "lessonGenerationStatus"
+  | "claimedAt"
+  | "generationAttempts"
+  | "lastGenerationError"
+  | "idempotencyKey"
   | "createdAt"
   | "updatedAt",
   ExtArgs["result"]["lesson"]
@@ -1971,6 +2403,7 @@ export type $LessonPayload<
     {
       id: string;
       moduleId: string;
+      courseId: string | null;
       slug: string;
       title: string;
       type: $Enums.LessonType;
@@ -1978,6 +2411,11 @@ export type $LessonPayload<
       content: string | null;
       mdxPath: string | null;
       generationFailed: boolean;
+      lessonGenerationStatus: $Enums.LessonGenerationStatus;
+      claimedAt: Date | null;
+      generationAttempts: number;
+      lastGenerationError: string | null;
+      idempotencyKey: string | null;
       createdAt: Date;
       updatedAt: Date;
     },
@@ -2616,6 +3054,7 @@ export interface Prisma__LessonClient<
 export interface LessonFieldRefs {
   readonly id: Prisma.FieldRef<"Lesson", "String">;
   readonly moduleId: Prisma.FieldRef<"Lesson", "String">;
+  readonly courseId: Prisma.FieldRef<"Lesson", "String">;
   readonly slug: Prisma.FieldRef<"Lesson", "String">;
   readonly title: Prisma.FieldRef<"Lesson", "String">;
   readonly type: Prisma.FieldRef<"Lesson", "LessonType">;
@@ -2623,6 +3062,11 @@ export interface LessonFieldRefs {
   readonly content: Prisma.FieldRef<"Lesson", "String">;
   readonly mdxPath: Prisma.FieldRef<"Lesson", "String">;
   readonly generationFailed: Prisma.FieldRef<"Lesson", "Boolean">;
+  readonly lessonGenerationStatus: Prisma.FieldRef<"Lesson", "LessonGenerationStatus">;
+  readonly claimedAt: Prisma.FieldRef<"Lesson", "DateTime">;
+  readonly generationAttempts: Prisma.FieldRef<"Lesson", "Int">;
+  readonly lastGenerationError: Prisma.FieldRef<"Lesson", "String">;
+  readonly idempotencyKey: Prisma.FieldRef<"Lesson", "String">;
   readonly createdAt: Prisma.FieldRef<"Lesson", "DateTime">;
   readonly updatedAt: Prisma.FieldRef<"Lesson", "DateTime">;
 }

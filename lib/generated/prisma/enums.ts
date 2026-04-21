@@ -131,3 +131,13 @@ export const ReviewReason = {
 } as const;
 
 export type ReviewReason = (typeof ReviewReason)[keyof typeof ReviewReason];
+
+export const LessonGenerationStatus = {
+  PENDING: "PENDING",
+  GENERATING: "GENERATING",
+  DONE: "DONE",
+  FAILED: "FAILED",
+} as const;
+
+export type LessonGenerationStatus =
+  (typeof LessonGenerationStatus)[keyof typeof LessonGenerationStatus];

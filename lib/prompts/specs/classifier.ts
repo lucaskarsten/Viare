@@ -66,6 +66,12 @@ function buildUserMessage(input: ClassifierInput): string {
     "",
     "Rules:",
     "- sandboxTemplate must be null unless domain is 'programming'.",
+    "- When domain is 'programming', sandboxTemplate must be one of: react, react-ts, vanilla, vanilla-ts, vue, node, static.",
+    "  Use 'node' for Python, Go, Rust, shell, databases, data science, general scripting.",
+    "  Use 'react' or 'react-ts' for frontend/UI topics.",
+    "  Use 'vanilla' for plain HTML/CSS/JS.",
+    "  Use null if no interactive sandbox would add value.",
+    "- NEVER use a programming language name (e.g. 'python', 'go', 'java') as sandboxTemplate.",
     "- relevantDemos must be a subset of the allowed enum values; empty array if none apply.",
     "- suggestedEmphasis: set to 'practice' if the topic is procedural/technical (programming, cooking, instrument playing, sports technique); 'case_study' if historical, social, philosophical, or narrative; 'balanced' otherwise.",
   ].join("\n");
