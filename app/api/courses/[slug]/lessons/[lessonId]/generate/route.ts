@@ -171,7 +171,9 @@ export async function POST(
     // Cron sweeper (Phase 2) is the mandatory safety net if this fails silently.
     after(async () => {
       if (!process.env.CRON_SECRET) {
-        console.error("[LESSON_CHAIN_BROKEN] CRON_SECRET is not set — next-lesson trigger will fail. Set CRON_SECRET in environment variables.");
+        console.error(
+          "[LESSON_CHAIN_BROKEN] CRON_SECRET is not set — next-lesson trigger will fail. Set CRON_SECRET in environment variables."
+        );
         return;
       }
       try {
@@ -191,7 +193,10 @@ export async function POST(
           headers: { authorization: `Bearer ${process.env.CRON_SECRET}` },
         });
         if (!res.ok) {
-          console.error("[LESSON_CHAIN_FAILED]", JSON.stringify({ lessonId: next.id, status: res.status }));
+          console.error(
+            "[LESSON_CHAIN_FAILED]",
+            JSON.stringify({ lessonId: next.id, status: res.status })
+          );
         }
       } catch (e) {
         console.error("[LESSON_CHAIN_ERROR]", String(e));

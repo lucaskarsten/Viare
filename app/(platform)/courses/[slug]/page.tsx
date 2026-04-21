@@ -3,7 +3,10 @@ import Link from "next/link";
 import { auth } from "@/lib/dev-auth";
 import { db } from "@/lib/db";
 import EnrollButton from "./EnrollButton";
-import CourseDetailTabs, { type CourseDetailModule } from "@/components/CourseDetailTabs";
+import CourseDetailTabs, {
+  type CourseDetailModule,
+  type CourseFlashcard,
+} from "@/components/CourseDetailTabs";
 
 type Params = Promise<{ slug: string }>;
 
@@ -86,6 +89,14 @@ export default async function CoursePage({ params }: { params: Params }) {
         })
         .then((rows) => new Set(rows.map((r) => r.lessonId)))
     : new Set<string>();
+
+  const flashcards: CourseFlashcard[] = session?.user?.id
+    ? await db.reviewCard.findMany({
+        where: { lesson: { module: { courseId: course.id } }, userId: session.user.id },
+        orderBy: { createdAt: "asc" },
+        select: { id: true, front: true, back: true, lesson: { select: { title: true } } },
+      })
+    : [];
 
   const totalLessons = course.modules.reduce((sum, m) => sum + m.lessons.length, 0);
   const completedLessons = completedLessonIds.size;
@@ -218,7 +229,14 @@ export default async function CoursePage({ params }: { params: Params }) {
         </div>
       </div>
 
-      <CourseDetailTabs courseSlug={slug} modules={detailModules} />
+      <CourseDetailTabs
+        courseSlug={slug}
+        modules={detailModules}
+        description={course.description}
+        level={difficultyLabel}
+        estimatedHours={estimatedHours}
+        flashcards={flashcards}
+      />
     </div>
   );
 }

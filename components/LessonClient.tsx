@@ -17,6 +17,7 @@ import MarkCompleteButton from "@/app/(platform)/courses/[slug]/lessons/[lessonI
 import LabBlock from "@/components/LabBlock";
 import DemoBlock from "@/components/DemoBlock";
 import SandpackBlock from "@/components/blocks/SandpackBlock";
+import PythonSandboxBlock from "@/components/blocks/PythonSandboxBlock";
 import PracticeBlock from "@/components/blocks/PracticeBlock";
 import CaseStudyBlock from "@/components/blocks/CaseStudyBlock";
 import type { LabData } from "@/lib/lab";
@@ -161,6 +162,16 @@ const lessonMarkdownComponents: Components = {
           return <CalloutBlock type={type}>{stripFirstAlertMarker(children)}</CalloutBlock>;
         }
       }
+      // Detect answer blockquotes: first child is <strong> (e.g. **Resposta:** / **Answer:**)
+      const firstChild = firstPara.children?.[0] as { type: string; tagName?: string } | undefined;
+      if (firstChild?.type === "element" && firstChild.tagName === "strong") {
+        return (
+          <details className="answer-spoiler">
+            <summary>Ver resposta</summary>
+            <div className="answer-content">{children}</div>
+          </details>
+        );
+      }
     }
     return <blockquote>{children}</blockquote>;
   },
@@ -194,6 +205,7 @@ const lessonMarkdownComponents: Components = {
     if (block === "demo") return <DemoBlock id={did ?? ""} />;
     if (block === "sandbox") {
       const tmpl = (props as Record<string, unknown>)["data-template"] as string | undefined;
+      if (tmpl === "python") return <PythonSandboxBlock />;
       return <SandpackBlock template={tmpl} />;
     }
     return <div {...props}>{children}</div>;

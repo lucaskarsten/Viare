@@ -50,8 +50,9 @@ function buildSystemBlocks(): Anthropic.TextBlockParam[] {
     regras(
       [
         "- Output clean markdown — headers, bullet points, code blocks as needed.",
-        "- 400 to 800 words total (not including block titles).",
-        "- No meta-text ('In this lesson...', 'Welcome!'). Start with the content.",
+        "- 400 to 800 words total (not including block titles and the Resumo section).",
+        "- Begin with a '## Resumo' section: 3–5 bullet points, one sentence each, capturing the key takeaways. This section is mandatory and must come before all other content.",
+        "- No meta-text ('In this lesson...', 'Welcome!'). After the Resumo section, start the body with the content.",
         "- Educational and informational tone only. Never fabricate real PII (CPF, card numbers, real names).",
         "- Use at least one interactive block per lesson.",
         "- If the lesson topic is not programming, do not include sandbox or demo blocks.",

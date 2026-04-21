@@ -23,9 +23,20 @@ export type CourseDetailModule = {
   lessons: CourseDetailLesson[];
 };
 
+export type CourseFlashcard = {
+  id: string;
+  front: string;
+  back: string;
+  lesson: { title: string };
+};
+
 type Props = {
   courseSlug: string;
   modules: CourseDetailModule[];
+  description: string;
+  level: string;
+  estimatedHours: number;
+  flashcards: CourseFlashcard[];
 };
 
 type Tab = "overview" | "lessons" | "flashcards" | "reviews" | "notes";
@@ -75,10 +86,27 @@ function kindStyle(kind: string): { className: string; style?: React.CSSProperti
   return { className: `${base} bg-muted text-muted-foreground` };
 }
 
-export default function CourseDetailTabs({ courseSlug, modules }: Props) {
+export default function CourseDetailTabs({
+  courseSlug,
+  modules,
+  description,
+  level,
+  estimatedHours,
+  flashcards,
+}: Props) {
   const t = useTranslations("courseDetail");
   const [tab, setTab] = useState<Tab>("lessons");
+  const [revealed, setRevealed] = useState<Set<string>>(new Set());
   const router = useRouter();
+
+  function toggleReveal(id: string) {
+    setRevealed((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
 
   return (
     <div className="flex flex-col">
@@ -100,10 +128,49 @@ export default function CourseDetailTabs({ courseSlug, modules }: Props) {
 
       <div className="pt-8">
         {tab === "overview" && (
-          <p
-            className="text-muted-foreground py-6 [&_strong]:text-foreground [&_strong]:font-semibold"
-            dangerouslySetInnerHTML={{ __html: t.raw("selectLessonsTab") }}
-          />
+          <div className="flex flex-col gap-8">
+            <p className="text-[15px] leading-[1.6] text-muted-foreground m-0">{description}</p>
+
+            <div>
+              <h3 className="text-[11px] font-mono tracking-[0.1em] uppercase text-muted-foreground m-0 mb-4">
+                {t("overview.whatYouLearn")}
+              </h3>
+              <ul className="list-none p-0 m-0 flex flex-col">
+                {modules.map((m) => (
+                  <li
+                    key={m.id}
+                    className="flex items-baseline justify-between gap-4 py-3 border-b border-border last:border-0"
+                  >
+                    <span className="text-[14px] text-foreground">{m.title}</span>
+                    <span className="font-mono text-[11px] text-muted-foreground whitespace-nowrap flex-shrink-0">
+                      {m.lessons.length} {t("overview.lessons")}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="grid grid-cols-3 gap-px bg-border rounded-[var(--radius-lg)] overflow-hidden">
+              <div className="flex flex-col gap-1 p-4 bg-card">
+                <span className="font-mono text-[10px] tracking-[0.08em] uppercase text-muted-foreground">
+                  {t("overview.level")}
+                </span>
+                <span className="text-[14px] text-foreground font-medium">{level}</span>
+              </div>
+              <div className="flex flex-col gap-1 p-4 bg-card">
+                <span className="font-mono text-[10px] tracking-[0.08em] uppercase text-muted-foreground">
+                  {t("overview.time")}
+                </span>
+                <span className="text-[14px] text-foreground font-medium">{estimatedHours}h</span>
+              </div>
+              <div className="flex flex-col gap-1 p-4 bg-card">
+                <span className="font-mono text-[10px] tracking-[0.08em] uppercase text-muted-foreground">
+                  {t("overview.modules")}
+                </span>
+                <span className="text-[14px] text-foreground font-medium">{modules.length}</span>
+              </div>
+            </div>
+          </div>
         )}
 
         {tab === "lessons" && (
@@ -198,7 +265,38 @@ export default function CourseDetailTabs({ courseSlug, modules }: Props) {
 
         {tab === "notes" && <p className="text-muted-foreground py-6">{t("noNotes")}</p>}
 
-        {tab === "flashcards" && <p className="text-muted-foreground py-6">{t("noFlashcards")}</p>}
+        {tab === "flashcards" &&
+          (flashcards.length === 0 ? (
+            <p className="text-muted-foreground py-6">{t("noFlashcards")}</p>
+          ) : (
+            <div className="flex flex-col gap-3">
+              {flashcards.map((card) => {
+                const isRevealed = revealed.has(card.id);
+                return (
+                  <div
+                    key={card.id}
+                    className="p-5 bg-card rounded-[var(--radius-lg)] flex flex-col gap-3"
+                  >
+                    <span className="font-mono text-[10px] tracking-[0.08em] uppercase text-muted-foreground">
+                      {card.lesson.title}
+                    </span>
+                    <p className="text-[15px] text-foreground leading-[1.5] m-0">{card.front}</p>
+                    {isRevealed && (
+                      <p className="text-[14px] text-muted-foreground leading-[1.5] m-0 pt-3 border-t border-border">
+                        {card.back}
+                      </p>
+                    )}
+                    <button
+                      onClick={() => toggleReveal(card.id)}
+                      className="text-[12px] text-accent cursor-pointer bg-transparent border-0 p-0 text-left font-[inherit] hover:underline w-fit"
+                    >
+                      {isRevealed ? t("flashcardsHide") : t("flashcardsReveal")}
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          ))}
 
         {tab === "reviews" && (
           <div className="flex flex-col gap-6">

@@ -303,6 +303,38 @@
   color: var(--ink-2);
   margin: 0;
 }
+.reading .md-body details.answer-spoiler {
+  border: 1px solid var(--vr-accent);
+  border-radius: 6px;
+  margin: 24px 0;
+  overflow: hidden;
+}
+.reading .md-body details.answer-spoiler summary {
+  cursor: pointer;
+  padding: 10px 16px;
+  color: var(--vr-accent);
+  font-weight: 500;
+  font-size: 14px;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  user-select: none;
+}
+.reading .md-body details.answer-spoiler summary::-webkit-details-marker {
+  display: none;
+}
+.reading .md-body details.answer-spoiler[open] summary {
+  border-bottom: 1px solid var(--vr-accent);
+}
+.reading .md-body details.answer-spoiler .answer-content {
+  padding: 12px 20px;
+  background: var(--vr-accent-soft);
+}
+.reading .md-body details.answer-spoiler .answer-content p {
+  color: var(--ink-2);
+  margin: 0;
+}
 .reading .md-body table {
   width: 100%;
   border-collapse: collapse;
@@ -1775,4 +1807,60 @@
   .enrich-modal {
     padding: 20px;
   }
+}
+
+/* Python sandbox */
+.python-sandbox {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 24px 0;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.python-sandbox-editor {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 14px;
+  line-height: 1.6;
+  padding: 16px;
+  background: var(--surface-code, var(--surface-2, #f6f8fa));
+  color: var(--text-primary);
+  border: none;
+  resize: vertical;
+  width: 100%;
+  outline: none;
+}
+
+.python-sandbox-run {
+  align-self: flex-start;
+  margin: 0 16px 12px;
+  padding: 6px 16px;
+  background: var(--accent);
+  color: var(--accent-fg, #fff);
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.python-sandbox-run:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.python-sandbox-output {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 13px;
+  line-height: 1.5;
+  padding: 12px 16px;
+  background: var(--surface-3, #1e1e1e);
+  color: var(--output-fg, #d4d4d4);
+  margin: 0;
+  border-top: 1px solid var(--border);
+  white-space: pre-wrap;
+  word-break: break-word;
 }

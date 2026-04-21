@@ -202,10 +202,19 @@
     "noReviewsYet": "No reviews yet",
     "noReviewsBody": "No reviews yet.",
     "noNotes": "No notes yet. Add notes during lessons.",
-    "noFlashcards": "No flashcards yet.",
+    "noFlashcards": "Complete lessons to automatically generate flashcards.",
+    "flashcardsReveal": "Reveal answer",
+    "flashcardsHide": "Hide answer",
     "completedBadge": "Completed",
     "youAreHere": "You are here",
     "locked": "locked",
+    "overview": {
+      "whatYouLearn": "What you'll learn",
+      "lessons": "lessons",
+      "level": "Level",
+      "time": "Duration",
+      "modules": "Modules"
+    },
     "tabs": {
       "overview": "Overview",
       "lessons": "Structure",

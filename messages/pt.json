@@ -202,10 +202,19 @@
     "noReviewsYet": "Sem avaliações ainda",
     "noReviewsBody": "Nenhuma avaliação ainda.",
     "noNotes": "Nenhuma nota ainda. Adicione notas durante as aulas.",
-    "noFlashcards": "Nenhum flashcard ainda.",
+    "noFlashcards": "Complete as aulas para gerar flashcards automaticamente.",
+    "flashcardsReveal": "Revelar resposta",
+    "flashcardsHide": "Ocultar resposta",
     "completedBadge": "Concluído",
     "youAreHere": "Você está aqui",
     "locked": "bloqueado",
+    "overview": {
+      "whatYouLearn": "O que você vai aprender",
+      "lessons": "aulas",
+      "level": "Nível",
+      "time": "Duração",
+      "modules": "Módulos"
+    },
     "tabs": {
       "overview": "Visão geral",
       "lessons": "Estrutura",

@@ -239,10 +239,24 @@ export default async function LessonPage({ params }: { params: Params }) {
     explanation: q.explanation,
   }));
 
-  // Summary points: take first non-empty prose paragraphs from content if present.
+  // Summary points: prefer an explicit ## Resumo section (new lessons); fall back to
+  // extracting prose paragraphs for legacy lessons that don't have it.
+  let contentForRender = lesson.content;
   const summaryPoints: string[] = (() => {
     if (!lesson.content) return [];
-    // Strip directive blocks (`:::name ... :::`) so they don't leak into the summary
+    const resumoMatch = lesson.content.match(/^## Resumo\n([\s\S]*?)(?=\n##|\n:::|$)/);
+    if (resumoMatch) {
+      contentForRender = lesson.content
+        .replace(/^## Resumo\n[\s\S]*?(?=\n##|\n:::|$)/, "")
+        .trimStart();
+      return resumoMatch[1]
+        .split("\n")
+        .filter((l) => l.startsWith("- "))
+        .map((l) => l.replace(/^-\s*/, "").trim())
+        .filter((l) => l.length > 0)
+        .slice(0, 5);
+    }
+    // Fallback: extract first prose paragraphs (legacy lessons)
     const stripped = lesson.content.replace(/:::[a-zA-Z][^\n]*\n[\s\S]*?\n:::\s*/g, "");
     const paragraphs = stripped
       .split(/\n\s*\n/)
@@ -271,7 +285,7 @@ export default async function LessonPage({ params }: { params: Params }) {
         id: lesson.id,
         title: lesson.title,
         description: null,
-        content: lesson.content,
+        content: contentForRender,
         completed: isCompleted,
         estimatedMinutes: lessonEstimatedMinutes(lesson.type),
         category: lessonCategory(lesson.type),

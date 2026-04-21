@@ -15,7 +15,7 @@ export const DomainClassifierSchema = z.object({
     "other",
   ]),
   sandboxTemplate: z
-    .enum(["react", "react-ts", "vanilla", "vanilla-ts", "vue", "node", "static"])
+    .enum(["react", "react-ts", "vanilla", "vanilla-ts", "vue", "node", "static", "python"])
     .nullable()
     .catch(null),
   relevantDemos: z.array(z.string()),
