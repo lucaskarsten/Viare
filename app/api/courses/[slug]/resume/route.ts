@@ -17,7 +17,9 @@ export async function POST(_req: Request, { params }: { params: Promise<{ slug: 
 
   if (!course) return new Response("Not found", { status: 404 });
   if (course.createdById !== session.user.id) return new Response("Forbidden", { status: 403 });
-  if (course.status !== "DRAFT" || !course.requiresReview) {
+  const isResumable =
+    (course.status === "DRAFT" && course.requiresReview) || course.status === "GENERATING";
+  if (!isResumable) {
     return new Response("Course is not in a resumable state", { status: 409 });
   }
 
