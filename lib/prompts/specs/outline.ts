@@ -329,6 +329,10 @@ function buildUserMessage(
 
   parts.push("", "Composition constraints (counts apply to the course total, not per module):");
   parts.push(...describeConstraints(composition));
+  parts.push(
+    "",
+    "Diversity rule: spread non-THEORY lesson types across different modules — avoid concentrating all PRACTICE, CASE_STUDY, or REFLECTION in a single module. Each module should ideally contain at most 2 consecutive THEORY lessons before a different type."
+  );
 
   if (input.suggestedEmphasis && input.suggestedEmphasis !== "balanced") {
     if (input.suggestedEmphasis === "practice") {

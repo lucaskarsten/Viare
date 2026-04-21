@@ -3,6 +3,10 @@
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import ReactMarkdown from "react-markdown";
+import rehypeRaw from "rehype-raw";
+import remarkGfm from "remark-gfm";
+import remarkDirective from "remark-directive";
+import { remarkBlocks } from "@/lib/remark-blocks";
 
 type LessonInfo = {
   id: string;
@@ -248,7 +252,12 @@ export default function GeneratingClient({
               </div>
               <div className="h-px bg-border/50 mb-5" />
               <div className="prose prose-sm max-w-none text-foreground [&_h1]:text-[18px] [&_h1]:font-medium [&_h1]:tracking-[-0.01em] [&_h2]:text-[16px] [&_h2]:font-medium [&_h3]:text-[14px] [&_h3]:font-medium [&_p]:text-[14px] [&_p]:leading-[1.7] [&_p]:text-muted-foreground [&_li]:text-[14px] [&_li]:text-muted-foreground [&_code]:text-[12px] [&_code]:bg-muted [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:rounded [&_pre]:bg-muted [&_pre]:p-4 [&_pre]:rounded-[var(--radius)] [&_strong]:text-foreground [&_strong]:font-medium">
-                <ReactMarkdown>{data.previewLesson.contentPreview}</ReactMarkdown>
+                <ReactMarkdown
+                  remarkPlugins={[remarkGfm, remarkDirective, remarkBlocks]}
+                  rehypePlugins={[rehypeRaw]}
+                >
+                  {data.previewLesson.contentPreview}
+                </ReactMarkdown>
               </div>
               {isGenerating && (
                 <p className="mt-5 text-[12px] text-muted-foreground/50 italic font-mono">
