@@ -19,7 +19,11 @@ import { generatePracticeLesson } from "@/lib/prompts/specs/practice";
 import { generateCaseStudyLesson } from "@/lib/prompts/specs/case-study";
 import { generateReflectionLesson } from "@/lib/prompts/specs/reflection";
 import { generateAndSaveLab } from "@/lib/labs/generator";
-import type { CourseOutline, DomainContext } from "@/lib/prompts/schemas";
+import {
+  type CourseOutline,
+  type DomainContext,
+  validateBloomDistribution,
+} from "@/lib/prompts/schemas";
 
 // Shared context handed to every lesson-type generator. Generators mutate
 // neither the DB row nor the parts list directly outside their scope; they
@@ -34,6 +38,8 @@ type LessonGenerationContext = {
   generatedTextParts: string[];
   maturityRating?: "GENERAL" | "MATURE";
   labVariant?: "CTF" | "INTERACTIVE";
+  // RULE: AI-08 — global lesson counter for opener-mode rotation in THEORY lessons.
+  lessonOrdinal: number;
 };
 
 type LessonGenerator = (ctx: LessonGenerationContext) => Promise<void>;
@@ -48,6 +54,8 @@ async function generateAndSaveTheory(ctx: LessonGenerationContext): Promise<void
     relevantDemos: ctx.domainContext.relevantDemos,
     tone: ctx.domainContext.tone,
     maturityRating: ctx.maturityRating,
+    // RULE: AI-08 — drives opener-mode rotation for structural variety across THEORY lessons.
+    lessonOrdinal: ctx.lessonOrdinal,
   };
 
   // RULE: AI-04 — domain classifier injects sandbox/demo opt-in per lesson
@@ -79,15 +87,47 @@ async function generateAndSaveTheory(ctx: LessonGenerationContext): Promise<void
   await db.lesson.update({ where: { id: ctx.lessonId }, data: { content } });
 }
 
+// RULE: AI-08 — bounded retry for Bloom distribution; non-fatal fallback on exhaustion.
+const MAX_QUIZ_RETRIES = 2;
+
 async function generateAndSaveQuiz(ctx: LessonGenerationContext): Promise<void> {
-  const questions = await generateQuiz({
+  const quizInput = {
     language: ctx.language,
     topic: ctx.topic,
     moduleTitle: ctx.moduleTitle,
-  });
+  };
+
+  let questions = await generateQuiz(quizInput);
+  let attempt = 0;
+
+  while (!validateBloomDistribution(questions) && attempt < MAX_QUIZ_RETRIES) {
+    attempt++;
+    console.warn(
+      "[quiz-bloom-retry]",
+      JSON.stringify({
+        lessonId: ctx.lessonId,
+        attempt,
+        distinctLevels: new Set(questions.map((q) => q.bloomLevel)).size,
+      })
+    );
+    questions = await generateQuiz(quizInput);
+  }
+
+  if (!validateBloomDistribution(questions)) {
+    // Non-fatal: accept last attempt and log — never block course generation.
+    console.warn(
+      "[quiz-bloom-fallback]",
+      JSON.stringify({
+        lessonId: ctx.lessonId,
+        msg: "Bloom spread not achieved after retries; accepting last attempt",
+      })
+    );
+  }
+
   ctx.generatedTextParts.push(questions.map((q) => q.question).join(" "));
   await db.quizQuestion.createMany({
-    data: questions.map((q, idx) => ({
+    // bloomLevel is validated above and discarded before DB write — NOT a persisted column.
+    data: questions.map(({ bloomLevel: _bloom, ...q }, idx) => ({
       lessonId: ctx.lessonId,
       question: q.question,
       options: q.options,
@@ -338,6 +378,7 @@ export async function generateCourse(
       const mod = outline.modules[mi];
       for (let li = 0; li < mod.lessons.length; li++) {
         const lesson = mod.lessons[li];
+        const lessonOrdinal = lessonIndex;
         const dbLesson = dbLessons[lessonIndex++];
 
         emit({ type: "lesson_start", moduleIndex: mi, lessonIndex: li, title: lesson.title });
@@ -362,6 +403,7 @@ export async function generateCourse(
           generatedTextParts,
           maturityRating,
           labVariant: lesson.labVariant,
+          lessonOrdinal,
         });
 
         emit({ type: "lesson_done", moduleIndex: mi, lessonIndex: li });

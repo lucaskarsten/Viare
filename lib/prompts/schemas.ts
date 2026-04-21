@@ -70,9 +70,19 @@ export const QuizQuestionSchema = z.object({
   options: z.array(z.string()).length(4),
   correctIndex: z.number().int().min(0).max(3),
   explanation: z.string().min(1),
+  // RULE: AI-08 — bloomLevel is validated post-parse and discarded before DB write.
+  // NOT a persisted column — strip it before db.quizQuestion.create.
+  bloomLevel: z.enum(["Remember", "Understand", "Apply", "Analyze", "Evaluate", "Create"]),
 });
 
 export const QuizQuestionsSchema = z.array(QuizQuestionSchema).length(5);
+
+// RULE: AI-08 — Quiz must spread ≥3 distinct Bloom levels across 5 questions.
+// Called after Zod parse; returns false triggers a bounded retry (max 2).
+export function validateBloomDistribution(questions: Array<{ bloomLevel: string }>): boolean {
+  const distinct = new Set(questions.map((q) => q.bloomLevel));
+  return distinct.size >= 3;
+}
 
 export type QuizQuestions = z.infer<typeof QuizQuestionsSchema>;
 

@@ -1,7 +1,15 @@
 import type Anthropic from "@anthropic-ai/sdk";
 import { callAnthropicText } from "@/lib/prompts/runner";
 import { buildLanguageInstruction } from "@/lib/prompts/language";
-import { antiInjection, exemplos, formato, persona, regras, userData } from "@/lib/prompts/tags";
+import {
+  antiInjection,
+  exemplos,
+  formato,
+  pedagogia,
+  persona,
+  regras,
+  userData,
+} from "@/lib/prompts/tags";
 
 export interface CaseStudyLessonInput {
   language: string;
@@ -33,6 +41,15 @@ function buildSystemBlocks(): Anthropic.TextBlockParam[] {
         "- Educational tone only. Never fabricate real PII (CPF, card numbers, real names of living non-public people).",
         "- 300 to 600 words total.",
       ].join("\n")
+    ),
+
+    // RULE: AI-08 — Bloom Analyze/Evaluate anchor for CASE_STUDY lessons.
+    pedagogia(
+      "Bloom target: Analyze + Evaluate. Learner compares, contrasts, and weighs trade-offs — never just recalls facts.",
+      "Tension requirement: every scenario presents at least two viable interpretations or competing decisions. Pure descriptive prose without tension is not a case study.",
+      "Avoid 'happy path only' narratives — at least one constraint or counter-evidence must complicate the obvious choice.",
+      "Reflection questions must each target a different Analyze move: one comparing/contrasting, one inferring cause or motive, one weighing trade-offs.",
+      "Never name pedagogical frameworks in output (no 'Bloom', 'scaffolding', 'cognitive load')."
     ),
 
     antiInjection(),

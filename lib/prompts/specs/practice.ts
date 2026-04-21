@@ -1,7 +1,15 @@
 import type Anthropic from "@anthropic-ai/sdk";
 import { callAnthropicText } from "@/lib/prompts/runner";
 import { buildLanguageInstruction } from "@/lib/prompts/language";
-import { antiInjection, exemplos, formato, persona, regras, userData } from "@/lib/prompts/tags";
+import {
+  antiInjection,
+  exemplos,
+  formato,
+  pedagogia,
+  persona,
+  regras,
+  userData,
+} from "@/lib/prompts/tags";
 
 export interface PracticeLessonInput {
   language: string;
@@ -32,6 +40,15 @@ function buildSystemBlocks(): Anthropic.TextBlockParam[] {
         "- Educational tone only. Never fabricate real PII (CPF, card numbers, real names).",
         "- 350 to 700 words total.",
       ].join("\n")
+    ),
+
+    // RULE: AI-08 — Bloom Apply anchor for PRACTICE lessons.
+    pedagogia(
+      "Bloom target: Apply. The learner produces output using a procedure — not just recognizes it.",
+      "Lesson MUST contain a section titled exactly 'Sua Vez' with at least one ':::callout{type=\"tip\"}' block.",
+      "Faded hints — provide exactly 2 hint levels inside the 'Sua Vez' section: Hint 1 = orientation (reference the worked example); Hint 2 = strategy (next sub-goal without the answer). Never give the solution.",
+      "Near-transfer only: exercises use the same procedure as the worked example with surface variation (different inputs, different domain framing) — do not introduce a harder procedure.",
+      "Never name pedagogical frameworks in output (no 'Bloom', 'scaffolding', 'worked example')."
     ),
 
     antiInjection(),

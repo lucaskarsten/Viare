@@ -6,6 +6,7 @@ import {
   exemplos,
   formato,
   matureContentFrame,
+  pedagogia,
   persona,
   regras,
   userData,
@@ -21,7 +22,18 @@ export interface TheoryLessonInput {
   tone: "technical" | "practical" | "conceptual";
   maturityRating?: "GENERAL" | "MATURE";
   retryWithStrongerFrame?: boolean;
+  // RULE: AI-08 — global lesson ordinal drives opener-mode rotation for structural variety.
+  lessonOrdinal?: number;
 }
+
+// RULE: AI-08 — 4 opener modes rotated via lessonOrdinal % OPENER_MODES.length.
+// Injected into the user message (not system block) so the static cache is preserved.
+const OPENER_MODES = [
+  "concrete-scenario",
+  "contrast-question",
+  "origin-anecdote",
+  "problem-statement",
+] as const;
 
 // System prompt is intentionally static so Anthropic's prompt cache can reuse
 // it across every THEORY lesson of a course. Dynamic values (language, topic,
@@ -46,6 +58,18 @@ function buildSystemBlocks(): Anthropic.TextBlockParam[] {
         "- For 'check your understanding' Q&A, use blockquotes with bold answers: '> **Answer:** ...' — never use raw HTML <details> or <summary> tags.",
         "- For non-programming topics, use :::cards for concept sets, :::steps for procedures, :::callout for mnemonics and tips.",
       ].join("\n")
+    ),
+
+    // RULE: AI-08 — Bloom Remember/Understand anchor for THEORY lessons.
+    pedagogia(
+      "Bloom target: Remember + Understand. Concepts must be retrievable and explainable in own words — not applied or analyzed (those belong to PRACTICE and CASE_STUDY).",
+      "Cognitive arc per lesson: CONCRETE INSTANCE first → extract the pattern → name the concept → contrast with a related idea → active recall check.",
+      "Open the body with a concrete instance, scenario, or analogy (1-3 sentences). Never open with a definition.",
+      "When introducing 3+ related ideas, present them in a :::cards block (chunking — keeps working memory under 4-5 items).",
+      "When presenting a sequence or process, use :::steps. Never describe a sequence in plain prose.",
+      "End every lesson with a section titled exactly 'Verifique sua compreensão' (or target-language equivalent) containing 1-2 blockquote Q&A items. This is mandatory — it is the lesson's active-recall hook.",
+      "Use at least two distinct interactive block types per lesson (e.g. :::cards + :::callout, or :::steps + blockquote Q&A) to vary structure across consecutive THEORY lessons.",
+      "Never name pedagogical frameworks in output (no 'Bloom', 'scaffolding', 'cognitive load')."
     ),
 
     antiInjection(),
@@ -202,6 +226,14 @@ function buildUserMessage(input: TheoryLessonInput): string {
       "",
       "Allowed demo ids (use only if directly relevant — skip otherwise):",
       ...input.relevantDemos.map((id) => `::demo{id="${id}"}`)
+    );
+  }
+
+  // RULE: AI-08 — opener-mode injected per-call (user message, not system) to preserve cache.
+  if (input.lessonOrdinal !== undefined) {
+    parts.push(
+      "",
+      `Opener mode for this lesson: ${OPENER_MODES[input.lessonOrdinal % OPENER_MODES.length]}`
     );
   }
 

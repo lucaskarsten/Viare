@@ -52,6 +52,8 @@ const userId = session?.user?.id;
 
 **AI-07** — `ENABLE_LAB_GENERATION=false` (default). Gate em `LESSON_GENERATORS[LAB]`. Quando off: LAB lessons no outline fallback para THEORY via `buildLegacyFallback` existente.
 
+**AI-08** — Pedagogical prompt anchors: cada tipo de aula tem um alvo Bloom fixo injetado via `pedagogia()` no system block (THEORY=Remember/Understand, PRACTICE=Apply, CASE_STUDY=Analyze/Evaluate). THEORY lessons rotam entre 4 opener-modes via `lessonOrdinal % 4` (concrete-scenario, contrast-question, origin-anecdote, problem-statement) — injetado no user message (não no system block) para preservar o cache. Quiz exige spread ≥3 níveis Bloom distintos; validado post-parse por `validateBloomDistribution()` com `MAX_QUIZ_RETRIES=2` e fallback não-fatal. `bloomLevel` é validado mas NÃO persiste no banco. Deploy: primeira geração após este rule não reutiliza cache do system block (cache warmup ocorre naturalmente na segunda chamada).
+
 ---
 
 ## SUB — Subscriptions & Billing

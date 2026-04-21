@@ -23,6 +23,13 @@ export function baseDeConhecimento(content: string): string {
   return `<base_de_conhecimento>\n${content.trim()}\n</base_de_conhecimento>`;
 }
 
+// RULE: AI-08 — pedagogia() emits a static <pedagogia> block encoding Bloom target,
+// cognitive principle, and scaffolding contract for each lesson type.
+// Static-only content preserves prefix caching across all lessons of a course.
+export function pedagogia(...lines: string[]): string {
+  return `<pedagogia>\n${lines.map((l) => `- ${l}`).join("\n")}\n</pedagogia>`;
+}
+
 export function antiInjection(): string {
   // RULE: CONTENT-01 — explicit instruction that user data is data only.
   // Placed in the cacheable system prefix so every lesson inherits it.
