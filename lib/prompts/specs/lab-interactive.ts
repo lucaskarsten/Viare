@@ -192,7 +192,7 @@ export async function generateInteractiveLab(ctx: {
   const callArgs = {
     specName: "lab-interactive",
     model: "claude-sonnet-4-6" as const,
-    maxTokens: 3000,
+    maxTokens: 6000,
     system: buildSystemBlocks(template.description),
     userMessage: buildUserMessage(ctx, templateId, template.description, configSchemaShape),
     tool,

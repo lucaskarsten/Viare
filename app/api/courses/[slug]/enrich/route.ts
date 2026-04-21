@@ -359,6 +359,7 @@ export async function POST(_req: Request, { params }: { params: Params }) {
               const dbLesson = await tx.lesson.create({
                 data: {
                   moduleId: dbModule.id,
+                  courseId: course.id,
                   slug: toSlug(lesson.title, String(li + 1)),
                   title: lesson.title,
                   type: lesson.type as never,
@@ -393,6 +394,7 @@ export async function POST(_req: Request, { params }: { params: Params }) {
           const dbLesson = await tx.lesson.create({
             data: {
               moduleId: prepared.placementModule.id,
+              courseId: course.id,
               slug: toSlug(prepared.lesson.title, String(prepared.insertOrder + 1)),
               title: prepared.lesson.title,
               type: prepared.lesson.type as never,

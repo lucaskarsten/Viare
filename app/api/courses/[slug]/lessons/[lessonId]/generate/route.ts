@@ -2,6 +2,7 @@ import { auth } from "@/lib/dev-auth";
 import { db } from "@/lib/db";
 import { generateSingleLesson } from "@/lib/generation";
 import { classifyGeneratedContent } from "@/lib/content-safety";
+import { LESSON_GENERATION_CAP } from "@/lib/generation-config";
 import { after } from "next/server";
 
 export const runtime = "nodejs";
@@ -83,7 +84,7 @@ export async function POST(
   const claimResult: ClaimOutcome = await db.$transaction(async (tx) => {
     const locked = await tx.$queryRaw<Array<{ id: string }>>`
       SELECT id FROM "Course"
-      WHERE id = ${courseId} AND "generatingLessonCount" < 2
+      WHERE id = ${courseId} AND "generatingLessonCount" < ${LESSON_GENERATION_CAP}
       FOR UPDATE
     `;
     if (locked.length === 0) {
@@ -177,27 +178,42 @@ export async function POST(
         return;
       }
       try {
-        const next = await db.lesson.findFirst({
-          where: { courseId, lessonGenerationStatus: "PENDING" },
-          select: { id: true },
-          orderBy: [{ module: { order: "asc" } }, { order: "asc" }],
-        });
-        if (!next) return;
-
         const baseUrl =
           process.env.NEXT_PUBLIC_APP_URL ??
           (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
 
-        const res = await fetch(`${baseUrl}/api/courses/${slug}/lessons/${next.id}/generate`, {
-          method: "POST",
-          headers: { authorization: `Bearer ${process.env.CRON_SECRET}` },
+        // Re-read active count after the finally block has already decremented it.
+        // Fill all open slots so a single completion unblocks as many pending lessons as possible.
+        const course = await db.course.findUnique({
+          where: { id: courseId },
+          select: { generatingLessonCount: true },
         });
-        if (!res.ok) {
-          console.error(
-            "[LESSON_CHAIN_FAILED]",
-            JSON.stringify({ lessonId: next.id, status: res.status })
-          );
-        }
+        const active = course?.generatingLessonCount ?? 0;
+        const slots = LESSON_GENERATION_CAP - active;
+        if (slots <= 0) return;
+
+        const pending = await db.lesson.findMany({
+          where: { courseId, lessonGenerationStatus: "PENDING" },
+          select: { id: true },
+          orderBy: [{ module: { order: "asc" } }, { order: "asc" }],
+          take: slots,
+        });
+        if (pending.length === 0) return;
+
+        await Promise.allSettled(
+          pending.map((l) =>
+            fetch(`${baseUrl}/api/courses/${slug}/lessons/${l.id}/generate`, {
+              method: "POST",
+              headers: { authorization: `Bearer ${process.env.CRON_SECRET!}` },
+            }).then((res) => {
+              if (!res.ok)
+                console.error(
+                  "[LESSON_CHAIN_FAILED]",
+                  JSON.stringify({ lessonId: l.id, status: res.status })
+                );
+            })
+          )
+        );
       } catch (e) {
         console.error("[LESSON_CHAIN_ERROR]", String(e));
       }
@@ -206,7 +222,8 @@ export async function POST(
     return Response.json({ status: "done" });
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    const exhausted = generationAttempts >= 3;
+    const isEmptyToolInput = message.startsWith("[EMPTY_TOOL_INPUT]");
+    const exhausted = !isEmptyToolInput && generationAttempts >= 3;
 
     await db.lesson.update({
       where: { id: lessonId },
@@ -214,12 +231,21 @@ export async function POST(
         lessonGenerationStatus: exhausted ? "FAILED" : "PENDING",
         claimedAt: null,
         lastGenerationError: message,
+        // Don't charge the attempt quota for empty tool inputs — model didn't really try.
+        ...(isEmptyToolInput ? { generationAttempts: { decrement: 1 } } : {}),
       },
     });
 
     console.error(
       "[LESSON_GENERATE_ERROR]",
-      JSON.stringify({ lessonId, courseId, attempt: generationAttempts, exhausted, message })
+      JSON.stringify({
+        lessonId,
+        courseId,
+        attempt: generationAttempts,
+        exhausted,
+        isEmptyToolInput,
+        message,
+      })
     );
 
     return Response.json(

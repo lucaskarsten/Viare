@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
 import { auth } from "@/lib/dev-auth";
 import { db } from "@/lib/db";
@@ -60,7 +60,14 @@ export default async function CoursePage({ params }: { params: Params }) {
         include: {
           lessons: {
             orderBy: { order: "asc" },
-            select: { id: true, slug: true, title: true, type: true, order: true },
+            select: {
+              id: true,
+              slug: true,
+              title: true,
+              type: true,
+              order: true,
+              lessonGenerationStatus: true,
+            },
           },
         },
       },
@@ -68,7 +75,8 @@ export default async function CoursePage({ params }: { params: Params }) {
     },
   });
 
-  if (!course || course.status !== "PUBLISHED") notFound();
+  if (!course) notFound();
+  if (course.status !== "PUBLISHED") redirect(`/courses/${slug}/generating`);
 
   const enrollment = session?.user?.id
     ? await db.enrollment.findUnique({
@@ -141,7 +149,7 @@ export default async function CoursePage({ params }: { params: Params }) {
           estimatedMinutes: lessonEstimatedMinutes(l.type),
           done,
           current,
-          locked: isLocked,
+          locked: isLocked || l.lessonGenerationStatus !== "READY",
         };
       }),
     };

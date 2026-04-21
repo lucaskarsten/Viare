@@ -115,7 +115,7 @@ export async function generateQuiz(input: QuizInput): Promise<QuizQuestions> {
   const { questions } = await callAnthropicJson({
     specName: "quiz",
     model: "claude-sonnet-4-6",
-    maxTokens: 2000,
+    maxTokens: 4000,
     system: buildSystemBlocks(),
     userMessage: buildUserMessage(input),
     tool: quizTool,

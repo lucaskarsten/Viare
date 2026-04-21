@@ -61,7 +61,9 @@ export default async function LessonPage({ params }: { params: Params }) {
   if (
     !lesson ||
     lesson.module.course.slug !== slug ||
-    lesson.module.course.status !== "PUBLISHED"
+    lesson.module.course.status === "DRAFT" ||
+    lesson.module.course.status === "ARCHIVED" ||
+    lesson.lessonGenerationStatus !== "READY" // RULE: AG-01
   ) {
     notFound();
   }
@@ -94,7 +96,7 @@ export default async function LessonPage({ params }: { params: Params }) {
 
   const [allLessons, courseModules, navProgress] = await Promise.all([
     db.lesson.findMany({
-      where: { module: { courseId: lesson.module.course.id } },
+      where: { module: { courseId: lesson.module.course.id }, lessonGenerationStatus: "READY" },
       orderBy: [{ module: { order: "asc" } }, { order: "asc" }],
       select: { id: true, title: true, moduleId: true },
     }),
@@ -107,7 +109,7 @@ export default async function LessonPage({ params }: { params: Params }) {
         order: true,
         lessons: {
           orderBy: { order: "asc" },
-          select: { id: true, title: true, type: true },
+          select: { id: true, title: true, type: true, lessonGenerationStatus: true },
         },
       },
     }),
@@ -132,6 +134,7 @@ export default async function LessonPage({ params }: { params: Params }) {
       title: l.title,
       type: l.type,
       completed: completedSet.has(l.id),
+      locked: l.lessonGenerationStatus !== "READY",
     })),
   }));
 
@@ -265,7 +268,6 @@ export default async function LessonPage({ params }: { params: Params }) {
           .replace(/^>\s?/gm, "") // unquote blockquotes
           .replace(/^#+\s*/, "") // drop heading markers
           .replace(/\[!(NOTE|TIP|WARNING|IMPORTANT|CAUTION)\]\s*/gi, "") // drop alert markers
-          .replace(/^[*_]+|[*_]+$/g, "") // trim wrapping emphasis
           .trim();
       })
       .filter(

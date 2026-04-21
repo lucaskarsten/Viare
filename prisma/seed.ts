@@ -874,13 +874,20 @@ async function main() {
 
   const dev = await db.user.upsert({
     where: { id: DEV_USER_ID },
-    update: { name: "Lucas Karsten", email: "dev@viare.local" },
+    update: { name: "Lucas Karsten", email: "dev@viare.local", ageConfirmedAt: new Date() },
     create: {
       id: DEV_USER_ID,
       email: "dev@viare.local",
       name: "Lucas Karsten",
       role: Role.STUDENT,
+      ageConfirmedAt: new Date(),
     },
+  });
+
+  // Confirm age for any real OAuth users already in the DB (dev environment only)
+  await db.user.updateMany({
+    where: { ageConfirmedAt: null },
+    data: { ageConfirmedAt: new Date() },
   });
 
   await db.userStreak.upsert({
@@ -952,7 +959,13 @@ async function main() {
         const content = LESSON_CONTENT[contentKey] ?? null;
         const lessonRow = await db.lesson.upsert({
           where: { moduleId_slug: { moduleId: mod.id, slug: l.slug } },
-          update: { title: l.title, type: l.type, order: l.order, content },
+          update: {
+            title: l.title,
+            type: l.type,
+            order: l.order,
+            content,
+            lessonGenerationStatus: "READY",
+          },
           create: {
             moduleId: mod.id,
             slug: l.slug,
@@ -960,6 +973,7 @@ async function main() {
             type: l.type,
             order: l.order,
             content,
+            lessonGenerationStatus: "READY",
           },
         });
 

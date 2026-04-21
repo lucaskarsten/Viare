@@ -86,6 +86,15 @@ export async function callAnthropicJson<T>(args: JsonArgs<T>): Promise<T> {
         response.content.map((b) => b.type).join(", ")
     );
   }
+  // Empty object means the model called the tool but produced no output (silent refusal/truncation).
+  // Throw a distinctive error so callers can retry without burning an attempt quota.
+  if (
+    toolBlock.input !== null &&
+    typeof toolBlock.input === "object" &&
+    Object.keys(toolBlock.input as object).length === 0
+  ) {
+    throw new Error(`[EMPTY_TOOL_INPUT] ${args.specName} tool returned no output`);
+  }
   // RULE: AI-01 — Zod validates every tool input.
   return args.schema.parse(toolBlock.input);
 }

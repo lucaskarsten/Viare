@@ -258,7 +258,7 @@ export async function generateTheoryLesson(
   return callAnthropicText({
     specName: "theory-lesson",
     model: "claude-sonnet-4-6",
-    maxTokens: 2000,
+    maxTokens: 8000,
     system: buildSystemBlocks(),
     userMessage: buildUserMessage(input),
   });

@@ -771,6 +771,11 @@
 .cnl-name {
   flex: 1;
 }
+.cnl-locked {
+  opacity: 0.35;
+  cursor: default;
+  pointer-events: none;
+}
 
 /* Tutor panel */
 .tutor {

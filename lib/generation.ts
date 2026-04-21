@@ -356,6 +356,7 @@ export async function generateCourse(
           db.lesson.create({
             data: {
               moduleId: dbModules[mi].id,
+              courseId: course.id,
               slug: toSlug(lesson.title, String(li + 1)),
               title: lesson.title,
               type: lesson.type,

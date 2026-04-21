@@ -142,7 +142,7 @@ export async function generateCaseStudyLesson(
   return callAnthropicText({
     specName: "case-study-lesson",
     model: "claude-sonnet-4-6",
-    maxTokens: 1500,
+    maxTokens: 4000,
     system: buildSystemBlocks(),
     userMessage: buildUserMessage(input),
   });

@@ -24,6 +24,7 @@ export async function GET(_req: Request, { params }: { params: Params }) {
               type: true,
               order: true,
               content: true,
+              lessonGenerationStatus: true,
             },
           },
         },
@@ -46,7 +47,7 @@ export async function GET(_req: Request, { params }: { params: Params }) {
   const totalLessons = allLessons.length;
   const completedLessons = allLessons.filter((l) => l.content !== null).length;
   const lastCompletedLesson = allLessons.filter((l) => l.content !== null).at(-1);
-  const firstLessonId = allLessons[0]?.id ?? null;
+  const firstLessonId = allLessons.find((l) => l.lessonGenerationStatus === "READY")?.id ?? null;
 
   return NextResponse.json({
     status: course.status,

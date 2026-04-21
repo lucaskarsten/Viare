@@ -1,4 +1,5 @@
 import { db } from "@/lib/db";
+import { LESSON_GENERATION_CAP } from "@/lib/generation-config";
 import { after } from "next/server";
 
 export const runtime = "nodejs";
@@ -51,6 +52,17 @@ export async function GET(req: Request) {
     `;
     stuckCount += Number(reclaimed);
 
+    // 2a. Promote PENDING lessons with complete content to READY (interrupted pipeline recovery).
+    // LENGTH guard: partial writes from mid-crash are always short; real content is 500+ chars.
+    await db.$executeRaw`
+      UPDATE "Lesson"
+      SET "lessonGenerationStatus" = 'READY'::"LessonGenerationStatus"
+      WHERE "courseId" = ${course.id}
+        AND "lessonGenerationStatus" = 'PENDING'::"LessonGenerationStatus"
+        AND content IS NOT NULL
+        AND LENGTH(content) >= 500
+    `;
+
     // 2. Retire exhausted lessons first so the reconcile reflects their removal
     await db.$executeRaw`
       UPDATE "Lesson"
@@ -94,8 +106,8 @@ export async function GET(req: Request) {
       if (recentClaim) continue;
     }
 
-    // 5. Pick up PENDING lessons up to the 2-slot cap
-    const slots = 2 - activeCount;
+    // 5. Pick up PENDING lessons up to the cap
+    const slots = LESSON_GENERATION_CAP - activeCount;
     if (slots > 0) {
       const pending = await db.lesson.findMany({
         where: { courseId: course.id, lessonGenerationStatus: "PENDING" },

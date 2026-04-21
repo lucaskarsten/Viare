@@ -142,7 +142,7 @@ export async function generateCtfLab(ctx: {
   return callAnthropicJson({
     specName: "lab-ctf",
     model: "claude-sonnet-4-6",
-    maxTokens: 3000,
+    maxTokens: 6000,
     system: buildSystemBlocks(),
     userMessage: buildUserMessage(ctx),
     tool: ctfLabTool,

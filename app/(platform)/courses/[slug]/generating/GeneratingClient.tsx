@@ -71,25 +71,14 @@ export default function GeneratingClient({
     doneRef.current = false;
     try {
       const res = await fetch(`/api/courses/${slug}/resume`, { method: "POST" });
-      if (!res.ok || !res.body) throw new Error("resume failed");
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        const lines = decoder.decode(value).split("\n").filter(Boolean);
-        for (const line of lines) {
-          try {
-            const event = JSON.parse(line);
-            if (event.type === "done" && event.courseSlug) {
-              router.push(`/courses/${event.courseSlug}/lessons/${data.firstLessonId ?? ""}`);
-              return;
-            }
-          } catch {}
-        }
-      }
-      // Stream ended — refresh progress
-      router.refresh();
+      if (!res.ok) throw new Error("resume failed");
+      // Resume is now non-blocking — the generate chain handles lessons via after().
+      // Switch to GENERATING state immediately so the poll loop shows progress.
+      setData((prev) => ({ ...prev, status: "GENERATING" }));
+      setStalled(false);
+      if (stalledTimerRef.current) clearTimeout(stalledTimerRef.current);
+      stalledTimerRef.current = setTimeout(() => setStalled(true), 45_000);
+      setResuming(false);
     } catch {
       setResuming(false);
     }

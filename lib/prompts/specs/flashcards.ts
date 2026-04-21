@@ -49,7 +49,7 @@ export async function generateFlashcards(input: FlashcardsInput): Promise<Flashc
   const { cards } = await callAnthropicJson({
     specName: "flashcards",
     model: "claude-haiku-4-5-20251001",
-    maxTokens: 1000,
+    maxTokens: 3000,
     userMessage: buildUserMessage(input),
     tool: flashcardsTool,
     schema: flashcardsOutputSchema,

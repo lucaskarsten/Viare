@@ -1,8 +1,10 @@
 import { auth } from "@/lib/dev-auth";
 import { db } from "@/lib/db";
-import { resumeCourse, type GenerationEvent } from "@/lib/generation";
+import { LESSON_GENERATION_CAP } from "@/lib/generation-config";
+import { after } from "next/server";
 
-export const maxDuration = 300;
+export const runtime = "nodejs";
+export const maxDuration = 30;
 
 export async function POST(_req: Request, { params }: { params: Promise<{ slug: string }> }) {
   const session = await auth();
@@ -17,35 +19,77 @@ export async function POST(_req: Request, { params }: { params: Promise<{ slug: 
 
   if (!course) return new Response("Not found", { status: 404 });
   if (course.createdById !== session.user.id) return new Response("Forbidden", { status: 403 });
-  const isResumable =
-    (course.status === "DRAFT" && course.requiresReview) || course.status === "GENERATING";
+
+  const isResumable = course.status === "DRAFT" || course.status === "GENERATING";
   if (!isResumable) {
     return new Response("Course is not in a resumable state", { status: 409 });
   }
 
-  const encoder = new TextEncoder();
-  const stream = new ReadableStream({
-    async start(controller) {
-      let cancelled = false;
-      function emit(event: GenerationEvent) {
-        if (cancelled) return;
-        try {
-          controller.enqueue(encoder.encode(JSON.stringify(event) + "\n"));
-        } catch {
-          cancelled = true;
-        }
-      }
-      await resumeCourse(course.id, session.user!.id!, emit);
-      if (!cancelled) controller.close();
+  // Reset course to GENERATING and clear advisory mutex (stuck GENERATING lessons abandoned)
+  await db.course.update({
+    where: { id: course.id },
+    data: {
+      status: "GENERATING",
+      requiresReview: false,
+      reviewReason: null,
+      generatingLessonCount: 0,
     },
-    cancel() {},
   });
 
-  return new Response(stream, {
-    headers: {
-      "Content-Type": "application/x-ndjson",
-      "Cache-Control": "no-cache",
-      "X-Accel-Buffering": "no",
+  // Reset stuck/failed lessons so the chain can pick them up again.
+  // Also reset generationAttempts so exhausted lessons get another shot on resume.
+  await db.lesson.updateMany({
+    where: {
+      module: { courseId: course.id },
+      lessonGenerationStatus: { in: ["FAILED", "GENERATING"] },
+    },
+    data: {
+      lessonGenerationStatus: "PENDING",
+      claimedAt: null,
+      lastGenerationError: null,
+      generationAttempts: 0,
     },
   });
+
+  // Trigger the first pending lesson after this response is sent.
+  // The after() chain in the generate route handles the rest.
+  after(async () => {
+    if (!process.env.CRON_SECRET) {
+      console.error("[RESUME_CHAIN_BROKEN] CRON_SECRET is not set — lesson chain will not start.");
+      return;
+    }
+    try {
+      const baseUrl =
+        process.env.NEXT_PUBLIC_APP_URL ??
+        (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+
+      // Flood all slots immediately on resume so generation starts at full parallelism.
+      const pending = await db.lesson.findMany({
+        where: { module: { courseId: course.id }, lessonGenerationStatus: "PENDING" },
+        select: { id: true },
+        orderBy: [{ module: { order: "asc" } }, { order: "asc" }],
+        take: LESSON_GENERATION_CAP,
+      });
+      if (pending.length === 0) return;
+
+      await Promise.allSettled(
+        pending.map((l) =>
+          fetch(`${baseUrl}/api/courses/${slug}/lessons/${l.id}/generate`, {
+            method: "POST",
+            headers: { authorization: `Bearer ${process.env.CRON_SECRET!}` },
+          }).then((res) => {
+            if (!res.ok)
+              console.error(
+                "[RESUME_CHAIN_FAILED]",
+                JSON.stringify({ lessonId: l.id, status: res.status })
+              );
+          })
+        )
+      );
+    } catch (e) {
+      console.error("[RESUME_CHAIN_ERROR]", String(e));
+    }
+  });
+
+  return Response.json({ status: "resumed" });
 }

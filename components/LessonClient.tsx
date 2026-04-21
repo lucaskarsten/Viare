@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { Children, cloneElement, isValidElement, type ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
 import type { Components } from "react-markdown";
 import rehypeRaw from "rehype-raw";
+import rehypeSanitize from "rehype-sanitize";
 import remarkGfm from "remark-gfm";
 import remarkDirective from "remark-directive";
 import { remarkBlocks } from "@/lib/remark-blocks";
@@ -80,6 +82,7 @@ export type LessonClientProps = {
       title: string;
       type: string;
       completed: boolean;
+      locked?: boolean;
     }>;
   }>;
 };
@@ -151,7 +154,7 @@ const lessonMarkdownComponents: Components = {
           children?: Array<{ type: string; value?: string }>;
         }>;
       }
-    )?.children?.[0];
+    )?.children?.find((c) => c.type === "element");
     if (firstPara?.type === "element" && firstPara.tagName === "p") {
       const firstText = firstPara.children?.[0];
       if (firstText?.type === "text") {
@@ -229,7 +232,19 @@ export default function LessonClient({
   const t = useTranslations("lesson");
   const tEnrich = useTranslations("enrich");
   const tProgress = useTranslations("progress");
+  const router = useRouter();
   const isLg = useMediaQuery("(min-width: 1024px)");
+
+  async function handleNext() {
+    if (!lesson.completed) {
+      await fetch("/api/courses/progress", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ lessonId: lesson.id, courseId: lesson.courseId }),
+      }).catch(() => {});
+    }
+    router.push(nextLessonHref);
+  }
   const [showTutor, setShowTutor] = useState(false);
   const [showEnrich, setShowEnrich] = useState(false);
   // Hydration guard — server/client localStorage mismatch would otherwise flash
@@ -389,18 +404,27 @@ export default function LessonClient({
               <span className="cnm-num">{String(mod.order + 1).padStart(2, "0")}</span>
               {mod.title}
             </div>
-            {mod.lessons.map((l) => (
-              <Link
-                key={l.id}
-                href={`/courses/${course.slug}/lessons/${l.id}`}
-                className={`cnl${l.id === lesson.id ? " cnl-current" : ""}${l.completed ? " cnl-done" : ""}`}
-              >
-                <span className="cnl-dot">
-                  {l.completed ? "✓" : l.id === lesson.id ? "▸" : "○"}
+            {mod.lessons.map((l) => {
+              const isLocked = l.locked && l.id !== lesson.id;
+              const cls = `cnl${l.id === lesson.id ? " cnl-current" : ""}${l.completed ? " cnl-done" : ""}${isLocked ? " cnl-locked" : ""}`;
+              const inner = (
+                <>
+                  <span className="cnl-dot">
+                    {l.completed ? "✓" : l.id === lesson.id ? "▸" : "○"}
+                  </span>
+                  <span className="cnl-name">{l.title}</span>
+                </>
+              );
+              return isLocked ? (
+                <span key={l.id} className={cls}>
+                  {inner}
                 </span>
-                <span className="cnl-name">{l.title}</span>
-              </Link>
-            ))}
+              ) : (
+                <Link key={l.id} href={`/courses/${course.slug}/lessons/${l.id}`} className={cls}>
+                  {inner}
+                </Link>
+              );
+            })}
           </div>
         ))}
       </div>
@@ -603,7 +627,7 @@ export default function LessonClient({
                     <div className="md-body">
                       <ReactMarkdown
                         remarkPlugins={[remarkGfm, remarkDirective, remarkBlocks]}
-                        rehypePlugins={[rehypeRaw]}
+                        rehypePlugins={[rehypeRaw, rehypeSanitize]}
                         components={lessonMarkdownComponents}
                       >
                         {lesson.content}
@@ -620,7 +644,7 @@ export default function LessonClient({
                     <div className="md-body">
                       <ReactMarkdown
                         remarkPlugins={[remarkGfm, remarkDirective, remarkBlocks]}
-                        rehypePlugins={[rehypeRaw]}
+                        rehypePlugins={[rehypeRaw, rehypeSanitize]}
                         components={lessonMarkdownComponents}
                       >
                         {lesson.content}
@@ -661,9 +685,9 @@ export default function LessonClient({
                 {t("backToCourse")}
               </Link>
             )}
-            <Link href={nextLessonHref} className="primary">
+            <button onClick={handleNext} className="primary">
               {t("next")}
-            </Link>
+            </button>
           </div>
         </article>
 
