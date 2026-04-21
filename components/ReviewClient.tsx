@@ -2,6 +2,17 @@
 import { useState, useEffect, useCallback } from "react";
 import { useTranslations } from "next-intl";
 
+function renderMd(text: string): React.ReactNode[] {
+  return text.split(/(\*\*[^*]+\*\*|\*[^*]+\*|\n)/g).map((part, i) => {
+    if (part.startsWith("**") && part.endsWith("**"))
+      return <strong key={i}>{part.slice(2, -2)}</strong>;
+    if (part.startsWith("*") && part.endsWith("*"))
+      return <em key={i}>{part.slice(1, -1)}</em>;
+    if (part === "\n") return <br key={i} />;
+    return part;
+  });
+}
+
 type ReviewCardData = {
   id: string;
   front: string;
@@ -417,7 +428,7 @@ export default function ReviewClient({
               {t("question")}
             </div>
             <div className="text-[28px] leading-[1.3] tracking-[-0.015em] font-medium text-balance text-foreground">
-              {card.front}
+              {renderMd(card.front)}
             </div>
             {revealed && (
               <>
@@ -426,7 +437,7 @@ export default function ReviewClient({
                   {t("answer")}
                 </div>
                 <div className="text-[18px] leading-[1.55] text-foreground/80 text-balance animate-[rsAnswerIn_0.3s_ease-out]">
-                  {card.back}
+                  {renderMd(card.back)}
                 </div>
               </>
             )}
