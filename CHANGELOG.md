@@ -1,5 +1,40 @@
 # Changelog
 
+## [0.6.0](https://github.com/lucaskarsten/Viare/compare/kali-platform-v0.5.0...kali-platform-v0.6.0) (2026-04-21)
+
+
+### Features
+
+* **access:** replace course finalizedAt gate with per-lesson READY status ([#45](https://github.com/lucaskarsten/Viare/issues/45)) ([e0cfc55](https://github.com/lucaskarsten/Viare/commit/e0cfc55db93ac0076461744a6d79f5f0ad512515))
+* **classifier:** move domain rules to cached system prompt ([2b1aa8d](https://github.com/lucaskarsten/Viare/commit/2b1aa8def366643f5b156e22480747b0087de9e5))
+* course overview tab, Python sandbox, lesson Resumo section, flashcards ([#46](https://github.com/lucaskarsten/Viare/issues/46)) ([6b6d267](https://github.com/lucaskarsten/Viare/commit/6b6d26750b009a74b71d038cdfb621b301c9eb7b))
+* **flashcards:** render markdown bold, italic, and newlines in session card UI ([5510097](https://github.com/lucaskarsten/Viare/commit/55100975e0279ae4ed8d92bf1de7676c6c59bfa2))
+* **generating:** allow starting mid-generation, stall detection, hourly cron ([54f8084](https://github.com/lucaskarsten/Viare/commit/54f8084b9646d2bcac3e25815c5ff3ab2e10d707))
+* **generating:** resume interrupted courses and show failure reason ([#42](https://github.com/lucaskarsten/Viare/issues/42)) ([951e592](https://github.com/lucaskarsten/Viare/commit/951e592fe634da40c2088cac5421cedf5979f54c))
+* **generation:** chunked per-lesson generation with finalize gate and write-path guards ([#44](https://github.com/lucaskarsten/Viare/issues/44)) ([2c7bbc3](https://github.com/lucaskarsten/Viare/commit/2c7bbc3454aba778a88b999f43d7c5470d02a476))
+* **marketing:** rebuild landing page aligned with product ([#29](https://github.com/lucaskarsten/Viare/issues/29)) ([5125e3e](https://github.com/lucaskarsten/Viare/commit/5125e3ecc86a0edf049b007f6a76d6786a627d6f))
+* parallel lesson generation with concurrency control and status gating ([#47](https://github.com/lucaskarsten/Viare/issues/47)) ([d43884e](https://github.com/lucaskarsten/Viare/commit/d43884ea4a42707a3cb518979e4aede3c8b6a37d))
+* PDF certificate download, real flashcards, and after() for generation ([#49](https://github.com/lucaskarsten/Viare/issues/49)) ([4793ba6](https://github.com/lucaskarsten/Viare/commit/4793ba6f1142caac3f384518264978b055b9b499))
+* **prompts:** add pedagogical Bloom anchors to all lesson-type specs ([#40](https://github.com/lucaskarsten/Viare/issues/40)) ([3fd3eca](https://github.com/lucaskarsten/Viare/commit/3fd3eca940ebe1c126d8fbf86bd5291007913bcd))
+* **ui:** responsive layout for mobile and tablet ([#32](https://github.com/lucaskarsten/Viare/issues/32)) ([658208a](https://github.com/lucaskarsten/Viare/commit/658208a7e262365ef17f82581d744569fb26feba))
+
+
+### Bug Fixes
+
+* **build:** run prisma migrate deploy only on production ([#33](https://github.com/lucaskarsten/Viare/issues/33)) ([074c7b7](https://github.com/lucaskarsten/Viare/commit/074c7b70d487df51eb46904ecc1e6a3bc535dca9))
+* **certificate:** use real lesson completion gate and add estimatedHours ([63af37b](https://github.com/lucaskarsten/Viare/commit/63af37b65ab936a8e8e3ad34baba7b1d10d491b0))
+* **db:** remove url/directUrl from schema.prisma datasource (Prisma 7) ([24da88b](https://github.com/lucaskarsten/Viare/commit/24da88bbfd5189f101b34f8a63a480b3e91405f4))
+* **db:** use direct URL for migrations to avoid advisory lock contention ([#34](https://github.com/lucaskarsten/Viare/issues/34)) ([d6eba8f](https://github.com/lucaskarsten/Viare/commit/d6eba8f68ae9ca33dc3d4a0b2b6e86b06da23f37))
+* DIRECT_URL for migrations and Prisma 7 config alignment ([#48](https://github.com/lucaskarsten/Viare/issues/48)) ([70c6809](https://github.com/lucaskarsten/Viare/commit/70c6809df2187b31da93aba54e9da453425e259a))
+* **generate:** log explicitly when CRON_SECRET missing breaks lesson chain ([238bf50](https://github.com/lucaskarsten/Viare/commit/238bf5054a7b470786347bc269dc445096c59e65))
+* **generating:** render markdown blocks in preview and improve outline diversity ([#39](https://github.com/lucaskarsten/Viare/issues/39)) ([e243a23](https://github.com/lucaskarsten/Viare/commit/e243a23abce097046e4eaa59495c04ef2b5bfa0e))
+* **generating:** stop polling on DRAFT and fix sidebar 404 for non-published courses ([#41](https://github.com/lucaskarsten/Viare/issues/41)) ([f4a0da9](https://github.com/lucaskarsten/Viare/commit/f4a0da9acfeb347e01c38b6988d0b86ebbba5cec))
+* **generation:** align DEEP outline constraints and add API error logging ([#37](https://github.com/lucaskarsten/Viare/issues/37)) ([c3ab7b2](https://github.com/lucaskarsten/Viare/commit/c3ab7b2d0bc0b0b9e52e22ae9bc4b5a0e8122491))
+* **lessons:** render raw HTML blocks and unlock labs for all course scopes ([#36](https://github.com/lucaskarsten/Viare/issues/36)) ([62f866e](https://github.com/lucaskarsten/Viare/commit/62f866e98f40919718e8da3c2568ccfb3862d288))
+* **outline:** relax DEEP PRACTICE max and total lesson cap ([#38](https://github.com/lucaskarsten/Viare/issues/38)) ([1785235](https://github.com/lucaskarsten/Viare/commit/17852350a4e3dba3fd5b8aaa0917af079ab09f9a))
+* **resume:** allow resuming courses stuck in GENERATING status ([#43](https://github.com/lucaskarsten/Viare/issues/43)) ([4e5b972](https://github.com/lucaskarsten/Viare/commit/4e5b9727ae461e2cad6b55c01c242aea697a0803))
+* **sandbox:** move Pyodide to Web Worker to prevent tab crash ([d088b3d](https://github.com/lucaskarsten/Viare/commit/d088b3d81ea97c0cc159288b121dd2bac242f012))
+
 ## [0.5.0](https://github.com/lucaskarsten/Viare/compare/kali-platform-v0.4.0...kali-platform-v0.5.0) (2026-04-20)
 
 
