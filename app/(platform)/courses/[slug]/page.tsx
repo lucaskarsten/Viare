@@ -233,7 +233,7 @@ export default async function CoursePage({ params }: { params: Params }) {
                 <strong className="font-medium tabular-nums text-foreground">{moduleCount}</strong>
               </li>
             </ul>
-            {progressPct === 100 && (
+            {enrollment !== null && totalLessons > 0 && completedLessons >= totalLessons && (
               <a
                 href={`/api/courses/${slug}/certificate`}
                 download={`certificado-${slug}.pdf`}

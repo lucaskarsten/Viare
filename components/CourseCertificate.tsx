@@ -103,9 +103,15 @@ type Props = {
   userName: string;
   courseTitle: string;
   completionDate: Date;
+  estimatedHours: number;
 };
 
-export default function CourseCertificate({ userName, courseTitle, completionDate }: Props) {
+export default function CourseCertificate({
+  userName,
+  courseTitle,
+  completionDate,
+  estimatedHours,
+}: Props) {
   return (
     <Document>
       <Page size="A4" orientation="landscape" style={styles.page}>
@@ -120,7 +126,9 @@ export default function CourseCertificate({ userName, courseTitle, completionDat
           <Text style={styles.userName}>{userName}</Text>
           <Text style={styles.forCourse}>pela conclusão do curso</Text>
           <Text style={styles.courseTitle}>{courseTitle}</Text>
-          <Text style={styles.dateText}>{formatDate(completionDate)}</Text>
+          <Text style={styles.dateText}>
+            {formatDate(completionDate)} · Carga horária: {estimatedHours}h
+          </Text>
         </View>
 
         <View style={styles.footer}>
