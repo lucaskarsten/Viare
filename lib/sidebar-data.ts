@@ -9,7 +9,7 @@ export type SidebarUser = {
 
 export type SidebarData = {
   user: SidebarUser;
-  enrollments: Array<{ id: string; course: { slug: string; title: string } }>;
+  enrollments: Array<{ id: string; course: { slug: string; title: string; status: string } }>;
   currentStreak: number;
   enrollmentCount: number;
   catalogCount: number;
@@ -37,7 +37,7 @@ export async function getSidebarData(user: SidebarUser): Promise<SidebarData> {
             where: { userId, status: { not: "ABANDONED" } },
             orderBy: { lastAccessedAt: "desc" },
             take: 5,
-            include: { course: { select: { slug: true, title: true } } },
+            include: { course: { select: { slug: true, title: true, status: true } } },
           })
         : [],
       userId ? db.enrollment.count({ where: { userId, status: { not: "ABANDONED" } } }) : 0,
@@ -54,7 +54,7 @@ export async function getSidebarData(user: SidebarUser): Promise<SidebarData> {
     user,
     enrollments: enrollments.map((e) => ({
       id: e.id,
-      course: { slug: e.course.slug, title: e.course.title },
+      course: { slug: e.course.slug, title: e.course.title, status: e.course.status },
     })),
     currentStreak: streakData?.currentStreak ?? 0,
     enrollmentCount,

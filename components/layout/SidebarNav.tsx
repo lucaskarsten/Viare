@@ -10,7 +10,7 @@ const DOT_COLORS = ["#c97a4a", "#8a9a5b", "#6b7a8f", "#b8a06e", "#7a5a8f"];
 
 type Enrollment = {
   id: string;
-  course: { slug: string; title: string };
+  course: { slug: string; title: string; status: string };
 };
 
 type NavUser = {
@@ -125,8 +125,12 @@ export default function SidebarNav({
             {enrollments.map((enrollment, i) => (
               <NavItem
                 key={enrollment.id}
-                href={`/courses/${enrollment.course.slug}`}
-                active={pathname === `/courses/${enrollment.course.slug}`}
+                href={
+                  enrollment.course.status === "PUBLISHED"
+                    ? `/courses/${enrollment.course.slug}`
+                    : `/courses/${enrollment.course.slug}/generating`
+                }
+                active={pathname.startsWith(`/courses/${enrollment.course.slug}`)}
                 label={enrollment.course.title}
                 dot={DOT_COLORS[i % DOT_COLORS.length]}
               />

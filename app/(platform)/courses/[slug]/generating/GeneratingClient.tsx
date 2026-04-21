@@ -76,6 +76,8 @@ export default function GeneratingClient({
         if (json.status === "PUBLISHED" && json.firstLessonId) {
           doneRef.current = true;
           setTimeout(() => router.push(`/courses/${slug}/lessons/${json.firstLessonId}`), 2500);
+        } else if (json.status === "DRAFT") {
+          doneRef.current = true;
         }
       } catch {
         // network error — retry next cycle
