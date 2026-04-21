@@ -468,3 +468,122 @@ export async function generateCourse(
     emit({ type: "error", message });
   }
 }
+
+export async function resumeCourse(
+  courseId: string,
+  userId: string,
+  emit: (event: GenerationEvent) => void
+) {
+  try {
+    const course = await db.course.findUnique({
+      where: { id: courseId },
+      include: {
+        modules: {
+          orderBy: { order: "asc" },
+          include: { lessons: { orderBy: { order: "asc" } } },
+        },
+      },
+    });
+
+    if (!course || course.createdById !== userId) {
+      emit({ type: "error", message: "Curso não encontrado." });
+      return;
+    }
+    if (course.status !== "DRAFT" || !course.requiresReview) {
+      emit({ type: "error", message: "Este curso não pode ser retomado." });
+      return;
+    }
+
+    // Reset course to GENERATING — resume is idempotent (skips lessons with content)
+    await db.course.update({
+      where: { id: courseId },
+      data: { status: "GENERATING", requiresReview: false, reviewReason: null },
+    });
+    await db.lesson.updateMany({
+      where: { module: { courseId }, generationFailed: true },
+      data: { generationFailed: false },
+    });
+
+    const domainContext = await classifyDomain({ topic: course.title });
+    const maturityRating = course.maturityRating as "GENERAL" | "MATURE";
+    const language = course.language ?? "pt";
+    const topic = course.generationPrompt?.split("\n")[0] ?? course.title;
+
+    const generatedTextParts: string[] = [];
+    let lessonOrdinal = 0;
+
+    for (let mi = 0; mi < course.modules.length; mi++) {
+      const mod = course.modules[mi];
+      for (let li = 0; li < mod.lessons.length; li++) {
+        const dbLesson = mod.lessons[li];
+        const currentOrdinal = lessonOrdinal++;
+
+        if (dbLesson.content !== null) {
+          generatedTextParts.push(dbLesson.content);
+          continue;
+        }
+
+        emit({ type: "lesson_start", moduleIndex: mi, lessonIndex: li, title: dbLesson.title });
+
+        const generator = LESSON_GENERATORS[dbLesson.type] ?? LESSON_GENERATORS.THEORY!;
+        await generator({
+          language,
+          topic,
+          moduleTitle: mod.title,
+          lessonTitle: dbLesson.title,
+          lessonId: dbLesson.id,
+          domainContext,
+          generatedTextParts,
+          maturityRating,
+          labVariant: undefined,
+          lessonOrdinal: currentOrdinal,
+        });
+
+        emit({ type: "lesson_done", moduleIndex: mi, lessonIndex: li });
+      }
+    }
+
+    // Classify + publish (same logic as generateCourse)
+    const allGeneratedText = generatedTextParts.join("\n\n");
+    const classification = classifyGeneratedContent(allGeneratedText);
+
+    if (classification.verdict === "blocked") {
+      await db.course.update({
+        where: { id: courseId },
+        data: { status: "DRAFT", requiresReview: true },
+      });
+      emit({ type: "error", message: SAFETY_MESSAGES.content_blocked });
+      return;
+    }
+
+    if (classification.verdict === "restricted") {
+      await db.course.update({
+        where: { id: courseId },
+        data: { status: "DRAFT", requiresReview: true, reviewReason: "CONTENT_RESTRICTED" },
+      });
+      emit({ type: "review_required", courseId });
+      return;
+    }
+
+    const failedLessonCount = await db.lesson.count({
+      where: { module: { courseId }, generationFailed: true },
+    });
+    if (failedLessonCount > 0) {
+      await db.course.update({
+        where: { id: courseId },
+        data: { status: "DRAFT", requiresReview: true, reviewReason: "GENERATION_INCOMPLETE" },
+      });
+      emit({ type: "review_required", courseId });
+      return;
+    }
+
+    await db.course.update({
+      where: { id: courseId },
+      data: { status: "PUBLISHED" },
+    });
+    emit({ type: "done", courseSlug: course.slug, courseId });
+  } catch (err) {
+    console.error("[RESUME_COURSE_ERROR]", err instanceof Error ? err.message : String(err));
+    emit({ type: "error", message: "Erro ao retomar a geração." });
+  }
+}

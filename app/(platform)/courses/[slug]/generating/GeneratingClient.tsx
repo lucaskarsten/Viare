@@ -32,6 +32,8 @@ type ProgressData = {
   completedLessons: number;
   firstLessonId: string | null;
   previewLesson: { id: string; title: string; contentPreview: string } | null;
+  reviewReason?: string | null;
+  requiresReview?: boolean;
 };
 
 export default function GeneratingClient({
@@ -46,6 +48,8 @@ export default function GeneratingClient({
   const [elapsed, setElapsed] = useState(0);
   const doneRef = useRef(false);
   const [enrichStatus, setEnrichStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
+  const [resuming, setResuming] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   async function handleEnrich() {
     setEnrichStatus("loading");
@@ -56,6 +60,48 @@ export default function GeneratingClient({
       router.refresh();
     } catch {
       setEnrichStatus("error");
+    }
+  }
+
+  async function handleResume() {
+    setResuming(true);
+    doneRef.current = false;
+    try {
+      const res = await fetch(`/api/courses/${slug}/resume`, { method: "POST" });
+      if (!res.ok || !res.body) throw new Error("resume failed");
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        const lines = decoder.decode(value).split("\n").filter(Boolean);
+        for (const line of lines) {
+          try {
+            const event = JSON.parse(line);
+            if (event.type === "done" && event.courseSlug) {
+              router.push(`/courses/${event.courseSlug}/lessons/${data.firstLessonId ?? ""}`);
+              return;
+            }
+          } catch {}
+        }
+      }
+      // Stream ended — refresh progress
+      router.refresh();
+    } catch {
+      setResuming(false);
+    }
+  }
+
+  async function handleDelete() {
+    setDeleting(true);
+    try {
+      const res = await fetch(`/api/courses/${slug}`, { method: "DELETE" });
+      if (!res.ok) throw new Error("delete failed");
+      const json = await res.json();
+      const topicParam = json.topic ? `?topic=${encodeURIComponent(json.topic)}` : "";
+      router.push(`/courses/generate${topicParam}`);
+    } catch {
+      setDeleting(false);
     }
   }
 
@@ -186,12 +232,31 @@ export default function GeneratingClient({
             </div>
           )}
           {isFailed && (
-            <span className="text-[13px] text-muted-foreground">
-              Geração interrompida para revisão.{" "}
-              <a href="/dashboard" className="text-foreground underline hover:no-underline">
-                Ir à biblioteca
-              </a>
-            </span>
+            <div className="flex flex-col gap-3">
+              <p className="text-[13px] text-muted-foreground m-0">
+                {data.reviewReason === "GENERATION_INCOMPLETE"
+                  ? `${data.completedLessons} de ${data.totalLessons} aulas foram geradas. O modelo recusou algumas aulas — provavelmente por conteúdo histórico sensível. Você pode continuar de onde parou ou reiniciar.`
+                  : data.reviewReason === "CONTENT_RESTRICTED"
+                    ? "O conteúdo gerado foi sinalizado pelo sistema de revisão antes de ser publicado."
+                    : "Geração interrompida para revisão."}
+              </p>
+              <div className="flex gap-2 flex-wrap">
+                <button
+                  onClick={handleResume}
+                  disabled={resuming || deleting}
+                  className="text-[13px] px-3 py-1.5 rounded-md bg-foreground text-background hover:opacity-80 disabled:opacity-40 transition-opacity"
+                >
+                  {resuming ? "Continuando…" : "Continuar de onde parou"}
+                </button>
+                <button
+                  onClick={handleDelete}
+                  disabled={resuming || deleting}
+                  className="text-[13px] px-3 py-1.5 rounded-md border border-border text-muted-foreground hover:text-foreground disabled:opacity-40 transition-colors"
+                >
+                  {deleting ? "Apagando…" : "Reiniciar do zero"}
+                </button>
+              </div>
+            </div>
           )}
         </div>
       </div>

@@ -68,6 +68,8 @@ export async function GET(_req: Request, { params }: { params: Params }) {
     totalLessons,
     completedLessons,
     firstLessonId,
+    requiresReview: course.requiresReview,
+    reviewReason: course.reviewReason ?? null,
     previewLesson: lastCompletedLesson
       ? {
           id: lastCompletedLesson.id,
