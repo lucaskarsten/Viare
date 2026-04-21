@@ -50,6 +50,9 @@ export default function GeneratingClient({
   const [enrichStatus, setEnrichStatus] = useState<"idle" | "loading" | "done" | "error">("idle");
   const [resuming, setResuming] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [stalled, setStalled] = useState(false);
+  const stalledTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const lastCompletedRef = useRef(initialData.completedLessons);
 
   async function handleEnrich() {
     setEnrichStatus("loading");
@@ -119,24 +122,39 @@ export default function GeneratingClient({
         if (!res.ok) return;
         const json: ProgressData = await res.json();
         setData(json);
-        if (json.status === "PUBLISHED" && json.firstLessonId) {
+
+        if (json.status === "PUBLISHED" || json.status === "DRAFT") {
           doneRef.current = true;
-          setTimeout(() => router.push(`/courses/${slug}/lessons/${json.firstLessonId}`), 2500);
-        } else if (json.status === "DRAFT") {
-          doneRef.current = true;
+          if (stalledTimerRef.current) clearTimeout(stalledTimerRef.current);
+          return;
+        }
+
+        // Stall detection: reset timer whenever a new lesson completes
+        if (json.completedLessons > lastCompletedRef.current) {
+          lastCompletedRef.current = json.completedLessons;
+          setStalled(false);
+          if (stalledTimerRef.current) clearTimeout(stalledTimerRef.current);
+          stalledTimerRef.current = setTimeout(() => setStalled(true), 45_000);
         }
       } catch {
         // network error — retry next cycle
       }
     };
 
+    // Start stall timer on mount
+    stalledTimerRef.current = setTimeout(() => setStalled(true), 45_000);
+
     const interval = setInterval(poll, 2000);
-    return () => clearInterval(interval);
-  }, [slug, router]);
+    return () => {
+      clearInterval(interval);
+      if (stalledTimerRef.current) clearTimeout(stalledTimerRef.current);
+    };
+  }, [slug]);
 
   const isDone = data.status === "PUBLISHED";
   const isFailed = data.status === "DRAFT";
   const isGenerating = !isDone && !isFailed;
+  const firstLessonReady = data.completedLessons > 0 && !!data.firstLessonId;
   const pct =
     data.totalLessons > 0 ? Math.round((data.completedLessons / data.totalLessons) * 100) : 0;
 
@@ -185,8 +203,8 @@ export default function GeneratingClient({
 
         {/* Status line */}
         <div className="flex items-center gap-2.5 mt-3 min-h-[24px]">
-          {isGenerating && (
-            <>
+          {isGenerating && !stalled && (
+            <div className="flex items-center gap-2.5 w-full">
               <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse shrink-0" />
               <span className="font-mono text-[12px] text-muted-foreground">
                 {activeIndex >= 0 && allLessons[activeIndex]
@@ -196,13 +214,43 @@ export default function GeneratingClient({
               <span className="ml-auto font-mono text-[11px] text-muted-foreground">
                 {elapsed}s
               </span>
-            </>
+              {firstLessonReady && (
+                <a
+                  href={`/courses/${slug}/lessons/${data.firstLessonId}`}
+                  className="ml-2 bg-foreground text-background px-3 py-1.5 rounded text-[12px] font-medium no-underline transition-opacity hover:opacity-90 shrink-0"
+                >
+                  Iniciar aula 1 →
+                </a>
+              )}
+            </div>
+          )}
+          {isGenerating && stalled && (
+            <div className="flex items-center gap-3 w-full flex-wrap">
+              <span className="font-mono text-[12px] text-muted-foreground">
+                A geração parece ter travado.
+              </span>
+              <div className="ml-auto flex gap-2 flex-wrap">
+                {firstLessonReady && (
+                  <a
+                    href={`/courses/${slug}/lessons/${data.firstLessonId}`}
+                    className="bg-foreground text-background px-3 py-1.5 rounded text-[13px] font-medium no-underline transition-opacity hover:opacity-90"
+                  >
+                    Iniciar aula 1 →
+                  </a>
+                )}
+                <button
+                  onClick={handleResume}
+                  disabled={resuming}
+                  className="text-[13px] px-3 py-1.5 rounded-md border border-border text-muted-foreground hover:text-foreground disabled:opacity-40 transition-colors bg-transparent cursor-pointer font-[inherit]"
+                >
+                  {resuming ? "Retomando…" : "Retomar geração"}
+                </button>
+              </div>
+            </div>
           )}
           {isDone && (
             <div className="flex items-center gap-3 w-full">
-              <span className="font-mono text-[12px] text-accent">
-                ✓ Tudo pronto — redirecionando…
-              </span>
+              <span className="font-mono text-[12px] text-accent">✓ Tudo pronto</span>
               <div className="ml-auto flex gap-2">
                 <a
                   href={`/courses/${slug}/lessons/${data.firstLessonId}`}
@@ -326,11 +374,6 @@ export default function GeneratingClient({
                   {data.previewLesson.contentPreview}
                 </ReactMarkdown>
               </div>
-              {isGenerating && (
-                <p className="mt-5 text-[12px] text-muted-foreground/50 italic font-mono">
-                  Conteúdo completo disponível após a geração concluir.
-                </p>
-              )}
             </div>
           ) : (
             /* Skeleton while first lesson generates */
