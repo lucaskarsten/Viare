@@ -13,7 +13,8 @@ const DEV_SESSION: Session = {
 };
 
 export async function auth(): Promise<Session | null> {
-  if (process.env.SKIP_AUTH === "true") {
+  // Nunca em produção: SKIP_AUTH esquecido num deploy abriria a conta para qualquer um.
+  if (process.env.SKIP_AUTH === "true" && process.env.NODE_ENV !== "production") {
     return DEV_SESSION;
   }
   return realAuth();

@@ -108,7 +108,7 @@ O seed popula:
 npm run dev
 ```
 
-Em desenvolvimento, `lib/dev-auth.ts` autentica automaticamente como `Lucas Karsten` (`dev-preview-user`) sem passar pelo OAuth. Em produção o fluxo é o Auth.js real.
+Em desenvolvimento, com `SKIP_AUTH=true`, `lib/dev-auth.ts` autentica como o usuário `Dev Preview` (`dev-preview-user`) sem passar pelo OAuth. Em produção o bypass é ignorado e o fluxo é o Auth.js real.
 
 ---
 
